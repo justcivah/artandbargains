@@ -39,21 +39,21 @@ const ContactSection = () => {
         <div className="contact-features">
           <div className="contact-feature">
             <div className="feature-icon">
-              <i className="icon-consultation"></i>
+              <span className="icon-consultation"></span>
             </div>
             <h3>Personal Consultation</h3>
             <p>Schedule a private appointment with our art consultants</p>
           </div>
           <div className="contact-feature">
             <div className="feature-icon">
-              <i className="icon-custom"></i>
+              <span className="icon-custom"></span>
             </div>
             <h3>Custom Orders</h3>
             <p>Inquire about custom pieces and special commissions</p>
           </div>
           <div className="contact-feature">
             <div className="feature-icon">
-              <i className="icon-delivery"></i>
+              <span className="icon-delivery"></span>
             </div>
             <h3>White Glove Delivery</h3>
             <p>Learn about our premium delivery and installation service</p>
