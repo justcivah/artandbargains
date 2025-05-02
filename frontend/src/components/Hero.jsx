@@ -46,9 +46,6 @@ const Hero = () => {
         </div>
       </div>
       <div className="hero-scroll-indicator">
-        <div className="mouse">
-          <div className="wheel"></div>
-        </div>
         <div className="arrow-container">
           <div className="arrow"></div>
         </div>
