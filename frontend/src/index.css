@@ -1,68 +1,262 @@
+/* index.css - Base styles for the entire application */
+
+/* Import fonts */
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+/* CSS Reset */
+*,
+*::before,
+*::after {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+	/* Color palette */
+	--primary-color: #1a1a1a;
+	--secondary-color: #a78c68;
+	--accent-color: #dcd0c0;
+	--light-color: #f5f5f5;
+	--dark-color: #262626;
+	--text-color: #333333;
+	--text-light: #f5f5f5;
+	--text-muted: #777777;
+	--background-color: #ffffff;
+	--error-color: #d32f2f;
+	--success-color: #388e3c;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+	/* Typography */
+	--heading-font: 'Playfair Display', serif;
+	--body-font: 'Montserrat', sans-serif;
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	/* Spacing */
+	--spacing-xs: 0.5rem;
+	--spacing-sm: 1rem;
+	--spacing-md: 2rem;
+	--spacing-lg: 3rem;
+	--spacing-xl: 5rem;
+
+	/* Shadows */
+	--shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+	--shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+	--shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+
+	/* Borders */
+	--border-radius-sm: 4px;
+	--border-radius-md: 8px;
+	--border-radius-lg: 16px;
+
+	/* Transitions */
+	--transition-fast: 0.2s ease;
+	--transition-normal: 0.3s ease;
+	--transition-slow: 0.5s ease;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+html {
+	font-size: 16px;
+	scroll-behavior: smooth;
 }
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+	font-family: var(--body-font);
+	color: var(--text-color);
+	background-color: var(--background-color);
+	line-height: 1.6;
+	overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* App container */
+#root {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
 }
 
-button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+.app {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+main {
+	flex: 1;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+	width: 8px;
+}
+
+::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+	background: var(--secondary-color);
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: var(--primary-color);
+}
+
+/* Selection styling */
+::selection {
+	background-color: var(--secondary-color);
+	color: var(--light-color);
+}
+
+/* Global animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes slideInLeft {
+	from {
+		opacity: 0;
+		transform: translateX(-30px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes slideInRight {
+	from {
+		opacity: 0;
+		transform: translateX(30px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* Utility classes */
+.text-center {
+	text-align: center;
+}
+
+.mb-1 {
+	margin-bottom: var(--spacing-xs);
+}
+
+.mb-2 {
+	margin-bottom: var(--spacing-sm);
+}
+
+.mb-3 {
+	margin-bottom: var(--spacing-md);
+}
+
+.mb-4 {
+	margin-bottom: var(--spacing-lg);
+}
+
+.mb-5 {
+	margin-bottom: var(--spacing-xl);
+}
+
+.mt-1 {
+	margin-top: var(--spacing-xs);
+}
+
+.mt-2 {
+	margin-top: var(--spacing-sm);
+}
+
+.mt-3 {
+	margin-top: var(--spacing-md);
+}
+
+.mt-4 {
+	margin-top: var(--spacing-lg);
+}
+
+.mt-5 {
+	margin-top: var(--spacing-xl);
+}
+
+.py-1 {
+	padding-top: var(--spacing-xs);
+	padding-bottom: var(--spacing-xs);
+}
+
+.py-2 {
+	padding-top: var(--spacing-sm);
+	padding-bottom: var(--spacing-sm);
+}
+
+.py-3 {
+	padding-top: var(--spacing-md);
+	padding-bottom: var(--spacing-md);
+}
+
+.py-4 {
+	padding-top: var(--spacing-lg);
+	padding-bottom: var(--spacing-lg);
+}
+
+.py-5 {
+	padding-top: var(--spacing-xl);
+	padding-bottom: var(--spacing-xl);
+}
+
+.px-1 {
+	padding-left: var(--spacing-xs);
+	padding-right: var(--spacing-xs);
+}
+
+.px-2 {
+	padding-left: var(--spacing-sm);
+	padding-right: var(--spacing-sm);
+}
+
+.px-3 {
+	padding-left: var(--spacing-md);
+	padding-right: var(--spacing-md);
+}
+
+.px-4 {
+	padding-left: var(--spacing-lg);
+	padding-right: var(--spacing-lg);
+}
+
+.px-5 {
+	padding-left: var(--spacing-xl);
+	padding-right: var(--spacing-xl);
+}
+
+/* Container widths */
+.container {
+	width: 100%;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 0 var(--spacing-sm);
+}
+
+/* Media queries for responsive typography */
+@media (max-width: 768px) {
+	html {
+		font-size: 15px;
+	}
+}
+
+@media (max-width: 576px) {
+	html {
+		font-size: 14px;
+	}
 }
