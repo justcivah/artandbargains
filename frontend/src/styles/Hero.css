@@ -1,24 +1,14 @@
-.hero {
-    position: relative;
-    height: 100vh;
-    min-height: 600px;
+/* Fixed Background Element */
+.hero-background {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100vh;
     background-image: url('/src/assets/hero-background.png');
     background-size: cover;
     background-position: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: var(--spacing-md);
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 1s ease, transform 1s ease;
-}
-
-.hero.visible {
-    opacity: 1;
-    transform: translateY(0);
+    z-index: -2; /* Keep it behind everything */
 }
 
 .hero-overlay {
@@ -28,12 +18,32 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1;
+    z-index: -1;
+}
+
+/* Scrollable Content Wrapper */
+.hero-content-wrapper {
+    position: relative;
+    height: 100vh;
+    min-height: 600px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: var(--spacing-md);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+    z-index: 1; /* Ensure it's above the background */
+}
+
+.hero-content-wrapper.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .hero-content {
-    position: relative;
-    z-index: 2;
     max-width: 800px;
     margin: 0 auto;
 }
@@ -90,7 +100,7 @@
 .hero-button.primary:hover {
     background-color: transparent;
     color: var(--accent-color);
-	border: 1px solid var(--accent-color);
+    border: 1px solid var(--accent-color);
 }
 
 .hero-button.secondary {
@@ -110,7 +120,6 @@
     bottom: 50px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 2;
 }
 
 .hero-scroll-indicator {
@@ -129,17 +138,6 @@
     border-bottom: 2px solid var(--light-color);
     margin-left: 0rem;
     transform: rotate(45deg);
-}
-
-@keyframes mouseWheel {
-    0%, 100% {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
-    50% {
-        opacity: 0.5;
-        transform: translateX(-50%) translateY(6px);
-    }
 }
 
 @keyframes bounce {
@@ -163,7 +161,7 @@
 }
 
 @media (max-width: 768px) {
-    .hero {
+    .hero-content-wrapper {
         min-height: 500px;
     }
 
@@ -185,7 +183,7 @@
 }
 
 @media (max-width: 576px) {
-    .hero {
+    .hero-content-wrapper {
         min-height: 450px;
     }
 
@@ -213,9 +211,5 @@
         width: 100%;
         max-width: 220px;
         margin: 0 auto;
-    }
-
-    .mouse {
-        display: none;
     }
 }
