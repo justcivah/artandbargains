@@ -9,6 +9,16 @@
     background-size: cover;
     background-position: center;
     z-index: -2; /* Keep it behind everything */
+    transition: opacity 0.3s ease;
+}
+
+.hero-background.visible {
+    opacity: 1;
+}
+
+.hero-background.hidden {
+    opacity: 0;
+    visibility: hidden;
 }
 
 .hero-overlay {
@@ -68,7 +78,7 @@
     font-weight: 400;
     color: var(--light-color);
     margin-bottom: var(--spacing-lg);
-    max-width: 800px;
+    max-width: 600px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.6;

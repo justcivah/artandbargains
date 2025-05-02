@@ -1,15 +1,19 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/Hero.css';
 
 const Hero = () => {
   const contentRef = useRef(null);
+  const [isInView, setIsInView] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
+          setIsInView(true);
+        } else {
+          setIsInView(false);
         }
       },
       { threshold: 0.1 }
@@ -28,8 +32,8 @@ const Hero = () => {
 
   return (
     <>
-      {/* Fixed background */}
-      <div className="hero-background">
+      {/* Fixed background - only shown when hero is in viewport */}
+      <div className={`hero-background ${isInView ? 'visible' : 'hidden'}`}>
         <div className="hero-overlay"></div>
       </div>
       
