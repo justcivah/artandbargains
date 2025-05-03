@@ -27,7 +27,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.5);
     z-index: -1;
 }
 
@@ -78,7 +78,7 @@
     font-weight: 400;
     color: var(--light-color);
     margin-bottom: var(--spacing-lg);
-    max-width: 600px;
+    max-width: 800px;
     margin-left: auto;
     margin-right: auto;
     line-height: 1.6;

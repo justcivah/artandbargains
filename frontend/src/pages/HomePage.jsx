@@ -10,7 +10,7 @@ const HomePage = () => {
     window.scrollTo(0, 0);
     
     // Set page title
-    document.title = 'Art & Bargains - Timeless Art & Vintage Treasures';
+    document.title = 'Art & Bargains';
   }, []);
 
   return (

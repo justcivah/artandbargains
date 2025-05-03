@@ -4,7 +4,7 @@
     left: 0;
     width: 100%;
     z-index: 1000;
-    padding: 1.2rem var(--spacing-md);
+    padding: 1rem var(--spacing-md);
     transition: all var(--transition-normal);
     background-color: var(--background-color);
 }
@@ -31,7 +31,7 @@
 
 .logo-text {
     font-family: var(--heading-font);
-    font-size: 1.8rem;
+    font-size: 2.2rem;
     font-weight: 800;
     color: var(--primary-color);
     letter-spacing: 0.5px;
@@ -44,7 +44,7 @@
 }
 
 .navbar.scrolled .logo-text {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
 }
 
 .nav-menu {
