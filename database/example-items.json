@@ -1,0 +1,1294 @@
+[
+	{
+	  "PK": "TYPE#prints",
+	  "SK": "METADATA",
+	  "name": "prints",
+	  "display_name": "Prints",
+	  "entity_type": "item_type"
+	},
+	{
+	  "PK": "TYPE#porcelains",
+	  "SK": "METADATA",
+	  "name": "porcelains",
+	  "display_name": "Porcelains",
+	  "entity_type": "item_type"
+	},
+	{
+	  "PK": "TYPE#vintage_furnishings",
+	  "SK": "METADATA",
+	  "name": "vintage_furnishings",
+	  "display_name": "Vintage Furnishings",
+	  "entity_type": "item_type"
+	},
+	
+	{
+	  "PK": "PERIOD#15th_century",
+	  "SK": "METADATA",
+	  "name": "15th_century",
+	  "display_name": "15th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#16th_century",
+	  "SK": "METADATA",
+	  "name": "16th_century",
+	  "display_name": "16th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#17th_century",
+	  "SK": "METADATA",
+	  "name": "17th_century",
+	  "display_name": "17th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#18th_century",
+	  "SK": "METADATA",
+	  "name": "18th_century",
+	  "display_name": "18th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#19th_century",
+	  "SK": "METADATA",
+	  "name": "19th_century",
+	  "display_name": "19th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#20th_century",
+	  "SK": "METADATA",
+	  "name": "20th_century",
+	  "display_name": "20th Century",
+	  "entity_type": "period"
+	},
+	{
+	  "PK": "PERIOD#21st_century",
+	  "SK": "METADATA",
+	  "name": "21st_century",
+	  "display_name": "21st Century",
+	  "entity_type": "period"
+	},
+	
+	{
+	  "PK": "CATEGORY#map",
+	  "SK": "METADATA",
+	  "name": "map",
+	  "display_name": "Map",
+	  "entity_type": "category"
+	},
+	{
+	  "PK": "CATEGORY#animal",
+	  "SK": "METADATA",
+	  "name": "animal",
+	  "display_name": "Animal",
+	  "entity_type": "category"
+	},
+	{
+	  "PK": "CATEGORY#botany",
+	  "SK": "METADATA",
+	  "name": "botany",
+	  "display_name": "Botany",
+	  "entity_type": "category"
+	},
+	{
+	  "PK": "CATEGORY#japanese_woodblock",
+	  "SK": "METADATA",
+	  "name": "japanese_woodblock",
+	  "display_name": "Japanese Woodblock",
+	  "entity_type": "category"
+	},
+	{
+	  "PK": "CATEGORY#poster",
+	  "SK": "METADATA",
+	  "name": "poster",
+	  "display_name": "Poster",
+	  "entity_type": "category"
+	},
+	
+	{
+	  "PK": "CONTRIBUTOR#john_smith",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "John",
+	  "middle_name": null,
+	  "last_name": "Smith",
+	  "display_name": "John Smith",
+	  "birth_year": 1710,
+	  "death_year": 1771,
+	  "is_living": false,
+	  "bio": "English cartographer and engraver active in the mid-18th century.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#william_johnson",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "William",
+	  "middle_name": "Henry",
+	  "last_name": "Johnson",
+	  "display_name": "William H. Johnson",
+	  "birth_year": 1723,
+	  "death_year": 1778,
+	  "is_living": false,
+	  "bio": "Prominent engraver known for detailed map work.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#utagawa_hiroshige",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Utagawa",
+	  "middle_name": null,
+	  "last_name": "Hiroshige",
+	  "display_name": "Utagawa Hiroshige",
+	  "birth_year": 1797,
+	  "death_year": 1858,
+	  "is_living": false,
+	  "bio": "Japanese ukiyo-e artist, considered the last great master of this tradition.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#louis_simon_boizot",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Louis",
+	  "middle_name": "Simon",
+	  "last_name": "Boizot",
+	  "display_name": "Louis-Simon Boizot",
+	  "birth_year": 1743,
+	  "death_year": 1809,
+	  "is_living": false,
+	  "bio": "French sculptor and designer who worked at the Sèvres porcelain manufactory.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#louis_majorelle",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Louis",
+	  "middle_name": "Auguste",
+	  "last_name": "Majorelle",
+	  "display_name": "Louis Majorelle",
+	  "birth_year": 1859,
+	  "death_year": 1926,
+	  "is_living": false,
+	  "bio": "French designer and manufacturer of Art Nouveau furniture.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#pierre_joseph_redoute",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Pierre",
+	  "middle_name": "Joseph",
+	  "last_name": "Redouté",
+	  "display_name": "Pierre-Joseph Redouté",
+	  "birth_year": 1759,
+	  "death_year": 1840,
+	  "is_living": false,
+	  "bio": "Belgian painter and botanist known for his watercolors of flowers and plants.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#roger_broders",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Roger",
+	  "middle_name": null,
+	  "last_name": "Broders",
+	  "display_name": "Roger Broders",
+	  "birth_year": 1883,
+	  "death_year": 1953,
+	  "is_living": false,
+	  "bio": "French illustrator and poster artist working in Art Deco style.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#langlois",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "François",
+	  "middle_name": null,
+	  "last_name": "Langlois",
+	  "display_name": "Langlois",
+	  "birth_year": 1789,
+	  "death_year": 1825,
+	  "is_living": false,
+	  "bio": "French engraver who worked with Pierre-Joseph Redouté on botanical illustrations.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#tsutaya_kichizo",
+	  "SK": "METADATA",
+	  "contributor_type": "individual",
+	  "first_name": "Tsutaya",
+	  "middle_name": null,
+	  "last_name": "Kichizō",
+	  "display_name": "Tsutaya Kichizō",
+	  "birth_year": 1801,
+	  "death_year": 1868,
+	  "is_living": false,
+	  "bio": "Prominent Japanese publisher of ukiyo-e prints in the 19th century.",
+	  "entity_type": "contributor"
+	},
+	
+	{
+	  "PK": "CONTRIBUTOR#sevres_manufactory",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "Sèvres Porcelain Manufactory",
+	  "display_name": "Sèvres Porcelain Manufactory",
+	  "founding_year": 1738,
+	  "dissolution_year": null,
+	  "is_active": true,
+	  "bio": "Royal porcelain factory established in 1738 in Sèvres, France, known for producing some of the finest European porcelain.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#majorelle_freres",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "Majorelle Frères",
+	  "display_name": "Majorelle Frères",
+	  "founding_year": 1879,
+	  "dissolution_year": 1931,
+	  "is_active": false,
+	  "bio": "French furniture manufacturing company founded by Louis Majorelle, known for its Art Nouveau furniture and decorative objects.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#jingdezhen_workshop",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "Jingdezhen Porcelain Workshop",
+	  "display_name": "Jingdezhen Porcelain Workshop",
+	  "founding_year": 1368,
+	  "dissolution_year": null,
+	  "is_active": true,
+	  "bio": "Traditional Chinese porcelain production center with a history dating back to the Ming Dynasty, known for blue and white porcelain.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#english_workshop",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "English Workshop",
+	  "display_name": "English Workshop",
+	  "founding_year": 1830,
+	  "dissolution_year": 1870,
+	  "is_active": false,
+	  "bio": "Victorian furniture workshop producing high-quality mahogany furniture in the mid-19th century.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#paris_lyon_mediterranee",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "Paris-Lyon-Méditerranée Railway Company",
+	  "display_name": "PLM Railway",
+	  "founding_year": 1857,
+	  "dissolution_year": 1938,
+	  "is_active": false,
+	  "bio": "French railway company that commissioned many iconic travel posters in the Art Deco style to promote tourism.",
+	  "entity_type": "contributor"
+	},
+	{
+	  "PK": "CONTRIBUTOR#cornille_serre",
+	  "SK": "METADATA",
+	  "contributor_type": "organization",
+	  "name": "Cornille & Serre",
+	  "display_name": "Cornille & Serre",
+	  "founding_year": 1905,
+	  "dissolution_year": 1940,
+	  "is_active": false,
+	  "bio": "Parisian printing studio specializing in high-quality lithographic prints for advertising and travel posters.",
+	  "entity_type": "contributor"
+	},
+	
+	{
+	  "PK": "MEDIUMTYPE#copper",
+	  "SK": "METADATA",
+	  "name": "copper",
+	  "display_name": "Copper",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#paper",
+	  "SK": "METADATA",
+	  "name": "paper",
+	  "display_name": "Paper",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#ink",
+	  "SK": "METADATA",
+	  "name": "ink",
+	  "display_name": "Ink",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#wood",
+	  "SK": "METADATA",
+	  "name": "wood",
+	  "display_name": "Wood",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#pigment",
+	  "SK": "METADATA",
+	  "name": "pigment",
+	  "display_name": "Pigment",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#porcelain",
+	  "SK": "METADATA",
+	  "name": "porcelain",
+	  "display_name": "Porcelain",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#bronze",
+	  "SK": "METADATA",
+	  "name": "bronze",
+	  "display_name": "Bronze",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#gold",
+	  "SK": "METADATA",
+	  "name": "gold",
+	  "display_name": "Gold",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#mahogany",
+	  "SK": "METADATA",
+	  "name": "mahogany",
+	  "display_name": "Mahogany",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#fruitwood",
+	  "SK": "METADATA",
+	  "name": "fruitwood",
+	  "display_name": "Fruitwood",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#brass",
+	  "SK": "METADATA",
+	  "name": "brass",
+	  "display_name": "Brass",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#watercolor",
+	  "SK": "METADATA",
+	  "name": "watercolor",
+	  "display_name": "Watercolor",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#linen",
+	  "SK": "METADATA",
+	  "name": "linen",
+	  "display_name": "Linen",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#cobalt",
+	  "SK": "METADATA",
+	  "name": "cobalt",
+	  "display_name": "Cobalt",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#oak",
+	  "SK": "METADATA",
+	  "name": "oak",
+	  "display_name": "Oak",
+	  "entity_type": "medium_type"
+	},
+	{
+	  "PK": "MEDIUMTYPE#enamel",
+	  "SK": "METADATA",
+	  "name": "enamel",
+	  "display_name": "Enamel",
+	  "entity_type": "medium_type"
+	},
+	
+	{
+	  "PK": "CONDITIONTYPE#excellent",
+	  "SK": "METADATA",
+	  "name": "excellent",
+	  "display_name": "Excellent",
+	  "entity_type": "condition_type"
+	},
+	{
+	  "PK": "CONDITIONTYPE#very_good",
+	  "SK": "METADATA",
+	  "name": "very_good",
+	  "display_name": "Very Good",
+	  "entity_type": "condition_type"
+	},
+	{
+	  "PK": "CONDITIONTYPE#good",
+	  "SK": "METADATA",
+	  "name": "good",
+	  "display_name": "Good",
+	  "entity_type": "condition_type"
+	},
+	{
+	  "PK": "CONDITIONTYPE#fair",
+	  "SK": "METADATA",
+	  "name": "fair",
+	  "display_name": "Fair",
+	  "entity_type": "condition_type"
+	},
+	{
+	  "PK": "CONDITIONTYPE#poor",
+	  "SK": "METADATA",
+	  "name": "poor",
+	  "display_name": "Poor",
+	  "entity_type": "condition_type"
+	},
+	
+	{
+	  "PK": "ITEM#001",
+	  "SK": "METADATA",
+	  "title": "Map of Europe",
+	  "date_info": {
+		"year_exact": 1750,
+		"year_range_start": null,
+		"year_range_end": null,
+		"period_text": null,
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "cartographer", "contributor_id": "john_smith"},
+		{"position": "drawer", "contributor_id": "john_smith"},
+		{"position": "engraver", "contributor_id": "william_johnson"}
+	  ],
+	  "primary_contributor_display": "John Smith",
+	  "description": "A detailed map of Europe showing political boundaries of the 18th century.",
+	  "price": 399.99,
+	  "item_type": "prints",
+	  "period": "18th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["copper", "paper", "ink"],
+		"description": "Copper engraving with hand coloring"
+	  },
+	  "dimensions": {
+		"height": 24,
+		"width": 36,
+		"unit": "inches"
+	  },
+	  "condition": {
+		"status": "good",
+		"description": "Minor foxing at borders"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/map_europe_1750.jpg", "is_primary": true},
+		{"url": "https://example.com/images/map_europe_1750_detail.jpg", "is_primary": false}
+	  ],
+	  "insertion_timestamp": "2024-08-15T09:23:47Z",
+	  "GSI1PK": "TYPE#prints",
+	  "GSI1SK": "ITEM#001",
+	  "GSI2PK": "PERIOD#18th_century",
+	  "GSI2SK": "ITEM#001",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00039999"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "CATEGORY#map",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#map",
+	  "GSI3SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "MEDIUMTYPE#copper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#copper",
+	  "GSI4SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "MEDIUMTYPE#paper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#paper",
+	  "GSI4SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "MEDIUMTYPE#ink",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#ink",
+	  "GSI4SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "CONDITIONTYPE#good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#good",
+	  "GSI5SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "CONTRIBUTOR#john_smith",
+	  "entity_type": "item_contributor",
+	  "positions": ["cartographer", "drawer"],
+	  "GSI6PK": "CONTRIBUTOR#john_smith",
+	  "GSI6SK": "ITEM#001"
+	},
+	{
+	  "PK": "ITEM#001",
+	  "SK": "CONTRIBUTOR#william_johnson",
+	  "entity_type": "item_contributor",
+	  "positions": ["engraver"],
+	  "GSI6PK": "CONTRIBUTOR#william_johnson",
+	  "GSI6SK": "ITEM#001"
+	},
+	
+	{
+	  "PK": "ITEM#002",
+	  "SK": "METADATA",
+	  "title": "Japanese Ukiyo-e Bird Print",
+	  "date_info": {
+		"year_exact": null,
+		"year_range_start": 1840,
+		"year_range_end": 1860,
+		"period_text": "Mid-19th century",
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "artist", "contributor_id": "utagawa_hiroshige"},
+		{"position": "publisher", "contributor_id": "tsutaya_kichizo"}
+	  ],
+	  "primary_contributor_display": "Utagawa Hiroshige",
+	  "description": "Original woodblock print depicting cranes in a traditional Japanese style.",
+	  "price": 1250.00,
+	  "item_type": "prints",
+	  "period": "19th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["wood", "paper", "pigment"],
+		"description": "Woodblock print with natural pigments"
+	  },
+	  "dimensions": {
+		"height": 14,
+		"width": 9,
+		"unit": "inches"
+	  },
+	  "condition": {
+		"status": "excellent",
+		"description": "Vibrant colors preserved"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/japanese_crane_print.jpg", "is_primary": true}
+	  ],
+	  "insertion_timestamp": "2024-09-03T14:17:32Z",
+	  "GSI1PK": "TYPE#prints",
+	  "GSI1SK": "ITEM#002",
+	  "GSI2PK": "PERIOD#19th_century",
+	  "GSI2SK": "ITEM#002",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00125000"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "CATEGORY#japanese_woodblock",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#japanese_woodblock",
+	  "GSI3SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "CATEGORY#animal",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#animal",
+	  "GSI3SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "MEDIUMTYPE#wood",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#wood",
+	  "GSI4SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "MEDIUMTYPE#paper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#paper",
+	  "GSI4SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "MEDIUMTYPE#pigment",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#pigment",
+	  "GSI4SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "CONDITIONTYPE#excellent",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#excellent",
+	  "GSI5SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "CONTRIBUTOR#utagawa_hiroshige",
+	  "entity_type": "item_contributor",
+	  "positions": ["artist"],
+	  "GSI6PK": "CONTRIBUTOR#utagawa_hiroshige",
+	  "GSI6SK": "ITEM#002"
+	},
+	{
+	  "PK": "ITEM#002",
+	  "SK": "CONTRIBUTOR#tsutaya_kichizo",
+	  "entity_type": "item_contributor",
+	  "positions": ["publisher"],
+	  "GSI6PK": "CONTRIBUTOR#tsutaya_kichizo",
+	  "GSI6SK": "ITEM#002"
+	},
+	
+	{
+	  "PK": "ITEM#003",
+	  "SK": "METADATA",
+	  "title": "Sèvres Porcelain Vase",
+	  "date_info": {
+		"year_exact": null,
+		"year_range_start": 1780,
+		"year_range_end": 1800,
+		"period_text": "Late 18th century",
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "designer", "contributor_id": "louis_simon_boizot"},
+		{"position": "manufacturer", "contributor_id": "sevres_manufactory"}
+	  ],
+	  "primary_contributor_display": "Sèvres Porcelain Manufactory",
+	  "description": "Exquisite Sèvres blue porcelain vase with gilt bronze mounts, featuring neoclassical motifs.",
+	  "price": 8500.00,
+	  "item_type": "porcelains",
+	  "period": "18th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["porcelain", "bronze", "gold"],
+		"description": "Hard-paste porcelain with gilt bronze mounts"
+	  },
+	  "dimensions": {
+		"height": 32,
+		"diameter": 18,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "good",
+		"description": "Minor wear to gilding"
+	  },
+	  "provenance": "Private collection, Paris",
+	  "images": [
+		{"url": "https://example.com/images/sevres_vase_blue.jpg", "is_primary": true},
+		{"url": "https://example.com/images/sevres_vase_detail.jpg", "is_primary": false}
+	  ],
+	  "insertion_timestamp": "2024-07-21T11:05:19Z",
+	  "GSI1PK": "TYPE#porcelains",
+	  "GSI1SK": "ITEM#003",
+	  "GSI2PK": "PERIOD#18th_century",
+	  "GSI2SK": "ITEM#003",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00850000"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "MEDIUMTYPE#porcelain",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#porcelain",
+	  "GSI4SK": "ITEM#003"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "MEDIUMTYPE#bronze",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#bronze",
+	  "GSI4SK": "ITEM#003"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "MEDIUMTYPE#gold",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#gold",
+	  "GSI4SK": "ITEM#003"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "CONDITIONTYPE#good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#good",
+	  "GSI5SK": "ITEM#003"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "CONTRIBUTOR#louis_simon_boizot",
+	  "entity_type": "item_contributor",
+	  "positions": ["designer"],
+	  "GSI6PK": "CONTRIBUTOR#louis_simon_boizot",
+	  "GSI6SK": "ITEM#003"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "CONTRIBUTOR#sevres_manufactory",
+	  "entity_type": "item_contributor",
+	  "positions": ["manufacturer"],
+	  "GSI6PK": "CONTRIBUTOR#sevres_manufactory",
+	  "GSI6SK": "ITEM#003"
+	},
+	
+	{
+	  "PK": "ITEM#004",
+	  "SK": "METADATA",
+	  "title": "Art Nouveau Cabinet",
+	  "date_info": {
+		"year_exact": 1900,
+		"year_range_start": null,
+		"year_range_end": null,
+		"period_text": null,
+		"circa": true
+	  },
+	  "contributors": [
+		{"position": "designer", "contributor_id": "louis_majorelle"},
+		{"position": "manufacturer", "contributor_id": "majorelle_freres"}
+	  ],
+	  "primary_contributor_display": "Louis Majorelle",
+	  "description": "Elegant Art Nouveau cabinet with marquetry floral designs and curved brass hardware.",
+	  "price": 12500.00,
+	  "item_type": "vintage_furnishings",
+	  "period": "20th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["mahogany", "fruitwood", "brass"],
+		"description": "Mahogany with fruitwood marquetry and brass hardware"
+	  },
+	  "dimensions": {
+		"height": 160,
+		"width": 110,
+		"depth": 45,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "very_good",
+		"description": "Minor restoration to one drawer"
+	  },
+	  "provenance": "Estate of a French collector",
+	  "images": [
+		{"url": "https://example.com/images/art_nouveau_cabinet.jpg", "is_primary": true},
+		{"url": "https://example.com/images/art_nouveau_cabinet_open.jpg", "is_primary": false},
+		{"url": "https://example.com/images/art_nouveau_cabinet_detail.jpg", "is_primary": false}
+	  ],
+	  "insertion_timestamp": "2024-06-12T08:45:10Z",
+	  "GSI1PK": "TYPE#vintage_furnishings",
+	  "GSI1SK": "ITEM#004",
+	  "GSI2PK": "PERIOD#20th_century",
+	  "GSI2SK": "ITEM#004",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#01250000"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "MEDIUMTYPE#mahogany",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#mahogany",
+	  "GSI4SK": "ITEM#004"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "MEDIUMTYPE#fruitwood",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#fruitwood",
+	  "GSI4SK": "ITEM#004"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "MEDIUMTYPE#brass",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#brass",
+	  "GSI4SK": "ITEM#004"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "CONDITIONTYPE#very_good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#very_good",
+	  "GSI5SK": "ITEM#004"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "CONTRIBUTOR#louis_majorelle",
+	  "entity_type": "item_contributor",
+	  "positions": ["designer"],
+	  "GSI6PK": "CONTRIBUTOR#louis_majorelle",
+	  "GSI6SK": "ITEM#004"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "CONTRIBUTOR#majorelle_freres",
+	  "entity_type": "item_contributor",
+	  "positions": ["manufacturer"],
+	  "GSI6PK": "CONTRIBUTOR#majorelle_freres",
+	  "GSI6SK": "ITEM#004"
+	},
+	
+	{
+	  "PK": "ITEM#005",
+	  "SK": "METADATA",
+	  "title": "Botanical Study: Rosa Gallica",
+	  "date_info": {
+		"year_exact": 1817,
+		"year_range_start": null,
+		"year_range_end": null,
+		"period_text": null,
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "artist", "contributor_id": "pierre_joseph_redoute"},
+		{"position": "engraver", "contributor_id": "langlois"}
+	  ],
+	  "primary_contributor_display": "Pierre-Joseph Redouté",
+	  "description": "Beautiful hand-colored stipple engraving of Rosa Gallica from Redouté's famous 'Les Roses' series.",
+	  "price": 2200.00,
+	  "item_type": "prints",
+	  "period": "19th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["copper", "paper", "watercolor"],
+		"description": "Stipple engraving with hand coloring"
+	  },
+	  "dimensions": {
+		"height": 35,
+		"width": 25,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "excellent",
+		"description": "Colors fresh and vibrant"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/redoute_rose.jpg", "is_primary": true}
+	  ],
+	  "insertion_timestamp": "2024-09-18T16:30:05Z",
+	  "GSI1PK": "TYPE#prints",
+	  "GSI1SK": "ITEM#005",
+	  "GSI2PK": "PERIOD#19th_century",
+	  "GSI2SK": "ITEM#005",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00220000"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "CATEGORY#botany",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#botany",
+	  "GSI3SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "MEDIUMTYPE#copper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#copper",
+	  "GSI4SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "MEDIUMTYPE#paper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#paper",
+	  "GSI4SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "MEDIUMTYPE#watercolor",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#watercolor",
+	  "GSI4SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "CONDITIONTYPE#excellent",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#excellent",
+	  "GSI5SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "CONTRIBUTOR#pierre_joseph_redoute",
+	  "entity_type": "item_contributor",
+	  "positions": ["artist"],
+	  "GSI6PK": "CONTRIBUTOR#pierre_joseph_redoute",
+	  "GSI6SK": "ITEM#005"
+	},
+	{
+	  "PK": "ITEM#005",
+	  "SK": "CONTRIBUTOR#langlois",
+	  "entity_type": "item_contributor",
+	  "positions": ["engraver"],
+	  "GSI6PK": "CONTRIBUTOR#langlois",
+	  "GSI6SK": "ITEM#005"
+	},
+	
+	{
+	  "PK": "ITEM#006",
+	  "SK": "METADATA",
+	  "title": "Vintage Travel Poster - Paris",
+	  "date_info": {
+		"year_exact": 1925,
+		"year_range_start": null,
+		"year_range_end": null,
+		"period_text": null,
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "artist", "contributor_id": "roger_broders"},
+		{"position": "printer", "contributor_id": "cornille_serre"},
+		{"position": "publisher", "contributor_id": "paris_lyon_mediterranee"}
+	  ],
+	  "primary_contributor_display": "Roger Broders",
+	  "description": "Original Art Deco travel poster promoting Paris, featuring the Eiffel Tower in a bold, stylized design.",
+	  "price": 3800.00,
+	  "item_type": "prints",
+	  "period": "20th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["paper", "ink", "linen"],
+		"description": "Lithograph on paper, linen-backed"
+	  },
+	  "dimensions": {
+		"height": 100,
+		"width": 70,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "good",
+		"description": "Professionally linen-backed"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/paris_poster_1925.jpg", "is_primary": true}
+	  ],
+	  "insertion_timestamp": "2024-08-29T13:42:51Z",
+	  "GSI1PK": "TYPE#prints",
+	  "GSI1SK": "ITEM#006",
+	  "GSI2PK": "PERIOD#20th_century",
+	  "GSI2SK": "ITEM#006",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00380000"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "CATEGORY#poster",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#poster",
+	  "GSI3SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "MEDIUMTYPE#paper",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#paper",
+	  "GSI4SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "MEDIUMTYPE#ink",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#ink",
+	  "GSI4SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "MEDIUMTYPE#linen",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#linen",
+	  "GSI4SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "CONDITIONTYPE#good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#good",
+	  "GSI5SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "CONTRIBUTOR#roger_broders",
+	  "entity_type": "item_contributor",
+	  "positions": ["artist"],
+	  "GSI6PK": "CONTRIBUTOR#roger_broders",
+	  "GSI6SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "CONTRIBUTOR#cornille_serre",
+	  "entity_type": "item_contributor",
+	  "positions": ["printer"],
+	  "GSI6PK": "CONTRIBUTOR#cornille_serre",
+	  "GSI6SK": "ITEM#006"
+	},
+	{
+	  "PK": "ITEM#006",
+	  "SK": "CONTRIBUTOR#paris_lyon_mediterranee",
+	  "entity_type": "item_contributor",
+	  "positions": ["publisher"],
+	  "GSI6PK": "CONTRIBUTOR#paris_lyon_mediterranee",
+	  "GSI6SK": "ITEM#006"
+	},
+	
+	{
+	  "PK": "ITEM#007",
+	  "SK": "METADATA",
+	  "title": "Ming Dynasty Style Porcelain Bowl",
+	  "date_info": {
+		"year_exact": null,
+		"year_range_start": 1900,
+		"year_range_end": 1930,
+		"period_text": "Early 20th century",
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "manufacturer", "contributor_id": "jingdezhen_workshop"}
+	  ],
+	  "primary_contributor_display": "Jingdezhen Porcelain Workshop",
+	  "description": "Fine reproduction of a Ming Dynasty blue and white porcelain bowl with traditional motifs.",
+	  "price": 950.00,
+	  "item_type": "porcelains",
+	  "period": "20th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["porcelain", "cobalt"],
+		"description": "Porcelain with cobalt blue underglaze"
+	  },
+	  "dimensions": {
+		"height": 8,
+		"diameter": 20,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "excellent",
+		"description": "No chips or cracks"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/ming_style_bowl.jpg", "is_primary": true},
+		{"url": "https://example.com/images/ming_style_bowl_top.jpg", "is_primary": false}
+	  ],
+	  "insertion_timestamp": "2024-10-02T09:18:36Z",
+	  "GSI1PK": "TYPE#porcelains",
+	  "GSI1SK": "ITEM#007",
+	  "GSI2PK": "PERIOD#20th_century",
+	  "GSI2SK": "ITEM#007",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00095000"
+	},
+	{
+	  "PK": "ITEM#007",
+	  "SK": "MEDIUMTYPE#porcelain",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#porcelain",
+	  "GSI4SK": "ITEM#007"
+	},
+	{
+	  "PK": "ITEM#007",
+	  "SK": "MEDIUMTYPE#cobalt",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#cobalt",
+	  "GSI4SK": "ITEM#007"
+	},
+	{
+	  "PK": "ITEM#007",
+	  "SK": "CONDITIONTYPE#excellent",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#excellent",
+	  "GSI5SK": "ITEM#007"
+	},
+	{
+	  "PK": "ITEM#007",
+	  "SK": "CONTRIBUTOR#jingdezhen_workshop",
+	  "entity_type": "item_contributor",
+	  "positions": ["manufacturer"],
+	  "GSI6PK": "CONTRIBUTOR#jingdezhen_workshop",
+	  "GSI6SK": "ITEM#007"
+	},
+	
+	{
+	  "PK": "ITEM#008",
+	  "SK": "METADATA",
+	  "title": "Victorian Mahogany Dining Table",
+	  "date_info": {
+		"year_exact": null,
+		"year_range_start": 1840,
+		"year_range_end": 1860,
+		"period_text": "Mid-19th century",
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "manufacturer", "contributor_id": "english_workshop"}
+	  ],
+	  "primary_contributor_display": "English Workshop",
+	  "description": "Elegant Victorian extending dining table in solid mahogany with turned baluster legs.",
+	  "price": 4200.00,
+	  "item_type": "vintage_furnishings",
+	  "period": "19th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["mahogany", "oak"],
+		"description": "Solid mahogany with oak secondary wood"
+	  },
+	  "dimensions": {
+		"height": 75,
+		"width": 120,
+		"length": 240,
+		"extended_length": 320,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "good",
+		"description": "Some wear consistent with age and use"
+	  },
+	  "features": ["Two extension leaves", "Original winding mechanism"],
+	  "images": [
+		{"url": "https://example.com/images/victorian_table.jpg", "is_primary": true},
+		{"url": "https://example.com/images/victorian_table_extended.jpg", "is_primary": false},
+		{"url": "https://example.com/images/victorian_table_mechanism.jpg", "is_primary": false}
+	  ],
+	  "insertion_timestamp": "2024-07-08T15:27:43Z",
+	  "GSI1PK": "TYPE#vintage_furnishings",
+	  "GSI1SK": "ITEM#008",
+	  "GSI2PK": "PERIOD#19th_century",
+	  "GSI2SK": "ITEM#008",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00420000"
+	},
+	{
+	  "PK": "ITEM#008",
+	  "SK": "MEDIUMTYPE#mahogany",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#mahogany",
+	  "GSI4SK": "ITEM#008"
+	},
+	{
+	  "PK": "ITEM#008",
+	  "SK": "MEDIUMTYPE#oak",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#oak",
+	  "GSI4SK": "ITEM#008"
+	},
+	{
+	  "PK": "ITEM#008",
+	  "SK": "CONDITIONTYPE#good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#good",
+	  "GSI5SK": "ITEM#008"
+	},
+	{
+	  "PK": "ITEM#008",
+	  "SK": "CONTRIBUTOR#english_workshop",
+	  "entity_type": "item_contributor",
+	  "positions": ["manufacturer"],
+	  "GSI6PK": "CONTRIBUTOR#english_workshop",
+	  "GSI6SK": "ITEM#008"
+	},
+	
+	{
+	  "PK": "ITEM#009",
+	  "SK": "METADATA",
+	  "title": "Chinese Famille Rose Vase",
+	  "date_info": {
+		"year_exact": null,
+		"year_range_start": null,
+		"year_range_end": null,
+		"period_text": "Qianlong period style",
+		"circa": false
+	  },
+	  "contributors": [
+		{"position": "manufacturer", "contributor_id": "jingdezhen_workshop"}
+	  ],
+	  "primary_contributor_display": "Jingdezhen Porcelain Workshop",
+	  "description": "Porcelain vase with famille rose decoration in the style of the Qianlong period, featuring floral and bird motifs.",
+	  "price": 1200.00,
+	  "item_type": "porcelains",
+	  "period": "20th_century",
+	  "inventory_quantity": 1,
+	  "entity_type": "item",
+	  "medium": {
+		"types": ["porcelain", "enamel", "gold"],
+		"description": "Porcelain with polychrome enamels and gilt highlights"
+	  },
+	  "dimensions": {
+		"height": 30,
+		"diameter": 15,
+		"unit": "cm"
+	  },
+	  "condition": {
+		"status": "good",
+		"description": "Minor wear to gilding"
+	  },
+	  "images": [
+		{"url": "https://example.com/images/famille_rose_vase.jpg", "is_primary": true}
+	  ],
+	  "insertion_timestamp": "2024-08-05T10:55:22Z",
+	  "GSI1PK": "TYPE#porcelains",
+	  "GSI1SK": "ITEM#009",
+	  "GSI2PK": "PERIOD#20th_century",
+	  "GSI2SK": "ITEM#009",
+	  "GSI7PK": "ITEMS",
+	  "GSI7SK": "PRICE#00120000"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "MEDIUMTYPE#porcelain",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#porcelain",
+	  "GSI4SK": "ITEM#009"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "MEDIUMTYPE#enamel",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#enamel",
+	  "GSI4SK": "ITEM#009"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "MEDIUMTYPE#gold",
+	  "entity_type": "item_medium_type",
+	  "GSI4PK": "MEDIUMTYPE#gold",
+	  "GSI4SK": "ITEM#009"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "CONDITIONTYPE#good",
+	  "entity_type": "item_condition_type",
+	  "GSI5PK": "CONDITIONTYPE#good",
+	  "GSI5SK": "ITEM#009"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "CONTRIBUTOR#jingdezhen_workshop",
+	  "entity_type": "item_contributor",
+	  "positions": ["manufacturer"],
+	  "GSI6PK": "CONTRIBUTOR#jingdezhen_workshop",
+	  "GSI6SK": "ITEM#009"
+	}
+  ]
