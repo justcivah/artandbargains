@@ -26,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/api/auth/login', authMiddleware.login);
 
 // Items endpoints
+app.get('/api/items/generateId', authMiddleware.authenticateAdmin, itemsController.generateId);
 app.get('/api/items', authMiddleware.authenticateAdmin, itemsController.getItems);
 app.get('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.getItem);
 app.post('/api/items', authMiddleware.authenticateAdmin, itemsController.createItem);
@@ -50,6 +51,7 @@ app.post('/api/contributors', authMiddleware.authenticateAdmin, contributorsCont
 
 // Image upload endpoint
 app.post('/api/images/upload', authMiddleware.authenticateAdmin, imagesController.uploadImage);
+app.post('/api/images/uploadMultiple', authMiddleware.authenticateAdmin, imagesController.uploadMultipleImages);
 
 // Start server
 const PORT = process.env.PORT;

@@ -97,109 +97,157 @@ exports.getItem = async (req, res) => {
 	}
 };
 
+// Helper function to sanitize data for DynamoDB
+function sanitizeForDynamoDB(obj) {
+	if (obj === null || obj === undefined) return null;
+	if (typeof obj !== 'object') return obj;
+
+	// Handle arrays
+	if (Array.isArray(obj)) {
+		return obj.map(item => sanitizeForDynamoDB(item));
+	}
+
+	// Handle objects
+	const result = {};
+
+	for (const [key, value] of Object.entries(obj)) {
+		// Skip undefined values
+		if (value === undefined) continue;
+
+		// Convert empty strings to null
+		if (value === '') {
+			result[key] = null;
+			continue;
+		}
+
+		// Handle empty objects
+		if (value !== null && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === 0) {
+			result[key] = null;
+			continue;
+		}
+
+		// Recursively sanitize nested objects
+		if (value !== null && typeof value === 'object') {
+			const sanitized = sanitizeForDynamoDB(value);
+			if (sanitized !== undefined) {
+				result[key] = sanitized;
+			}
+			continue;
+		}
+
+		// For other values, keep as is
+		result[key] = value;
+	}
+
+	return result;
+}
+
 // Create a new item
 exports.createItem = async (req, res) => {
 	try {
-		const { metadata, categories, mediumTypes, contributors, conditionType } = req.body;
+		const { metadata, categories, mediumTypes, contributors, conditionType, itemId } = req.body;
 
-		// Assign a new item ID if one isn't provided
-		if (!metadata.PK) {
-			metadata.PK = `ITEM#${uuidv4()}`;
-		}
+		// Use the provided itemId or generate a new one
+		const actualItemId = itemId || metadata.PK || `ITEM#${uuidv4()}`;
 
-		// Create a batch of write operations
+		// Create a batch of write operations with the CORRECT BatchWrite structure
 		const writeRequests = [];
 
-		// Add the main item metadata
+		// Sanitize metadata to handle empty strings, objects, etc.
+		const sanitizedMetadata = sanitizeForDynamoDB({
+			...metadata,
+			PK: actualItemId,
+			SK: "METADATA",
+			entity_type: "item",
+			insertion_timestamp: new Date().toISOString(),
+			GSI1PK: `TYPE#${metadata.item_type}`,
+			GSI1SK: actualItemId,
+			GSI2PK: `PERIOD#${metadata.period}`,
+			GSI2SK: actualItemId,
+			GSI7PK: "ITEMS",
+			GSI7SK: `PRICE#${metadata.price.toString().padStart(8, '0')}`
+		});
+
+		// Add the main item metadata with CORRECT structure (PutRequest instead of Put)
 		writeRequests.push({
-			Put: {
-				Item: {
-					...metadata,
-					SK: "METADATA",
-					entity_type: "item",
-					insertion_timestamp: new Date().toISOString(),
-					// Add GSI indexes
-					GSI1PK: `TYPE#${metadata.item_type}`,
-					GSI1SK: metadata.PK,
-					GSI2PK: `PERIOD#${metadata.period}`,
-					GSI2SK: metadata.PK,
-					GSI7PK: "ITEMS",
-					GSI7SK: `PRICE#${metadata.price.toString().padStart(8, '0')}`
-				},
-				TableName: TABLE_NAME
+			PutRequest: {
+				Item: sanitizedMetadata
 			}
 		});
 
-		// Add categories
+		// Add categories with CORRECT structure
 		if (categories && categories.length > 0) {
 			categories.forEach(category => {
 				writeRequests.push({
-					Put: {
+					PutRequest: {
 						Item: {
-							PK: metadata.PK,
+							PK: actualItemId,
 							SK: `CATEGORY#${category}`,
 							entity_type: "item_category",
 							GSI3PK: `CATEGORY#${category}`,
-							GSI3SK: metadata.PK
-						},
-						TableName: TABLE_NAME
+							GSI3SK: actualItemId
+						}
 					}
 				});
 			});
 		}
 
-		// Add medium types
+		// Add medium types with CORRECT structure
 		if (mediumTypes && mediumTypes.length > 0) {
 			mediumTypes.forEach(mediumType => {
 				writeRequests.push({
-					Put: {
+					PutRequest: {
 						Item: {
-							PK: metadata.PK,
+							PK: actualItemId,
 							SK: `MEDIUMTYPE#${mediumType}`,
 							entity_type: "item_medium_type",
 							GSI4PK: `MEDIUMTYPE#${mediumType}`,
-							GSI4SK: metadata.PK
-						},
-						TableName: TABLE_NAME
+							GSI4SK: actualItemId
+						}
 					}
 				});
 			});
 		}
 
-		// Add condition type
+		// Add condition type with CORRECT structure
 		if (conditionType) {
 			writeRequests.push({
-				Put: {
+				PutRequest: {
 					Item: {
-						PK: metadata.PK,
+						PK: actualItemId,
 						SK: `CONDITIONTYPE#${conditionType}`,
 						entity_type: "item_condition_type",
 						GSI5PK: `CONDITIONTYPE#${conditionType}`,
-						GSI5SK: metadata.PK
-					},
-					TableName: TABLE_NAME
+						GSI5SK: actualItemId
+					}
 				}
 			});
 		}
 
-		// Add contributors
+		// Add contributors with CORRECT structure
 		if (contributors && contributors.length > 0) {
 			contributors.forEach(contributor => {
+				// Ensure position is always an array
+				const positions = Array.isArray(contributor.position)
+					? contributor.position
+					: [contributor.position];
+
 				writeRequests.push({
-					Put: {
+					PutRequest: {
 						Item: {
-							PK: metadata.PK,
+							PK: actualItemId,
 							SK: `CONTRIBUTOR#${contributor.contributor_id}`,
 							entity_type: "item_contributor",
-							positions: contributor.positions,
+							positions: positions,
 							GSI6PK: `CONTRIBUTOR#${contributor.contributor_id}`,
-							GSI6SK: metadata.PK
-						},
-						TableName: TABLE_NAME
+							GSI6SK: actualItemId
+						}
 					}
 				});
 			});
 		}
+
+		//console.log('Write Requests:', JSON.stringify(writeRequests, null, 2));
 
 		// Execute the batch write operations in chunks
 		// (DynamoDB limits to 25 items per batch)
@@ -207,23 +255,30 @@ exports.createItem = async (req, res) => {
 		for (let i = 0; i < writeRequests.length; i += BATCH_SIZE) {
 			const chunk = writeRequests.slice(i, i + BATCH_SIZE);
 
+			// CORRECT BatchWrite structure
 			const batchParams = {
 				RequestItems: {
 					[TABLE_NAME]: chunk
 				}
 			};
 
-			await dynamoDB.send(new BatchWriteCommand(batchParams));
+			try {
+				await dynamoDB.send(new BatchWriteCommand(batchParams));
+			} catch (batchError) {
+				console.error('Error in batch:', JSON.stringify(chunk, null, 2));
+				console.error('Batch error:', batchError);
+				throw batchError;
+			}
 		}
 
 		res.status(201).json({
 			success: true,
-			itemId: metadata.PK,
+			itemId: actualItemId,
 			message: 'Item created successfully'
 		});
 	} catch (error) {
 		console.error('Error creating item:', error);
-		res.status(500).json({ error: 'Failed to create item' });
+		res.status(500).json({ error: 'Failed to create item: ' + error.message });
 	}
 };
 
@@ -235,11 +290,12 @@ exports.updateItem = async (req, res) => {
 		// First delete the old item and related records
 		await deleteItemFromDb(id);
 
-		// Then create the updated item
+		// Then create the updated item with the request body
+		req.body.itemId = id; // Ensure we use the same ID
 		await exports.createItem(req, res);
 	} catch (error) {
 		console.error(`Error updating item ${req.params.id}:`, error);
-		res.status(500).json({ error: 'Failed to update item' });
+		res.status(500).json({ error: 'Failed to update item: ' + error.message });
 	}
 };
 
@@ -256,7 +312,7 @@ exports.deleteItem = async (req, res) => {
 		});
 	} catch (error) {
 		console.error(`Error deleting item ${req.params.id}:`, error);
-		res.status(500).json({ error: 'Failed to delete item' });
+		res.status(500).json({ error: 'Failed to delete item: ' + error.message });
 	}
 };
 

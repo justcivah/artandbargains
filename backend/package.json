@@ -15,7 +15,7 @@
     "@aws-sdk/client-s3": "^3.802.0",
     "@aws-sdk/lib-dynamodb": "^3.799.0",
     "aws-sdk": "^2.1692.0",
-    "backblaze-b2": "^0.9.12",
+    "backblaze-b2": "^1.7.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
