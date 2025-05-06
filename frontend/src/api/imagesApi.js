@@ -56,7 +56,7 @@ export const uploadMultipleImages = async (files) => {
 		// Upload the images
 		const response = await axios({
 			method: 'POST',
-			url: `${API_URL}/api/images/upload-multiple`,
+			url: `${API_URL}/api/images/uploadMultiple`,
 			data: formData,
 			headers: {
 				'Content-Type': 'multipart/form-data',

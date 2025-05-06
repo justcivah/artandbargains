@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-	createItem, generateItemId, fetchItemTypes, fetchCategories, fetchPeriods,
+	fetchItem, updateItem, fetchItemTypes, fetchCategories, fetchPeriods,
 	fetchMediumTypes, fetchConditionTypes, fetchContributors
 } from '../api/itemsApi';
 import { uploadMultipleImages } from '../api/imagesApi';
@@ -14,11 +14,12 @@ import InventoryForm from '../components/add-item-steps/InventoryForm';
 import MediumTypeSelector from '../components/add-item-steps/MediumTypeSelector';
 import DimensionsForm from '../components/add-item-steps/DimensionsForm';
 import ConditionTypeSelector from '../components/add-item-steps/ConditionTypeSelector';
-import ImageUploader from '../components/add-item-steps/ImageUploader';
+import ImageUploader from '../components/add-item-steps//ImageUploader';
 import StepIndicator from '../components/add-item-steps/StepIndicator';
 import '../styles/AddItemPage.css';
 
-const AddItemPage = () => {
+const EditItemPage = () => {
+	const { itemId } = useParams();
 	const navigate = useNavigate();
 	const [currentStep, setCurrentStep] = useState(1);
 	const totalSteps = 11;
@@ -37,7 +38,7 @@ const AddItemPage = () => {
 		categories: [],
 		title: '',
 		dateInfo: {
-			type: 'exact',
+			type: 'exact', // 'exact', 'range', or 'period'
 			yearExact: '',
 			yearRangeStart: '',
 			yearRangeEnd: '',
@@ -62,21 +63,23 @@ const AddItemPage = () => {
 		price: '',
 		description: '',
 		images: [],
-		primaryImageIndex: 0
+		primaryImageIndex: 0,
+		existingImages: [] // For already uploaded images
 	});
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// Load metadata from DynamoDB
+	// Load item data and metadata
 	useEffect(() => {
-		const loadMetadata = async () => {
+		const loadData = async () => {
 			try {
 				setLoading(true);
 
 				// Fetch all metadata in parallel
-				const [types, cats, pers, mediums, conditions, contributors] = await Promise.all([
+				const [item, types, cats, pers, mediums, conditions, contributors] = await Promise.all([
+					fetchItem(itemId),
 					fetchItemTypes(),
 					fetchCategories(),
 					fetchPeriods(),
@@ -92,16 +95,71 @@ const AddItemPage = () => {
 				setConditionTypes(conditions);
 				setContributorsList(contributors);
 
+				// Now fetch categories for this item
+				const itemCategoryRecords = await fetchItem(itemId, "CATEGORY#");
+				const itemCategories = itemCategoryRecords ? [itemCategoryRecords.SK.replace("CATEGORY#", "")] : [];
+
+				// Set form data from item
+				const dateInfo = {};
+				if (item.date_info.year_exact !== null) {
+					dateInfo.type = 'exact';
+					dateInfo.yearExact = item.date_info.year_exact;
+				} else if (item.date_info.year_range_start !== null && item.date_info.year_range_end !== null) {
+					dateInfo.type = 'range';
+					dateInfo.yearRangeStart = item.date_info.year_range_start;
+					dateInfo.yearRangeEnd = item.date_info.year_range_end;
+				} else {
+					dateInfo.type = 'period';
+					dateInfo.periodText = item.date_info.period_text;
+				}
+				dateInfo.circa = item.date_info.circa || false;
+
+				// Format contributors
+				const formattedContributors = item.contributors.map(contrib => {
+					const contributor = contributors.find(c => c.name === contrib.contributor_id);
+					return {
+						position: contrib.position,
+						contributor: contributor
+					};
+				});
+
+				setFormData({
+					itemType: item.item_type,
+					categories: itemCategories,
+					title: item.title,
+					dateInfo,
+					contributors: formattedContributors,
+					primaryContributor: item.primary_contributor_display,
+					period: item.period,
+					inventoryQuantity: item.inventory_quantity,
+					mediumTypes: item.medium.types,
+					mediumDescription: item.medium.description,
+					dimensions: {
+						height: item.dimensions.height || '',
+						width: item.dimensions.width || '',
+						depth: item.dimensions.depth || '',
+						diameter: item.dimensions.diameter || ''
+					},
+					dimensionsUnit: item.dimensions.unit || 'cm',
+					conditionType: item.condition.status,
+					conditionDescription: item.condition.description,
+					price: item.price,
+					description: item.description,
+					images: [], // New images to upload
+					primaryImageIndex: 0,
+					existingImages: item.images || []
+				});
+
 				setLoading(false);
 			} catch (err) {
-				setError('Error loading metadata: ' + err.message);
-				console.error('Error loading metadata:', err);
+				setError('Error loading item data: ' + err.message);
+				console.error('Error loading item data:', err);
 				setLoading(false);
 			}
 		};
 
-		loadMetadata();
-	}, []);
+		loadData();
+	}, [itemId]);
 
 	// Update form data
 	const updateFormData = (field, value) => {
@@ -132,25 +190,41 @@ const AddItemPage = () => {
 		try {
 			setIsSubmitting(true);
 
-			// Generate a new item ID
-			const itemId = await generateItemId();
+			// Upload new images to Backblaze
+			let imageUrls = [...formData.existingImages];
 
-			// Upload images to Backblaze
-			let imageUrls = [];
+			// Upload new images if any
 			if (formData.images.length > 0) {
 				const uploadResults = await uploadMultipleImages(formData.images);
-				imageUrls = uploadResults.map((result, index) => ({
+				const newImages = uploadResults.map((result, index) => ({
 					url: result.fileUrl,
-					is_primary: index === formData.primaryImageIndex
+					is_primary: false // Will set the primary flag below
 				}));
+
+				imageUrls = [...imageUrls, ...newImages];
 			}
 
-			// Prepare date information - FIXED: include type field
-			const dateInfo = {
-				type: formData.dateInfo.type, // Adding the type field
-				circa: formData.dateInfo.circa
-			};
+			// Set primary image flag
+			// First, mark all images as non-primary
+			imageUrls = imageUrls.map(img => ({ ...img, is_primary: false }));
 
+			// Determine the index of the primary image
+			let primaryIndex = formData.primaryImageIndex;
+			if (primaryIndex >= 0 && primaryIndex < formData.images.length) {
+				// If it's a new image, calculate the index in the combined array
+				primaryIndex = formData.existingImages.length + primaryIndex;
+			}
+
+			// Mark the primary image
+			if (primaryIndex >= 0 && primaryIndex < imageUrls.length) {
+				imageUrls[primaryIndex].is_primary = true;
+			} else if (imageUrls.length > 0) {
+				// Default to first image if index is invalid
+				imageUrls[0].is_primary = true;
+			}
+
+			// Prepare date information
+			const dateInfo = {};
 			if (formData.dateInfo.type === 'exact') {
 				dateInfo.year_exact = parseInt(formData.dateInfo.yearExact) || null;
 				dateInfo.year_range_start = null;
@@ -167,6 +241,7 @@ const AddItemPage = () => {
 				dateInfo.year_range_end = null;
 				dateInfo.period_text = formData.dateInfo.periodText;
 			}
+			dateInfo.circa = formData.dateInfo.circa;
 
 			// Prepare dimensions
 			const dimensions = {};
@@ -185,7 +260,7 @@ const AddItemPage = () => {
 			// Prepare the item data for DynamoDB
 			const itemData = {
 				metadata: {
-					PK: itemId, // Set the primary key to the generated ID
+					PK: itemId,
 					title: formData.title,
 					date_info: dateInfo,
 					contributors: contributors,
@@ -209,18 +284,17 @@ const AddItemPage = () => {
 				categories: formData.categories,
 				mediumTypes: formData.mediumTypes,
 				contributors: contributors,
-				conditionType: formData.conditionType,
-				itemId: itemId // Pass the ID separately to ensure it's used consistently
+				conditionType: formData.conditionType
 			};
 
-			// Create the item in DynamoDB
-			await createItem(itemData);
+			// Update the item in DynamoDB
+			await updateItem(itemData);
 
 			// Navigate back to admin page
 			navigate('/admin');
 		} catch (err) {
-			setError('Error creating item: ' + err.message);
-			console.error('Error creating item:', err);
+			setError('Error updating item: ' + err.message);
+			console.error('Error updating item:', err);
 		} finally {
 			setIsSubmitting(false);
 		}
@@ -326,12 +400,60 @@ const AddItemPage = () => {
 				);
 			case 11:
 				return (
-					<ImageUploader
-						images={formData.images}
-						primaryIndex={formData.primaryImageIndex}
-						onChange={(images) => updateFormData('images', images)}
-						onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
-					/>
+					<div className="image-management-step">
+						<h2>Manage Images</h2>
+						<p className="step-description">
+							You can add new images or change the primary image. Existing images are shown below.
+						</p>
+
+						{formData.existingImages.length > 0 && (
+							<div className="existing-images">
+								<h3>Existing Images</h3>
+								<div className="image-preview-grid">
+									{formData.existingImages.map((image, index) => (
+										<div
+											key={`existing-${index}`}
+											className={`image-preview-item ${image.is_primary ? 'primary' : ''}`}
+										>
+											<div className="image-preview">
+												<img src={image.url} alt={`Item ${index + 1}`} />
+											</div>
+											<div className="image-actions">
+												<div className="image-name">Existing Image {index + 1}</div>
+												<label className={`primary-control ${image.is_primary ? 'is-primary' : ''}`}>
+													<input
+														type="radio"
+														name="primaryImage"
+														checked={image.is_primary}
+														onChange={() => {
+															// Create a new array with updated primary flags
+															const updatedImages = formData.existingImages.map((img, i) => ({
+																...img,
+																is_primary: i === index
+															}));
+															updateFormData('existingImages', updatedImages);
+															updateFormData('primaryImageIndex', -1); // Reset new image primary
+														}}
+													/>
+													{image.is_primary ? 'Primary Image' : 'Set as Primary'}
+												</label>
+											</div>
+										</div>
+									))}
+								</div>
+							</div>
+						)}
+
+						<div className="new-images-section">
+							<h3>Add New Images</h3>
+							<ImageUploader
+								images={formData.images}
+								primaryIndex={formData.primaryImageIndex}
+								onChange={(images) => updateFormData('images', images)}
+								onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
+							/>
+						</div>
+					</div>
 				);
 			default:
 				return <div>Invalid step</div>;
@@ -370,14 +492,15 @@ const AddItemPage = () => {
 			case 10:
 				return !!formData.conditionType;
 			case 11:
-				return formData.images.length > 0;
+				// Either existing images or new images should be present
+				return formData.existingImages.length > 0 || formData.images.length > 0;
 			default:
 				return false;
 		}
 	};
 
 	if (loading) {
-		return <div className="add-item-loading">Loading...</div>;
+		return <div className="add-item-loading">Loading item data...</div>;
 	}
 
 	if (error) {
@@ -387,7 +510,7 @@ const AddItemPage = () => {
 	return (
 		<div className="add-item-page">
 			<div className="add-item-header">
-				<h1>Add New Item</h1>
+				<h1>Edit Item: {formData.title}</h1>
 				<button
 					className="cancel-button"
 					onClick={() => navigate('/admin')}
@@ -427,7 +550,7 @@ const AddItemPage = () => {
 						onClick={handleSubmit}
 						disabled={!isStepComplete() || isSubmitting}
 					>
-						{isSubmitting ? 'Submitting...' : 'Submit'}
+						{isSubmitting ? 'Saving Changes...' : 'Save Changes'}
 					</button>
 				)}
 			</div>
@@ -435,4 +558,4 @@ const AddItemPage = () => {
 	);
 };
 
-export default AddItemPage;
+export default EditItemPage;

@@ -6,8 +6,8 @@ import Footer from './components/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
-//import AddItemPage from './components/AddItemPage.jsx';
-//import EditItemPage from './components/EditItemPage.jsx';
+import AddItemPage from './pages/AddItemPage.jsx';
+import EditItemPage from './pages/EditItemPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import './App.css';
 
@@ -107,14 +107,14 @@ function App() {
 					<Route path="/admin/items/new" element={
 						<PageLayout>
 							<ProtectedRoute>
-								<AdminPage />
+								<AddItemPage />
 							</ProtectedRoute>
 						</PageLayout>
 					} />
 					<Route path="/admin/items/:itemId/edit" element={
 						<PageLayout>
 							<ProtectedRoute>
-								<AdminPage />
+								<EditItemPage />
 							</ProtectedRoute>
 						</PageLayout>
 					} />

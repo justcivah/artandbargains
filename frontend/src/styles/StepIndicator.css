@@ -1,0 +1,34 @@
+.step-indicator {
+	margin-bottom: 30px;
+}
+
+.step-progress {
+	height: 6px;
+	background-color: #e0e0e0;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	overflow: hidden;
+}
+
+.step-progress-bar {
+	height: 100%;
+	background-color: #4CAF50;
+	border-radius: 3px;
+	transition: width 0.3s ease;
+}
+
+.step-info {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.step-count {
+	font-size: 0.9rem;
+	color: #757575;
+}
+
+.step-label {
+	font-weight: 500;
+	color: #4CAF50;
+}

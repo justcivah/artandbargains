@@ -461,6 +461,7 @@
 	  "SK": "METADATA",
 	  "title": "Map of Europe",
 	  "date_info": {
+		"type": "exact",
 		"year_exact": 1750,
 		"year_range_start": null,
 		"year_range_end": null,
@@ -561,6 +562,7 @@
 	  "SK": "METADATA",
 	  "title": "Japanese Ukiyo-e Bird Print",
 	  "date_info": {
+		"type": "range",
 		"year_exact": null,
 		"year_range_start": 1840,
 		"year_range_end": 1860,
@@ -666,6 +668,7 @@
 	  "SK": "METADATA",
 	  "title": "Sèvres Porcelain Vase",
 	  "date_info": {
+		"type": "range",
 		"year_exact": null,
 		"year_range_start": 1780,
 		"year_range_end": 1800,
@@ -759,6 +762,7 @@
 	  "SK": "METADATA",
 	  "title": "Art Nouveau Cabinet",
 	  "date_info": {
+		"type": "exact",
 		"year_exact": 1900,
 		"year_range_start": null,
 		"year_range_end": null,
@@ -854,6 +858,7 @@
 	  "SK": "METADATA",
 	  "title": "Botanical Study: Rosa Gallica",
 	  "date_info": {
+		"type": "exact",
 		"year_exact": 1817,
 		"year_range_start": null,
 		"year_range_end": null,
@@ -952,6 +957,7 @@
 	  "SK": "METADATA",
 	  "title": "Vintage Travel Poster - Paris",
 	  "date_info": {
+		"type": "exact",
 		"year_exact": 1925,
 		"year_range_start": null,
 		"year_range_end": null,
@@ -1059,9 +1065,10 @@
 	  "SK": "METADATA",
 	  "title": "Ming Dynasty Style Porcelain Bowl",
 	  "date_info": {
+		"type": "text",
 		"year_exact": null,
-		"year_range_start": 1900,
-		"year_range_end": 1930,
+		"year_range_start": null,
+		"year_range_end": null,
 		"period_text": "Early 20th century",
 		"circa": false
 	  },
@@ -1135,6 +1142,7 @@
 	  "SK": "METADATA",
 	  "title": "Victorian Mahogany Dining Table",
 	  "date_info": {
+		"type": "range",
 		"year_exact": null,
 		"year_range_start": 1840,
 		"year_range_end": 1860,
@@ -1215,6 +1223,7 @@
 	  "SK": "METADATA",
 	  "title": "Chinese Famille Rose Vase",
 	  "date_info": {
+		"type": "text",
 		"year_exact": null,
 		"year_range_start": null,
 		"year_range_end": null,

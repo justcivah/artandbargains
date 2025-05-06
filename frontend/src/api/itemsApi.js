@@ -150,7 +150,7 @@ export const fetchContributors = async () => {
 // Create a new entity (item type, category, period, etc.)
 export const createEntity = async (entityType, entityData) => {
 	try {
-		const endpoint = `/api/${entityType}s`; // e.g., /api/itemTypes, /api/categories
+		const endpoint = `/api/${entityType}`;
 		const response = await api.post(endpoint, entityData);
 		return response.data;
 	} catch (error) {
@@ -159,7 +159,7 @@ export const createEntity = async (entityType, entityData) => {
 	}
 };
 
-// Generate a new item ID (can be done on the backend instead)
+// Generate a new item ID
 export const generateItemId = async () => {
 	try {
 		const response = await api.get('/api/items/generateId');
