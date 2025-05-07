@@ -1,7 +1,9 @@
 import React from 'react';
 import '../../styles/StepComponents.css';
 
-const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
+const DimensionsForm = ({ dimensions, onChange }) => {
+	const unit = 'cm';
+
 	const handleDimensionChange = (field, value) => {
 		onChange({
 			...dimensions,
@@ -16,32 +18,7 @@ const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
 				Enter the dimensions of the item. Only fill in the fields that are relevant for this item.
 			</p>
 
-			<div className="dimensions-unit-selector">
-				<label>Unit of Measurement:</label>
-				<div className="radio-group">
-					<label className="radio-label">
-						<input
-							type="radio"
-							name="dimensionsUnit"
-							value="cm"
-							checked={unit === 'cm'}
-							onChange={() => onUnitChange('cm')}
-						/>
-						Centimeters (cm)
-					</label>
-
-					<label className="radio-label">
-						<input
-							type="radio"
-							name="dimensionsUnit"
-							value="inches"
-							checked={unit === 'inches'}
-							onChange={() => onUnitChange('inches')}
-						/>
-						Inches (in)
-					</label>
-				</div>
-			</div>
+			{/* Unit selector has been removed */}
 
 			<div className="dimensions-form">
 				<div className="form-group">
@@ -59,7 +36,6 @@ const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
 						<div className="dimension-unit">{unit}</div>
 					</div>
 				</div>
-
 				<div className="form-group">
 					<label htmlFor="dimensionWidth">Width:</label>
 					<div className="dimension-input-group">
@@ -75,7 +51,6 @@ const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
 						<div className="dimension-unit">{unit}</div>
 					</div>
 				</div>
-
 				<div className="form-group">
 					<label htmlFor="dimensionDepth">Depth:</label>
 					<div className="dimension-input-group">
@@ -91,7 +66,6 @@ const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
 						<div className="dimension-unit">{unit}</div>
 					</div>
 				</div>
-
 				<div className="form-group">
 					<label htmlFor="dimensionDiameter">Diameter:</label>
 					<div className="dimension-input-group">
@@ -108,26 +82,21 @@ const DimensionsForm = ({ dimensions, unit, onChange, onUnitChange }) => {
 					</div>
 				</div>
 			</div>
-
 			<div className="dimensions-preview">
 				<div className="preview-label">Item Dimensions:</div>
 				<div className="preview-dimensions">
 					{(!dimensions.height && !dimensions.width && !dimensions.depth && !dimensions.diameter) && (
 						<span className="no-dimensions">No dimensions provided</span>
 					)}
-
 					{dimensions.height && (
 						<span className="dimension">Height: {dimensions.height} {unit}</span>
 					)}
-
 					{dimensions.width && (
 						<span className="dimension">Width: {dimensions.width} {unit}</span>
 					)}
-
 					{dimensions.depth && (
 						<span className="dimension">Depth: {dimensions.depth} {unit}</span>
 					)}
-
 					{dimensions.diameter && (
 						<span className="dimension">Diameter: {dimensions.diameter} {unit}</span>
 					)}

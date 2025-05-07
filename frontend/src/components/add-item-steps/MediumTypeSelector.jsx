@@ -97,8 +97,6 @@ const MediumTypeSelector = ({
 					className="selector-item add-new"
 					onClick={() => setShowCreateModal(true)}
 				>
-					<div className="selector-icon">+</div>
-					<div className="selector-label">Add New Medium</div>
 				</div>
 			</div>
 
@@ -120,12 +118,12 @@ const MediumTypeSelector = ({
 			</div>
 
 			<div className="form-group">
-				<label htmlFor="mediumDescription">Medium Description:</label>
+				<label htmlFor="mediumDescription">Medium Description (optional):</label>
 				<textarea
 					id="mediumDescription"
 					value={mediumDescription}
 					onChange={(e) => onDescriptionChange(e.target.value)}
-					placeholder="Describe the medium in more detail..."
+					placeholder="Describe the medium in more detail if needed..."
 					rows={3}
 				/>
 				<small>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { createEntity } from '../../api/itemsApi';
 import '../../styles/StepComponents.css';
 
-const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes }) => {
+const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelectComplete }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [newTypeName, setNewTypeName] = useState('');
 	const [newTypeDisplayName, setNewTypeDisplayName] = useState('');
@@ -10,8 +10,13 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes }) => {
 	const [error, setError] = useState(null);
 
 	const handleTypeSelect = (type) => {
-		onChange(type);
-	};
+        onChange(type);
+
+		// Automatically go to the next step
+		if (onSelectComplete) {
+			onSelectComplete();
+		}
+    };
 
 	const handleCreateType = async (e) => {
 		e.preventDefault();
@@ -80,8 +85,6 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes }) => {
 					className="selector-item add-new"
 					onClick={() => setShowCreateModal(true)}
 				>
-					<div className="selector-icon">+</div>
-					<div className="selector-label">Add New Type</div>
 				</div>
 			</div>
 

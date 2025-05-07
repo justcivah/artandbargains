@@ -38,7 +38,7 @@ const EditItemPage = () => {
 		categories: [],
 		title: '',
 		dateInfo: {
-			type: 'exact', // 'exact', 'range', or 'period'
+			type: 'exact',
 			yearExact: '',
 			yearRangeStart: '',
 			yearRangeEnd: '',
@@ -64,7 +64,7 @@ const EditItemPage = () => {
 		description: '',
 		images: [],
 		primaryImageIndex: 0,
-		existingImages: [] // For already uploaded images
+		existingImages: []
 	});
 
 	const [loading, setLoading] = useState(true);
@@ -95,9 +95,7 @@ const EditItemPage = () => {
 				setConditionTypes(conditions);
 				setContributorsList(contributors);
 
-				// Now fetch categories for this item
-				const itemCategoryRecords = await fetchItem(itemId, "CATEGORY#");
-				const itemCategories = itemCategoryRecords ? [itemCategoryRecords.SK.replace("CATEGORY#", "")] : [];
+				console.log(item.categories);
 
 				// Set form data from item
 				const dateInfo = {};
@@ -125,7 +123,7 @@ const EditItemPage = () => {
 
 				setFormData({
 					itemType: item.item_type,
-					categories: itemCategories,
+					categories: item.categories,
 					title: item.title,
 					dateInfo,
 					contributors: formattedContributors,
@@ -262,6 +260,7 @@ const EditItemPage = () => {
 				metadata: {
 					PK: itemId,
 					title: formData.title,
+					categories: formData.categories,
 					date_info: dateInfo,
 					contributors: contributors,
 					primary_contributor_display: formData.primaryContributor,

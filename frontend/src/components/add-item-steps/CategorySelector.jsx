@@ -91,8 +91,6 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 					className="selector-item add-new"
 					onClick={() => setShowCreateModal(true)}
 				>
-					<div className="selector-icon">+</div>
-					<div className="selector-label">Add New Category</div>
 				</div>
 			</div>
 

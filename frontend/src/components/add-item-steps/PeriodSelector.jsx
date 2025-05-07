@@ -1,21 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createEntity } from '../../api/itemsApi';
 import '../../styles/StepComponents.css';
 
-const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods }) => {
+const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelectComplete}) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [newPeriodName, setNewPeriodName] = useState('');
 	const [newPeriodDisplayName, setNewPeriodDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
+	const [sortedPeriods, setSortedPeriods] = useState([]);
+
+	// Sort periods in ascending chronological order
+	useEffect(() => {
+		if (periods && periods.length > 0) {
+			const sorted = [...periods].sort((a, b) => {
+				// Helper function to extract century or year from period name
+				const extractTimeValue = (period) => {
+					const name = period.name.toLowerCase();
+
+					// Check for century format (e.g., "18th_century")
+					const centuryMatch = name.match(/(\d+)(?:st|nd|rd|th)_century/);
+					if (centuryMatch) {
+						return parseInt(centuryMatch[1]) * 100; // Convert century to approximate year
+					}
+
+					// Check for decade format (e.g., "1950s")
+					const decadeMatch = name.match(/(\d{4})s/);
+					if (decadeMatch) {
+						return parseInt(decadeMatch[1]);
+					}
+
+					// Check for year range format (e.g., "1900_1950")
+					const rangeMatch = name.match(/(\d{4})_(\d{4})/);
+					if (rangeMatch) {
+						return parseInt(rangeMatch[1]); // Sort by start year
+					}
+
+					// Check for single year format
+					const yearMatch = name.match(/\d{4}/);
+					if (yearMatch) {
+						return parseInt(yearMatch[0]);
+					}
+
+					// For periods that don't match any pattern, place at the beginning
+					// This handles prehistoric or ancient eras like "stone_age" or "bronze_age"
+					return -10000;
+				};
+
+				return extractTimeValue(a) - extractTimeValue(b);
+			});
+
+			setSortedPeriods(sorted);
+		} else {
+			setSortedPeriods([]);
+		}
+	}, [periods]);
 
 	const handlePeriodSelect = (period) => {
 		onChange(period);
+
+		// Automatically go to the next step
+		if (onSelectComplete) {
+			onSelectComplete();
+		}
 	};
 
 	const handleCreatePeriod = async (e) => {
 		e.preventDefault();
-
 		if (!newPeriodName || !newPeriodDisplayName) {
 			setError('Both name and display name are required');
 			return;
@@ -66,7 +117,7 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods }) => {
 			{error && <div className="step-error">{error}</div>}
 
 			<div className="selector-grid">
-				{periods.map((period) => (
+				{sortedPeriods.map((period) => (
 					<div
 						key={period.PK}
 						className={`selector-item ${selectedPeriod === period.name ? 'selected' : ''}`}
@@ -80,8 +131,6 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods }) => {
 					className="selector-item add-new"
 					onClick={() => setShowCreateModal(true)}
 				>
-					<div className="selector-icon">+</div>
-					<div className="selector-label">Add New Period</div>
 				</div>
 			</div>
 
@@ -129,6 +178,7 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods }) => {
 								>
 									Cancel
 								</button>
+
 								<button
 									type="submit"
 									className="confirm-button"

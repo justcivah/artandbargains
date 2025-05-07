@@ -460,6 +460,7 @@
 	  "PK": "ITEM#001",
 	  "SK": "METADATA",
 	  "title": "Map of Europe",
+	  "categories": ["map"],
 	  "date_info": {
 		"type": "exact",
 		"year_exact": 1750,
@@ -561,6 +562,7 @@
 	  "PK": "ITEM#002",
 	  "SK": "METADATA",
 	  "title": "Japanese Ukiyo-e Bird Print",
+	  "categories": ["japanese_woodblock", "animal"],
 	  "date_info": {
 		"type": "range",
 		"year_exact": null,
@@ -667,6 +669,7 @@
 	  "PK": "ITEM#003",
 	  "SK": "METADATA",
 	  "title": "Sèvres Porcelain Vase",
+	  "categories": ["poster"],
 	  "date_info": {
 		"type": "range",
 		"year_exact": null,
@@ -711,6 +714,13 @@
 	  "GSI2SK": "ITEM#003",
 	  "GSI7PK": "ITEMS",
 	  "GSI7SK": "PRICE#00850000"
+	},
+	{
+	  "PK": "ITEM#003",
+	  "SK": "CATEGORY#poster",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#poster",
+	  "GSI3SK": "ITEM#003"
 	},
 	{
 	  "PK": "ITEM#003",
@@ -761,6 +771,7 @@
 	  "PK": "ITEM#004",
 	  "SK": "METADATA",
 	  "title": "Art Nouveau Cabinet",
+	  "categories": ["poster"],
 	  "date_info": {
 		"type": "exact",
 		"year_exact": 1900,
@@ -807,6 +818,13 @@
 	  "GSI2SK": "ITEM#004",
 	  "GSI7PK": "ITEMS",
 	  "GSI7SK": "PRICE#01250000"
+	},
+	{
+	  "PK": "ITEM#004",
+	  "SK": "CATEGORY#poster",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#poster",
+	  "GSI3SK": "ITEM#004"
 	},
 	{
 	  "PK": "ITEM#004",
@@ -857,6 +875,7 @@
 	  "PK": "ITEM#005",
 	  "SK": "METADATA",
 	  "title": "Botanical Study: Rosa Gallica",
+	  "categories": ["botany"],
 	  "date_info": {
 		"type": "exact",
 		"year_exact": 1817,
@@ -956,6 +975,7 @@
 	  "PK": "ITEM#006",
 	  "SK": "METADATA",
 	  "title": "Vintage Travel Poster - Paris",
+	  "categories": ["poster"],
 	  "date_info": {
 		"type": "exact",
 		"year_exact": 1925,
@@ -1064,6 +1084,7 @@
 	  "PK": "ITEM#007",
 	  "SK": "METADATA",
 	  "title": "Ming Dynasty Style Porcelain Bowl",
+	  "categories": ["poster"],
 	  "date_info": {
 		"type": "text",
 		"year_exact": null,
@@ -1109,6 +1130,13 @@
 	},
 	{
 	  "PK": "ITEM#007",
+	  "SK": "CATEGORY#poster",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#poster",
+	  "GSI3SK": "ITEM#007"
+	},
+	{
+	  "PK": "ITEM#007",
 	  "SK": "MEDIUMTYPE#porcelain",
 	  "entity_type": "item_medium_type",
 	  "GSI4PK": "MEDIUMTYPE#porcelain",
@@ -1141,6 +1169,7 @@
 	  "PK": "ITEM#008",
 	  "SK": "METADATA",
 	  "title": "Victorian Mahogany Dining Table",
+	  "categories": ["poster"],
 	  "date_info": {
 		"type": "range",
 		"year_exact": null,
@@ -1190,6 +1219,13 @@
 	},
 	{
 	  "PK": "ITEM#008",
+	  "SK": "CATEGORY#poster",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#poster",
+	  "GSI3SK": "ITEM#008"
+	},
+	{
+	  "PK": "ITEM#008",
 	  "SK": "MEDIUMTYPE#mahogany",
 	  "entity_type": "item_medium_type",
 	  "GSI4PK": "MEDIUMTYPE#mahogany",
@@ -1222,6 +1258,7 @@
 	  "PK": "ITEM#009",
 	  "SK": "METADATA",
 	  "title": "Chinese Famille Rose Vase",
+	  "categories": ["map"],
 	  "date_info": {
 		"type": "text",
 		"year_exact": null,
@@ -1263,6 +1300,13 @@
 	  "GSI2SK": "ITEM#009",
 	  "GSI7PK": "ITEMS",
 	  "GSI7SK": "PRICE#00120000"
+	},
+	{
+	  "PK": "ITEM#009",
+	  "SK": "CATEGORY#map",
+	  "entity_type": "item_category",
+	  "GSI3PK": "CATEGORY#map",
+	  "GSI3SK": "ITEM#009"
 	},
 	{
 	  "PK": "ITEM#009",

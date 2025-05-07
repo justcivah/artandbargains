@@ -36,34 +36,7 @@ exports.getItems = async (req, res) => {
 
 		const result = await dynamoDB.send(new ScanCommand(params));
 
-		// For each item, also fetch its categories
-		const itemsWithCategories = await Promise.all(
-			result.Items.map(async (item) => {
-				const categoriesParams = {
-					TableName: TABLE_NAME,
-					KeyConditionExpression: "PK = :pk AND begins_with(SK, :sk)",
-					ExpressionAttributeValues: {
-						":pk": item.PK,
-						":sk": "CATEGORY#"
-					}
-				};
-
-				const categoriesResult = await dynamoDB.send(new QueryCommand(categoriesParams));
-
-				// Extract category names from the SK values (format: "CATEGORY#name")
-				const categories = categoriesResult.Items.map(cat => {
-					const categoryName = cat.SK.replace("CATEGORY#", "");
-					return categoryName;
-				});
-
-				return {
-					...item,
-					categories
-				};
-			})
-		);
-
-		res.json(itemsWithCategories);
+		res.json(result.Items);
 	} catch (error) {
 		console.error('Error fetching items:', error);
 		res.status(500).json({ error: 'Failed to fetch items' });
@@ -154,6 +127,7 @@ exports.createItem = async (req, res) => {
 		const writeRequests = [];
 
 		// Sanitize metadata to handle empty strings, objects, etc.
+		// Add categories array to main item metadata
 		const sanitizedMetadata = sanitizeForDynamoDB({
 			...metadata,
 			PK: actualItemId,
@@ -247,8 +221,6 @@ exports.createItem = async (req, res) => {
 			});
 		}
 
-		//console.log('Write Requests:', JSON.stringify(writeRequests, null, 2));
-
 		// Execute the batch write operations in chunks
 		// (DynamoDB limits to 25 items per batch)
 		const BATCH_SIZE = 25;
@@ -288,10 +260,13 @@ exports.updateItem = async (req, res) => {
 		const { id } = req.params;
 
 		// First delete the old item and related records
+		console.log("deleting old item");
 		await deleteItemFromDb(id);
 
 		// Then create the updated item with the request body
-		req.body.itemId = id; // Ensure we use the same ID
+		req.body.itemId = id;
+		console.log(req.body);
+		console.log(req.body.metadata);
 		await exports.createItem(req, res);
 	} catch (error) {
 		console.error(`Error updating item ${req.params.id}:`, error);

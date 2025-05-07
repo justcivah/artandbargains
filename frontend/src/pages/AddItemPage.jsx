@@ -204,7 +204,9 @@ const AddItemPage = () => {
 						status: formData.conditionType,
 						description: formData.conditionDescription
 					},
-					images: imageUrls
+					images: imageUrls,
+					// Add categories array to the metadata
+					categories: formData.categories
 				},
 				categories: formData.categories,
 				mediumTypes: formData.mediumTypes,
@@ -236,6 +238,7 @@ const AddItemPage = () => {
 						selectedType={formData.itemType}
 						onChange={(type) => updateFormData('itemType', type)}
 						setItemTypes={setItemTypes}
+						onSelectComplete={handleNext}
 					/>
 				);
 			case 2:
@@ -284,6 +287,7 @@ const AddItemPage = () => {
 						selectedPeriod={formData.period}
 						onChange={(period) => updateFormData('period', period)}
 						setPeriods={setPeriods}
+						onSelectComplete={handleNext}
 					/>
 				);
 			case 7:
@@ -362,7 +366,7 @@ const AddItemPage = () => {
 			case 7:
 				return formData.inventoryQuantity >= 0;
 			case 8:
-				return formData.mediumTypes.length > 0 && !!formData.mediumDescription;
+				return formData.mediumTypes.length > 0;
 			case 9:
 				// At least one dimension should be provided
 				const dims = formData.dimensions;

@@ -36,10 +36,6 @@ body {
 .add-item-button {
 	background-color: #4CAF50;
 	color: white;
-	padding: 8px 16px;
-	border: none;
-	border-radius: 4px;
-	cursor: pointer;
 	text-decoration: none;
 	font-weight: 500;
 }
@@ -100,19 +96,11 @@ body {
 	color: #666;
 }
 
-.item-type {
-	background-color: #e0e0e0;
-	padding: 2px 8px;
-	border-radius: 10px;
-	margin-right: 10px;
-	text-transform: capitalize;
-}
-
-.item-category {
-	background-color: #f0f0f0;
-	padding: 2px 8px;
-	border-radius: 10px;
-	text-transform: capitalize;
+.item-categories {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-top: 5px;
 }
 
 .item-contributor {
@@ -127,6 +115,7 @@ body {
 	min-width: 80px;
 }
 
+.add-item-button,
 .edit-button,
 .delete-button {
 	padding: 6px 12px;
@@ -157,6 +146,10 @@ body {
 	background-color: #d32f2f;
 }
 
+.a:hover {
+	color: var(--light-color);
+}
+
 .admin-loading {
 	text-align: center;
 	padding: 40px;
@@ -179,4 +172,28 @@ body {
 	color: #666;
 	background-color: #fafafa;
 	border-radius: 4px;
+}
+
+/* Update both classes to have identical height properties */
+.item-type,
+.category-badge {
+	padding: 3px 10px;
+	font-size: 0.85rem;
+	border-radius: 12px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1.2;
+}
+
+/* Keep their individual colors */
+.item-type {
+	background-color: var(--accent-color);
+	text-transform: capitalize;
+}
+
+.category-badge {
+	background-color: #f0f0f0;
+	color: #555;
+	text-transform: capitalize;
 }

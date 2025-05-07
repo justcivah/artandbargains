@@ -40,7 +40,7 @@ export const fetchItems = async () => {
 // Fetch a single item by ID
 export const fetchItem = async (itemId) => {
 	try {
-		const response = await api.get(`/api/items/${itemId}`);
+		const response = await api.get(`/api/items/${encodeURIComponent(itemId)}`);
 		return response.data;
 	} catch (error) {
 		console.error(`Error fetching item ${itemId}:`, error);
@@ -51,7 +51,7 @@ export const fetchItem = async (itemId) => {
 // Delete an item
 export const deleteItem = async (itemId) => {
 	try {
-		const response = await api.delete(`/api/items/${itemId}`);
+		const response = await api.delete(`/api/items/${encodeURIComponent(itemId)}`);
 		return response.data;
 	} catch (error) {
 		console.error(`Error deleting item ${itemId}:`, error);
@@ -73,7 +73,7 @@ export const createItem = async (itemData) => {
 // Update an existing item
 export const updateItem = async (itemData) => {
 	try {
-		const response = await api.put(`/api/items/${itemData.metadata.PK}`, itemData);
+		const response = await api.put(`/api/items/${encodeURIComponent(itemData.metadata.PK)}`, itemData);
 		return response.data;
 	} catch (error) {
 		console.error('Error updating item:', error);

@@ -169,12 +169,13 @@ const ItemDetailsForm = ({
 				</div>
 			)}
 
-			<div className="form-group">
-				<label className="checkbox-label">
+			<div className="checkbox-group">
+				<label className="checkbox-label" style={{ display: 'flex', alignItems: 'center' }}>
 					<input
 						type="checkbox"
 						checked={dateInfo.circa}
 						onChange={(e) => handleDateFieldChange('circa', e.target.checked)}
+						style={{ marginRight: '8px', flexShrink: 0 }}
 					/>
 					Circa (approximate date)
 				</label>

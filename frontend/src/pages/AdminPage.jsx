@@ -134,11 +134,18 @@ const AdminPage = () => {
 								<div className="item-meta">
 									<span className="item-type">{item.item_type.replace(/_/g, ' ')}</span>
 									{item.categories && (
-										<span className="item-category">
+										<div className="item-categories">
 											{Array.isArray(item.categories)
-												? item.categories.join(', ')
-												: item.categories}
-										</span>
+												? item.categories.map((category, index) => (
+													<span className="category-badge" key={index}>
+														{category.replace(/_/g, ' ')}
+													</span>
+												))
+												: <span className="category-badge">
+													{item.categories.replace(/_/g, ' ')}
+												</span>
+											}
+										</div>
 									)}
 								</div>
 								<div className="item-contributor">
@@ -146,7 +153,7 @@ const AdminPage = () => {
 								</div>
 							</div>
 							<div className="item-actions">
-								<Link to={`/admin/items/${item.PK}/edit`} className="edit-button">Edit</Link>
+								<Link to={`/admin/items/${encodeURIComponent(item.PK)}/edit`} className="edit-button">Edit</Link>
 								<button
 									className="delete-button"
 									onClick={() => handleDeleteClick(item)}

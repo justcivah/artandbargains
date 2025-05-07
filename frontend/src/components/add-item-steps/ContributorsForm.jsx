@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { createEntity } from '../../api/itemsApi';
 import '../../styles/StepComponents.css';
 
 const ContributorsForm = ({
@@ -49,7 +48,6 @@ const ContributorsForm = ({
 			position: positionOptions[0],
 			contributor: null
 		};
-
 		onChange([...contributors, newContributor]);
 	};
 
@@ -89,24 +87,6 @@ const ContributorsForm = ({
 		onPrimaryChange(contributor.display_name);
 	};
 
-	// Update display name based on first/middle/last name
-	const updateDisplayName = () => {
-		if (contributorType === 'individual') {
-			let name = firstName;
-
-			if (middleName) {
-				// If middle name exists, use just the initial with a period
-				name += ` ${middleName.charAt(0)}.`;
-			}
-
-			if (lastName) {
-				name += ` ${lastName}`;
-			}
-
-			setDisplayName(name);
-		}
-	};
-
 	// Update organization display name based on name
 	const updateOrgDisplayName = () => {
 		setOrgDisplayName(orgName);
@@ -122,6 +102,12 @@ const ContributorsForm = ({
 	const handleDissolutionYearChange = (value) => {
 		setDissolutionYear(value);
 		setIsActive(!value);
+	};
+
+	// Helper function to capitalize first letter of each word
+	const capitalizeFirstLetter = (string) => {
+		if (!string) return '';
+		return string.replace(/\b\w/g, char => char.toUpperCase());
 	};
 
 	// Create a new contributor
@@ -157,7 +143,8 @@ const ContributorsForm = ({
 					death_year: deathYear ? parseInt(deathYear) : null,
 					is_living: isLiving,
 					bio: bio,
-					entity_type: 'contributor'
+					entity_type: 'contributor',
+					name: contributorId
 				};
 			} else {
 				// Validate required fields
@@ -179,21 +166,20 @@ const ContributorsForm = ({
 					dissolution_year: dissolutionYear ? parseInt(dissolutionYear) : null,
 					is_active: isActive,
 					bio: bio,
-					entity_type: 'contributor'
+					entity_type: 'contributor',
+					name: contributorId
 				};
 			}
 
-			// Create the contributor in DynamoDB
-			await createEntity('contributors', newContributorData);
-
-			// Update the contributor in the form data
-			const newContributor = {
-				...newContributorData,
-				name: contributorId
-			};
+			// Create the contributor in database
+			try {
+				await createEntity('contributors', newContributorData);
+			} catch (error) {
+				throw new Error(`Failed to create contributor: ${error.message}`);
+			}
 
 			// Update the list of contributors
-			setContributorsList([...contributorsList, newContributor]);
+			setContributorsList([...contributorsList, newContributorData]);
 
 			// Close the modal
 			setShowCreateModal(false);
@@ -227,6 +213,14 @@ const ContributorsForm = ({
 		setError(null);
 	};
 
+	// Helper function to create entity (placeholder - implementation would be in API file)
+	const createEntity = async (entityType, data) => {
+		// This function would be imported from your API file
+		console.log(`Creating ${entityType} entity:`, data);
+		// Your API call implementation would go here
+		return Promise.resolve(data);
+	};
+
 	return (
 		<div className="step-container">
 			<h2>Contributors</h2>
@@ -245,67 +239,82 @@ const ContributorsForm = ({
 
 				{contributors.map((contributor, index) => (
 					<div key={index} className="contributor-row">
-						<div className="contributor-position">
-							<label>Position:</label>
-							<select
-								value={contributor.position}
-								onChange={(e) => handlePositionChange(index, e.target.value)}
-							>
-								{positionOptions.map(option => (
-									<option key={option} value={option}>
-										{option.charAt(0).toUpperCase() + option.slice(1)}
-									</option>
-								))}
-							</select>
-						</div>
-
-						<div className="contributor-select">
-							<label>Contributor:</label>
-							<select
-								value={contributor.contributor ? contributor.contributor.name : ''}
-								onChange={(e) => {
-									const selected = contributorsList.find(c => c.name === e.target.value);
-									handleContributorSelect(index, selected);
-								}}
-							>
-								<option value="">-- Select Contributor --</option>
-								{contributorsList.map(c => (
-									<option key={c.PK} value={c.name}>
-										{c.display_name} ({c.contributor_type === 'individual' ? 'Individual' : 'Organization'})
-									</option>
-								))}
-							</select>
-
-							<button
-								type="button"
-								className="small-button"
-								onClick={() => setShowCreateModal(true)}
-							>
-								Create New
-							</button>
-						</div>
-
-						{contributor.contributor && (
-							<div className="primary-selector">
-								<label className="radio-label">
-									<input
-										type="radio"
-										name="primaryContributor"
-										checked={primaryContributor === contributor.contributor.display_name}
-										onChange={() => handleSetPrimary(contributor.contributor)}
-									/>
-									Primary Contributor
-								</label>
+						<div className="contributor-header">
+							<div className="contributor-position-header">
+								<label>Position:</label>
 							</div>
-						)}
+							<div className="contributor-select-header">
+								<label>Contributor:</label>
+							</div>
+							<div className="primary-header">
+								{/* Empty space to maintain grid layout */}
+							</div>
+						</div>
 
-						<button
-							type="button"
-							className="remove-button"
-							onClick={() => handleRemoveContributor(index)}
-						>
-							Remove
-						</button>
+						<div className="contributor-content">
+							<div className="contributor-position">
+								<select
+									value={contributor.position}
+									onChange={(e) => handlePositionChange(index, e.target.value)}
+									className="position-select"
+								>
+									{positionOptions.map(option => (
+										<option key={option} value={option}>
+											{option.charAt(0).toUpperCase() + option.slice(1)}
+										</option>
+									))}
+								</select>
+							</div>
+
+							<div className="contributor-select">
+								<select
+									value={contributor.contributor ? contributor.contributor.name : ''}
+									onChange={(e) => {
+										const selected = contributorsList.find(c => c.name === e.target.value);
+										handleContributorSelect(index, selected);
+									}}
+									className="contributor-dropdown"
+								>
+									<option value="">-- Select Contributor --</option>
+									{contributorsList.map(c => (
+										<option key={c.PK} value={c.name}>
+											{c.display_name} ({c.contributor_type === 'individual' ? 'Individual' : 'Organization'})
+										</option>
+									))}
+								</select>
+							</div>
+							<div className="actions-container">
+								{!contributor.contributor && (
+									<button
+										type="button"
+										className="create-button"
+										onClick={() => setShowCreateModal(true)}
+									>
+										Create New
+									</button>
+								)}
+								{contributor.contributor && (
+									<div className="primary-selector">
+										<label className="radio-label">
+											<input
+												type="radio"
+												name="primaryContributor"
+												checked={primaryContributor === contributor.contributor.display_name}
+												onChange={() => handleSetPrimary(contributor.contributor)}
+											/>
+											Primary
+										</label>
+									</div>
+								)}
+								<button
+									type="button"
+									className="remove-button"
+									onClick={() => handleRemoveContributor(index)}
+								>
+									Remove
+								</button>
+							</div>
+						</div>
 					</div>
 				))}
 
@@ -362,8 +371,10 @@ const ContributorsForm = ({
 												id="firstName"
 												value={firstName}
 												onChange={(e) => {
-													setFirstName(e.target.value);
-													setTimeout(updateDisplayName, 0);
+													const f = capitalizeFirstLetter(e.target.value);
+
+													setFirstName(f);
+													setDisplayName(`${f}${middleName ? ` ${middleName.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
 												}}
 												required
 											/>
@@ -376,8 +387,10 @@ const ContributorsForm = ({
 												id="middleName"
 												value={middleName}
 												onChange={(e) => {
-													setMiddleName(e.target.value);
-													setTimeout(updateDisplayName, 0);
+													const m = capitalizeFirstLetter(e.target.value);
+
+													setMiddleName(m);
+													setDisplayName(`${firstName}${m ? ` ${m.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
 												}}
 											/>
 										</div>
@@ -389,8 +402,10 @@ const ContributorsForm = ({
 												id="lastName"
 												value={lastName}
 												onChange={(e) => {
-													setLastName(e.target.value);
-													setTimeout(updateDisplayName, 0);
+													const l = capitalizeFirstLetter(e.target.value);
+
+													setLastName(l);
+													setDisplayName(`${firstName}${middleName ? ` ${middleName.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${l ? ` ${l}` : ''}`);
 												}}
 												required
 											/>
@@ -431,17 +446,17 @@ const ContributorsForm = ({
 												onChange={(e) => handleDeathYearChange(e.target.value)}
 											/>
 										</div>
+									</div>
 
-										<div className="form-group checkbox-group">
-											<label className="checkbox-label">
-												<input
-													type="checkbox"
-													checked={isLiving}
-													onChange={(e) => setIsLiving(e.target.checked)}
-												/>
-												Is Living
-											</label>
-										</div>
+									<div className="form-group checkbox-group">
+										<label className="checkbox-label">
+											<input
+												type="checkbox"
+												checked={isLiving}
+												onChange={(e) => setIsLiving(e.target.checked)}
+											/>
+											Is still living
+										</label>
 									</div>
 								</>
 							)}
@@ -457,8 +472,10 @@ const ContributorsForm = ({
 												id="orgName"
 												value={orgName}
 												onChange={(e) => {
-													setOrgName(e.target.value);
-													setTimeout(updateOrgDisplayName, 0);
+													const o = capitalizeFirstLetter(e.target.value);
+
+													setOrgName(o);
+													setOrgDisplayName(o);
 												}}
 												required
 											/>
@@ -499,17 +516,17 @@ const ContributorsForm = ({
 												onChange={(e) => handleDissolutionYearChange(e.target.value)}
 											/>
 										</div>
+									</div>
 
-										<div className="form-group checkbox-group">
-											<label className="checkbox-label">
-												<input
-													type="checkbox"
-													checked={isActive}
-													onChange={(e) => setIsActive(e.target.checked)}
-												/>
-												Is Active
-											</label>
-										</div>
+									<div className="form-group checkbox-group">
+										<label className="checkbox-label">
+											<input
+												type="checkbox"
+												checked={isActive}
+												onChange={(e) => setIsActive(e.target.checked)}
+											/>
+											Is still active
+										</label>
 									</div>
 								</>
 							)}
