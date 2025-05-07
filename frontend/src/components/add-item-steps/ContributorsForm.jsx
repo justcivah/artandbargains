@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createEntity } from '../../api/itemsApi';
 import '../../styles/StepComponents.css';
 
 const ContributorsForm = ({
@@ -143,8 +144,7 @@ const ContributorsForm = ({
 					death_year: deathYear ? parseInt(deathYear) : null,
 					is_living: isLiving,
 					bio: bio,
-					entity_type: 'contributor',
-					name: contributorId
+					entity_type: 'contributor'
 				};
 			} else {
 				// Validate required fields
@@ -211,14 +211,6 @@ const ContributorsForm = ({
 		setIsActive(true);
 		setBio('');
 		setError(null);
-	};
-
-	// Helper function to create entity (placeholder - implementation would be in API file)
-	const createEntity = async (entityType, data) => {
-		// This function would be imported from your API file
-		console.log(`Creating ${entityType} entity:`, data);
-		// Your API call implementation would go here
-		return Promise.resolve(data);
 	};
 
 	return (
@@ -374,7 +366,7 @@ const ContributorsForm = ({
 													const f = capitalizeFirstLetter(e.target.value);
 
 													setFirstName(f);
-													setDisplayName(`${f}${middleName ? ` ${middleName.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
+													setDisplayName(`${f}${middleName ? ` ${middleName.trim().split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
 												}}
 												required
 											/>
@@ -390,7 +382,7 @@ const ContributorsForm = ({
 													const m = capitalizeFirstLetter(e.target.value);
 
 													setMiddleName(m);
-													setDisplayName(`${firstName}${m ? ` ${m.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
+													setDisplayName(`${firstName}${m ? ` ${m.trim().split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
 												}}
 											/>
 										</div>
@@ -405,7 +397,7 @@ const ContributorsForm = ({
 													const l = capitalizeFirstLetter(e.target.value);
 
 													setLastName(l);
-													setDisplayName(`${firstName}${middleName ? ` ${middleName.split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${l ? ` ${l}` : ''}`);
+													setDisplayName(`${firstName}${middleName ? ` ${middleName.trim().split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${l ? ` ${l}` : ''}`);
 												}}
 												required
 											/>

@@ -4,7 +4,6 @@ import '../../styles/StepComponents.css';
 
 const CategorySelector = ({ categories, selectedCategories, onChange, setCategories }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newCategoryName, setNewCategoryName] = useState('');
 	const [newCategoryDisplayName, setNewCategoryDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
@@ -26,8 +25,8 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 	const handleCreateCategory = async (e) => {
 		e.preventDefault();
 
-		if (!newCategoryName || !newCategoryDisplayName) {
-			setError('Both name and display name are required');
+		if (!newCategoryDisplayName) {
+			setError('Display name is required');
 			return;
 		}
 
@@ -35,8 +34,12 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 			setIsSubmitting(true);
 			setError(null);
 
-			// Format the category name
-			const formattedName = newCategoryName.toLowerCase().replace(/\s+/g, '_');
+			// Generate the system name from display name
+			// Convert to lowercase, replace spaces with underscores, remove special characters
+			const formattedName = newCategoryDisplayName
+				.toLowerCase()
+				.replace(/\s+/g, '_')
+				.replace(/[^a-z0-9_]/g, '');
 
 			// Create the new category
 			const newCategoryData = {
@@ -57,7 +60,6 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 
 			// Close the modal
 			setShowCreateModal(false);
-			setNewCategoryName('');
 			setNewCategoryDisplayName('');
 		} catch (err) {
 			setError('Error creating category: ' + err.message);
@@ -117,19 +119,6 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 						<h3>Create New Category</h3>
 						<form onSubmit={handleCreateCategory}>
 							<div className="form-group">
-								<label htmlFor="categoryName">Name (for system):</label>
-								<input
-									type="text"
-									id="categoryName"
-									value={newCategoryName}
-									onChange={(e) => setNewCategoryName(e.target.value)}
-									placeholder="e.g. japanese_woodblock"
-									autoFocus
-								/>
-								<small>Use lowercase with underscores instead of spaces</small>
-							</div>
-
-							<div className="form-group">
 								<label htmlFor="categoryDisplayName">Display Name:</label>
 								<input
 									type="text"
@@ -137,8 +126,9 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 									value={newCategoryDisplayName}
 									onChange={(e) => setNewCategoryDisplayName(e.target.value)}
 									placeholder="e.g. Japanese Woodblock"
+									autoFocus
 								/>
-								<small>This is how the category will be displayed to users</small>
+								<small>The system name will be automatically generated</small>
 							</div>
 
 							<div className="modal-actions">
@@ -147,7 +137,6 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 									className="cancel-button"
 									onClick={() => {
 										setShowCreateModal(false);
-										setNewCategoryName('');
 										setNewCategoryDisplayName('');
 										setError(null);
 									}}
@@ -158,7 +147,7 @@ const CategorySelector = ({ categories, selectedCategories, onChange, setCategor
 								<button
 									type="submit"
 									className="confirm-button"
-									disabled={!newCategoryName || !newCategoryDisplayName || isSubmitting}
+									disabled={!newCategoryDisplayName || isSubmitting}
 								>
 									{isSubmitting ? 'Creating...' : 'Create Category'}
 								</button>

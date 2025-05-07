@@ -5,8 +5,71 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 	const fileInputRef = useRef(null);
 	const [dragging, setDragging] = useState(false);
 	const [error, setError] = useState(null);
+	const [processing, setProcessing] = useState(false);
 
-	const handleFileSelection = (files) => {
+	// Process image - resize, compress, and convert to webp
+	const processImage = (file) => {
+		return new Promise((resolve, reject) => {
+			// Create image element to load the file
+			const img = new Image();
+			img.onload = () => {
+				// Get dimensions
+				let width = img.width;
+				let height = img.height;
+
+				// Determine scale factor to resize longest side to 2000px
+				const maxSize = 2048;
+				let scaleFactor = 1;
+
+				if (width > height && width > maxSize) {
+					scaleFactor = maxSize / width;
+				} else if (height > width && height > maxSize) {
+					scaleFactor = maxSize / height;
+				} else if (width === height && width > maxSize) {
+					scaleFactor = maxSize / width;
+				}
+
+				// Calculate new dimensions
+				const newWidth = Math.round(width * scaleFactor);
+				const newHeight = Math.round(height * scaleFactor);
+
+				// Create canvas for resizing
+				const canvas = document.createElement('canvas');
+				canvas.width = newWidth;
+				canvas.height = newHeight;
+
+				// Draw image on canvas with new dimensions
+				const ctx = canvas.getContext('2d');
+				ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+				// Convert to webp with quality setting (0.8 = 80% quality, good balance)
+				canvas.toBlob((blob) => {
+					if (!blob) {
+						reject(new Error('Canvas to Blob conversion failed'));
+						return;
+					}
+
+					// Create new file from blob
+					const fileName = file.name.replace(/\.[^/.]+$/, "") + '.webp';
+					const processedFile = new File([blob], fileName, {
+						type: 'image/webp',
+						lastModified: new Date().getTime()
+					});
+
+					resolve(processedFile);
+				}, 'image/webp', 0.8); // 0.8 quality provides good compression
+			};
+
+			img.onerror = () => {
+				reject(new Error('Failed to load image'));
+			};
+
+			// Load image from file
+			img.src = URL.createObjectURL(file);
+		});
+	};
+
+	const handleFileSelection = async (files) => {
 		if (!files || files.length === 0) return;
 
 		// Check file types
@@ -16,17 +79,29 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 			return;
 		}
 
-		// Update images
-		const newImages = [...images, ...files];
-		onChange(newImages);
-
-		// If this is the first image, set it as primary
-		if (images.length === 0 && files.length > 0) {
-			onPrimaryChange(0);
-		}
-
-		// Clear error
+		setProcessing(true);
 		setError(null);
+
+		try {
+			// Process all images
+			const processedImages = await Promise.all(
+				Array.from(files).map(file => processImage(file))
+			);
+
+			// Update images
+			const newImages = [...images, ...processedImages];
+			onChange(newImages);
+
+			// If this is the first image, set it as primary
+			if (images.length === 0 && processedImages.length > 0) {
+				onPrimaryChange(0);
+			}
+		} catch (err) {
+			console.error('Image processing error:', err);
+			setError('Failed to process one or more images. Please try again.');
+		} finally {
+			setProcessing(false);
+		}
 	};
 
 	const handleFileBrowse = () => {
@@ -86,18 +161,26 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 		<div className="step-container">
 			<h2>Item Images</h2>
 			<p className="step-description">
-				Upload images of the item. The primary image will be used as the main display image.
+				Upload images of the item. Images will be automatically resized, compressed, and converted to WebP format.
+				The primary image will be used as the main display image.
 			</p>
 
 			{error && <div className="step-error">{error}</div>}
 
+			{processing && (
+				<div className="processing-indicator">
+					<div className="spinner"></div>
+					<span>Processing images...</span>
+				</div>
+			)}
+
 			<div
-				className={`image-upload-area ${dragging ? 'dragging' : ''}`}
-				onDragEnter={handleDragEnter}
-				onDragLeave={handleDragLeave}
-				onDragOver={handleDragOver}
-				onDrop={handleDrop}
-				onClick={handleFileBrowse}
+				className={`image-upload-area ${dragging ? 'dragging' : ''} ${processing ? 'disabled' : ''}`}
+				onDragEnter={!processing ? handleDragEnter : null}
+				onDragLeave={!processing ? handleDragLeave : null}
+				onDragOver={!processing ? handleDragOver : null}
+				onDrop={!processing ? handleDrop : null}
+				onClick={!processing ? handleFileBrowse : null}
 			>
 				<div className="upload-icon">
 					<svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -108,7 +191,7 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 				</div>
 				<div className="upload-text">
 					<p>Drag and drop images here, or click to browse</p>
-					<p className="upload-hint">Supported formats: JPG, PNG, GIF</p>
+					<p className="upload-hint">Images will be converted to WebP with longest side at 2000px</p>
 				</div>
 				<input
 					type="file"
@@ -117,6 +200,7 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 					accept="image/*"
 					multiple
 					onChange={handleFileInputChange}
+					disabled={processing}
 				/>
 			</div>
 
@@ -133,7 +217,10 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 									<img src={URL.createObjectURL(image)} alt={`Preview ${index + 1}`} />
 								</div>
 								<div className="image-actions">
-									<div className="image-name">{image.name}</div>
+									<div className="image-name">
+										{image.name}
+										<span className="image-type">WebP</span>
+									</div>
 									<div className="image-controls">
 										<label className={`primary-control ${index === primaryIndex ? 'is-primary' : ''}`}>
 											<input

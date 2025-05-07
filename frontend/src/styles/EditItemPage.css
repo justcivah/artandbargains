@@ -1,0 +1,212 @@
+/* Accordion Layout Styles */
+.edit-item-accordion {
+	margin: 20px 0;
+}
+
+.accordion-section {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	transition: all 0.3s ease;
+}
+
+.accordion-section.expanded {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-section.valid {
+	border-left: 4px solid #4CAF50;
+}
+
+.accordion-section.invalid {
+	border-left: 4px solid #f44336;
+}
+
+.accordion-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 15px 20px;
+	background-color: #f9f9f9;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.accordion-header:hover {
+	background-color: #f0f0f0;
+}
+
+.accordion-header h3 {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 500;
+}
+
+.header-indicators {
+	display: flex;
+	align-items: center;
+}
+
+.validation-indicator {
+	margin-right: 10px;
+	font-weight: bold;
+	font-size: 1.2rem;
+}
+
+.accordion-section.valid .validation-indicator {
+	color: #4CAF50;
+}
+
+.accordion-section.invalid .validation-indicator {
+	color: #f44336;
+}
+
+.accordion-indicator {
+	color: #777;
+	font-size: 0.8rem;
+}
+
+.accordion-content {
+	padding: 20px;
+	border-top: 1px solid #eee;
+	background-color: white;
+}
+
+/* Image management section styles */
+.image-management-section {
+	padding: 0;
+}
+
+.section-description {
+	margin-bottom: 20px;
+	color: #555;
+}
+
+.existing-images {
+	margin-bottom: 30px;
+}
+
+.existing-images h3,
+.new-images-section h3 {
+	margin-bottom: 15px;
+	font-size: 1.1rem;
+	color: #333;
+}
+
+.image-preview-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 20px;
+}
+
+.image-preview-item {
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	overflow: hidden;
+	transition: all 0.3s ease;
+}
+
+.image-preview-item.primary {
+	border-color: #4CAF50;
+	box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.image-preview {
+	height: 150px;
+	overflow: hidden;
+}
+
+.image-preview img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.image-actions {
+	padding: 10px;
+	background-color: #f9f9f9;
+}
+
+.image-name {
+	font-size: 0.9rem;
+	margin-bottom: 8px;
+	color: #555;
+}
+
+.primary-control {
+	display: flex;
+	align-items: center;
+	font-size: 0.85rem;
+	color: #777;
+	cursor: pointer;
+}
+
+.primary-control.is-primary {
+	color: #4CAF50;
+	font-weight: 500;
+}
+
+.primary-control input {
+	margin-right: 6px;
+}
+
+.add-item-navigation {
+	position: sticky;
+	bottom: 0;
+	background-color: white;
+	padding: 15px 0;
+	border-top: 1px solid #eee;
+	margin-top: 30px;
+	display: flex;
+	justify-content: flex;
+}
+
+.submit-button {
+	background-color: #4CAF50;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	padding: 12px 24px;
+	font-weight: 500;
+	cursor: pointer;
+	transition: background-color 0.3s;
+}
+
+.submit-button:hover:not(:disabled) {
+	background-color: #45a049;
+}
+
+.submit-button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+	.image-preview-grid {
+		grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+	}
+
+	.add-item-header h1 {
+		font-size: 1.5rem;
+	}
+
+	.accordion-header h3 {
+		font-size: 1rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.image-preview-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.add-item-header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.add-item-header .cancel-button {
+		margin-top: 10px;
+	}
+}

@@ -11,7 +11,6 @@ const MediumTypeSelector = ({
 	setMediumTypes
 }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newMediumName, setNewMediumName] = useState('');
 	const [newMediumDisplayName, setNewMediumDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
@@ -33,8 +32,8 @@ const MediumTypeSelector = ({
 	const handleCreateMedium = async (e) => {
 		e.preventDefault();
 
-		if (!newMediumName || !newMediumDisplayName) {
-			setError('Both name and display name are required');
+		if (!newMediumDisplayName) {
+			setError('Display name is required');
 			return;
 		}
 
@@ -42,8 +41,12 @@ const MediumTypeSelector = ({
 			setIsSubmitting(true);
 			setError(null);
 
-			// Format the medium name
-			const formattedName = newMediumName.toLowerCase().replace(/\s+/g, '_');
+			// Generate the system name from display name
+			// Convert to lowercase, replace spaces with underscores, remove special characters
+			const formattedName = newMediumDisplayName
+				.toLowerCase()
+				.replace(/\s+/g, '_')
+				.replace(/[^a-z0-9_]/g, '');
 
 			// Create the new medium
 			const newMediumData = {
@@ -63,7 +66,6 @@ const MediumTypeSelector = ({
 
 			// Close the modal
 			setShowCreateModal(false);
-			setNewMediumName('');
 			setNewMediumDisplayName('');
 		} catch (err) {
 			setError('Error creating medium type: ' + err.message);
@@ -137,19 +139,6 @@ const MediumTypeSelector = ({
 						<h3>Create New Medium Type</h3>
 						<form onSubmit={handleCreateMedium}>
 							<div className="form-group">
-								<label htmlFor="mediumName">Name (for system):</label>
-								<input
-									type="text"
-									id="mediumName"
-									value={newMediumName}
-									onChange={(e) => setNewMediumName(e.target.value)}
-									placeholder="e.g. watercolor"
-									autoFocus
-								/>
-								<small>Use lowercase with underscores instead of spaces</small>
-							</div>
-
-							<div className="form-group">
 								<label htmlFor="mediumDisplayName">Display Name:</label>
 								<input
 									type="text"
@@ -157,8 +146,9 @@ const MediumTypeSelector = ({
 									value={newMediumDisplayName}
 									onChange={(e) => setNewMediumDisplayName(e.target.value)}
 									placeholder="e.g. Watercolor"
+									autoFocus
 								/>
-								<small>This is how the medium will be displayed to users</small>
+								<small>The system name will be automatically generated</small>
 							</div>
 
 							<div className="modal-actions">
@@ -167,7 +157,6 @@ const MediumTypeSelector = ({
 									className="cancel-button"
 									onClick={() => {
 										setShowCreateModal(false);
-										setNewMediumName('');
 										setNewMediumDisplayName('');
 										setError(null);
 									}}
@@ -178,7 +167,7 @@ const MediumTypeSelector = ({
 								<button
 									type="submit"
 									className="confirm-button"
-									disabled={!newMediumName || !newMediumDisplayName || isSubmitting}
+									disabled={!newMediumDisplayName || isSubmitting}
 								>
 									{isSubmitting ? 'Creating...' : 'Create Medium Type'}
 								</button>

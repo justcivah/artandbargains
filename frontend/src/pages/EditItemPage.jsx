@@ -14,15 +14,16 @@ import InventoryForm from '../components/add-item-steps/InventoryForm';
 import MediumTypeSelector from '../components/add-item-steps/MediumTypeSelector';
 import DimensionsForm from '../components/add-item-steps/DimensionsForm';
 import ConditionTypeSelector from '../components/add-item-steps/ConditionTypeSelector';
-import ImageUploader from '../components/add-item-steps//ImageUploader';
-import StepIndicator from '../components/add-item-steps/StepIndicator';
+import ImageUploader from '../components/add-item-steps/ImageUploader';
 import '../styles/AddItemPage.css';
+import '../styles/EditItemPage.css';
 
 const EditItemPage = () => {
 	const { itemId } = useParams();
 	const navigate = useNavigate();
-	const [currentStep, setCurrentStep] = useState(1);
-	const totalSteps = 11;
+
+	// Track expanded sections
+	const [expandedSections, setExpandedSections] = useState({});
 
 	// Metadata states
 	const [itemTypes, setItemTypes] = useState([]);
@@ -95,8 +96,6 @@ const EditItemPage = () => {
 				setConditionTypes(conditions);
 				setContributorsList(contributors);
 
-				console.log(item.categories);
-
 				// Set form data from item
 				const dateInfo = {};
 				if (item.date_info.year_exact !== null) {
@@ -148,6 +147,9 @@ const EditItemPage = () => {
 					existingImages: item.images || []
 				});
 
+				// Auto-expand first section
+				setExpandedSections({ "item-type": true });
+
 				setLoading(false);
 			} catch (err) {
 				setError('Error loading item data: ' + err.message);
@@ -167,20 +169,33 @@ const EditItemPage = () => {
 		}));
 	};
 
-	// Navigate to next step
-	const handleNext = () => {
-		if (currentStep < totalSteps) {
-			setCurrentStep(currentStep + 1);
-			window.scrollTo(0, 0);
-		}
+	// Toggle a section's expanded state
+	const toggleSection = (sectionId) => {
+		setExpandedSections(prev => ({
+			...prev,
+			[sectionId]: !prev[sectionId]
+		}));
 	};
 
-	// Navigate to previous step
-	const handlePrevious = () => {
-		if (currentStep > 1) {
-			setCurrentStep(currentStep - 1);
-			window.scrollTo(0, 0);
+	// Handle removing an existing image
+	const handleRemoveExistingImage = (index) => {
+		// Create a copy of existing images
+		const updatedExistingImages = [...formData.existingImages];
+
+		// Check if the image being removed is primary
+		const removingPrimary = updatedExistingImages[index].is_primary;
+
+		// Remove the image
+		updatedExistingImages.splice(index, 1);
+
+		// If we removed the primary image and there are still images left,
+		// set the first one as primary
+		if (removingPrimary && updatedExistingImages.length > 0) {
+			updatedExistingImages[0].is_primary = true;
 		}
+
+		// Update form data with the new array
+		updateFormData('existingImages', updatedExistingImages);
 	};
 
 	// Handle form submission
@@ -299,126 +314,244 @@ const EditItemPage = () => {
 		}
 	};
 
-	// Render the current step
-	const renderStep = () => {
-		switch (currentStep) {
-			case 1:
-				return (
-					<TypeSelector
-						itemTypes={itemTypes}
-						selectedType={formData.itemType}
-						onChange={(type) => updateFormData('itemType', type)}
-						setItemTypes={setItemTypes}
-					/>
-				);
-			case 2:
-				return (
-					<CategorySelector
-						categories={categories}
-						selectedCategories={formData.categories}
-						onChange={(cats) => updateFormData('categories', cats)}
-						setCategories={setCategories}
-					/>
-				);
-			case 3:
-				return (
-					<ItemDetailsForm
-						title={formData.title}
-						description={formData.description}
-						price={formData.price}
-						onTitleChange={(title) => updateFormData('title', title)}
-						onDescriptionChange={(desc) => updateFormData('description', desc)}
-						onPriceChange={(price) => updateFormData('price', price)}
-					/>
-				);
-			case 4:
-				return (
-					<ItemDetailsForm
-						dateInfo={formData.dateInfo}
-						onDateInfoChange={(dateInfo) => updateFormData('dateInfo', dateInfo)}
-						isDateStep={true}
-					/>
-				);
-			case 5:
-				return (
-					<ContributorsForm
-						contributors={formData.contributors}
-						primaryContributor={formData.primaryContributor}
-						contributorsList={contributorsList}
-						onChange={(contributors) => updateFormData('contributors', contributors)}
-						onPrimaryChange={(primary) => updateFormData('primaryContributor', primary)}
-						setContributorsList={setContributorsList}
-					/>
-				);
-			case 6:
-				return (
-					<PeriodSelector
-						periods={periods}
-						selectedPeriod={formData.period}
-						onChange={(period) => updateFormData('period', period)}
-						setPeriods={setPeriods}
-					/>
-				);
-			case 7:
-				return (
-					<InventoryForm
-						inventoryQuantity={formData.inventoryQuantity}
-						onChange={(qty) => updateFormData('inventoryQuantity', qty)}
-					/>
-				);
-			case 8:
-				return (
-					<MediumTypeSelector
-						mediumTypes={mediumTypes}
-						selectedMediumTypes={formData.mediumTypes}
-						mediumDescription={formData.mediumDescription}
-						onChange={(types) => updateFormData('mediumTypes', types)}
-						onDescriptionChange={(desc) => updateFormData('mediumDescription', desc)}
-						setMediumTypes={setMediumTypes}
-					/>
-				);
-			case 9:
-				return (
-					<DimensionsForm
-						dimensions={formData.dimensions}
-						unit={formData.dimensionsUnit}
-						onChange={(dimensions) => updateFormData('dimensions', dimensions)}
-						onUnitChange={(unit) => updateFormData('dimensionsUnit', unit)}
-					/>
-				);
-			case 10:
-				return (
-					<ConditionTypeSelector
-						conditionTypes={conditionTypes}
-						selectedConditionType={formData.conditionType}
-						conditionDescription={formData.conditionDescription}
-						onChange={(type) => updateFormData('conditionType', type)}
-						onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
-						setConditionTypes={setConditionTypes}
-					/>
-				);
-			case 11:
-				return (
-					<div className="image-management-step">
-						<h2>Manage Images</h2>
-						<p className="step-description">
-							You can add new images or change the primary image. Existing images are shown below.
-						</p>
+	// Check if form is valid before submission
+	const isFormValid = () => {
+		// Validate all required fields
+		const hasValidItemType = !!formData.itemType;
+		const hasValidCategories = formData.categories.length > 0;
+		const hasValidBasicInfo = !!formData.title && !!formData.description && !!formData.price;
 
-						{formData.existingImages.length > 0 && (
-							<div className="existing-images">
-								<h3>Existing Images</h3>
-								<div className="image-preview-grid">
-									{formData.existingImages.map((image, index) => (
-										<div
-											key={`existing-${index}`}
-											className={`image-preview-item ${image.is_primary ? 'primary' : ''}`}
-										>
-											<div className="image-preview">
-												<img src={image.url} alt={`Item ${index + 1}`} />
-											</div>
-											<div className="image-actions">
-												<div className="image-name">Existing Image {index + 1}</div>
+		let hasValidDateInfo = false;
+		if (formData.dateInfo.type === 'exact') {
+			hasValidDateInfo = !!formData.dateInfo.yearExact;
+		} else if (formData.dateInfo.type === 'range') {
+			hasValidDateInfo = !!formData.dateInfo.yearRangeStart && !!formData.dateInfo.yearRangeEnd;
+		} else {
+			hasValidDateInfo = !!formData.dateInfo.periodText;
+		}
+
+		const hasValidContributors = formData.contributors.length > 0 && !!formData.primaryContributor;
+		const hasValidPeriod = !!formData.period;
+		const hasValidInventory = formData.inventoryQuantity >= 0;
+		const hasValidMedium = formData.mediumTypes.length > 0;
+
+		const dims = formData.dimensions;
+		const hasValidDimensions = !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
+
+		const hasValidCondition = !!formData.conditionType;
+		const hasValidImages = formData.existingImages.length > 0 || formData.images.length > 0;
+
+		return (
+			hasValidItemType &&
+			hasValidCategories &&
+			hasValidBasicInfo &&
+			hasValidDateInfo &&
+			hasValidContributors &&
+			hasValidPeriod &&
+			hasValidInventory &&
+			hasValidMedium &&
+			hasValidDimensions &&
+			hasValidCondition &&
+			hasValidImages
+		);
+	};
+
+	// Check if specific section is valid
+	const isSectionValid = (sectionId) => {
+		switch (sectionId) {
+			case "item-type":
+				return !!formData.itemType;
+			case "category":
+				return formData.categories.length > 0;
+			case "item-details":
+				return !!formData.title && !!formData.description && !!formData.price;
+			case "date-info":
+				if (formData.dateInfo.type === 'exact') {
+					return !!formData.dateInfo.yearExact;
+				} else if (formData.dateInfo.type === 'range') {
+					return !!formData.dateInfo.yearRangeStart && !!formData.dateInfo.yearRangeEnd;
+				} else {
+					return !!formData.dateInfo.periodText;
+				}
+			case "contributors":
+				return formData.contributors.length > 0 && !!formData.primaryContributor;
+			case "period":
+				return !!formData.period;
+			case "inventory":
+				return formData.inventoryQuantity >= 0;
+			case "medium":
+				return formData.mediumTypes.length > 0;
+			case "dimensions":
+				const dims = formData.dimensions;
+				return !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
+			case "condition":
+				return !!formData.conditionType;
+			case "images":
+				return formData.existingImages.length > 0 || formData.images.length > 0;
+			default:
+				return false;
+		}
+	};
+
+	if (loading) {
+		return <div className="add-item-loading">Loading item data...</div>;
+	}
+
+	if (error) {
+		return <div className="add-item-error">{error}</div>;
+	}
+
+	// Define the sections for the accordion
+	const sections = [
+		{
+			id: "item-type",
+			title: "Item Type",
+			content: (
+				<TypeSelector
+					itemTypes={itemTypes}
+					selectedType={formData.itemType}
+					onChange={(type) => updateFormData('itemType', type)}
+					setItemTypes={setItemTypes}
+				/>
+			)
+		},
+		{
+			id: "category",
+			title: "Categories",
+			content: (
+				<CategorySelector
+					categories={categories}
+					selectedCategories={formData.categories}
+					onChange={(cats) => updateFormData('categories', cats)}
+					setCategories={setCategories}
+				/>
+			)
+		},
+		{
+			id: "item-details",
+			title: "Item Details",
+			content: (
+				<ItemDetailsForm
+					title={formData.title}
+					description={formData.description}
+					price={formData.price}
+					onTitleChange={(title) => updateFormData('title', title)}
+					onDescriptionChange={(desc) => updateFormData('description', desc)}
+					onPriceChange={(price) => updateFormData('price', price)}
+				/>
+			)
+		},
+		{
+			id: "date-info",
+			title: "Date Information",
+			content: (
+				<ItemDetailsForm
+					dateInfo={formData.dateInfo}
+					onDateInfoChange={(dateInfo) => updateFormData('dateInfo', dateInfo)}
+					isDateStep={true}
+				/>
+			)
+		},
+		{
+			id: "contributors",
+			title: "Contributors",
+			content: (
+				<ContributorsForm
+					contributors={formData.contributors}
+					primaryContributor={formData.primaryContributor}
+					contributorsList={contributorsList}
+					onChange={(contributors) => updateFormData('contributors', contributors)}
+					onPrimaryChange={(primary) => updateFormData('primaryContributor', primary)}
+					setContributorsList={setContributorsList}
+				/>
+			)
+		},
+		{
+			id: "period",
+			title: "Period",
+			content: (
+				<PeriodSelector
+					periods={periods}
+					selectedPeriod={formData.period}
+					onChange={(period) => updateFormData('period', period)}
+					setPeriods={setPeriods}
+				/>
+			)
+		},
+		{
+			id: "inventory",
+			title: "Inventory",
+			content: (
+				<InventoryForm
+					inventoryQuantity={formData.inventoryQuantity}
+					onChange={(qty) => updateFormData('inventoryQuantity', qty)}
+				/>
+			)
+		},
+		{
+			id: "medium",
+			title: "Medium",
+			content: (
+				<MediumTypeSelector
+					mediumTypes={mediumTypes}
+					selectedMediumTypes={formData.mediumTypes}
+					mediumDescription={formData.mediumDescription}
+					onChange={(types) => updateFormData('mediumTypes', types)}
+					onDescriptionChange={(desc) => updateFormData('mediumDescription', desc)}
+					setMediumTypes={setMediumTypes}
+				/>
+			)
+		},
+		{
+			id: "dimensions",
+			title: "Dimensions",
+			content: (
+				<DimensionsForm
+					dimensions={formData.dimensions}
+					unit={formData.dimensionsUnit}
+					onChange={(dimensions) => updateFormData('dimensions', dimensions)}
+					onUnitChange={(unit) => updateFormData('dimensionsUnit', unit)}
+				/>
+			)
+		},
+		{
+			id: "condition",
+			title: "Condition",
+			content: (
+				<ConditionTypeSelector
+					conditionTypes={conditionTypes}
+					selectedConditionType={formData.conditionType}
+					conditionDescription={formData.conditionDescription}
+					onChange={(type) => updateFormData('conditionType', type)}
+					onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
+					setConditionTypes={setConditionTypes}
+				/>
+			)
+		},
+		{
+			id: "images",
+			title: "Images",
+			content: (
+				<div className="image-management-section">
+					<p className="section-description">
+						You can add new images or change the primary image. Existing images are shown below.
+					</p>
+
+					{formData.existingImages.length > 0 && (
+						<div className="existing-images">
+							<h3>Existing Images</h3>
+							<div className="image-preview-grid">
+								{formData.existingImages.map((image, index) => (
+									<div
+										key={`existing-${index}`}
+										className={`image-preview-item ${image.is_primary ? 'primary' : ''}`}
+									>
+										<div className="image-preview">
+											<img src={image.url} alt={`Item ${index + 1}`} />
+										</div>
+										<div className="image-actions">
+											<div className="image-name">Existing Image {index + 1}</div>
+											<div className="image-controls">
 												<label className={`primary-control ${image.is_primary ? 'is-primary' : ''}`}>
 													<input
 														type="radio"
@@ -436,75 +569,37 @@ const EditItemPage = () => {
 													/>
 													{image.is_primary ? 'Primary Image' : 'Set as Primary'}
 												</label>
+												<button
+													type="button"
+													className="remove-image"
+													onClick={(e) => {
+														e.stopPropagation();
+														handleRemoveExistingImage(index);
+													}}
+												>
+													Remove
+												</button>
 											</div>
 										</div>
-									))}
-								</div>
+									</div>
+								))}
 							</div>
-						)}
-
-						<div className="new-images-section">
-							<h3>Add New Images</h3>
-							<ImageUploader
-								images={formData.images}
-								primaryIndex={formData.primaryImageIndex}
-								onChange={(images) => updateFormData('images', images)}
-								onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
-							/>
 						</div>
+					)}
+
+					<div className="new-images-section">
+						<h3>Add New Images</h3>
+						<ImageUploader
+							images={formData.images}
+							primaryIndex={formData.primaryImageIndex}
+							onChange={(images) => updateFormData('images', images)}
+							onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
+						/>
 					</div>
-				);
-			default:
-				return <div>Invalid step</div>;
+				</div>
+			)
 		}
-	};
-
-	// Validate if the current step is complete
-	const isStepComplete = () => {
-		switch (currentStep) {
-			case 1:
-				return !!formData.itemType;
-			case 2:
-				return formData.categories.length > 0;
-			case 3:
-				return !!formData.title && !!formData.description && !!formData.price;
-			case 4:
-				if (formData.dateInfo.type === 'exact') {
-					return !!formData.dateInfo.yearExact;
-				} else if (formData.dateInfo.type === 'range') {
-					return !!formData.dateInfo.yearRangeStart && !!formData.dateInfo.yearRangeEnd;
-				} else {
-					return !!formData.dateInfo.periodText;
-				}
-			case 5:
-				return formData.contributors.length > 0 && !!formData.primaryContributor;
-			case 6:
-				return !!formData.period;
-			case 7:
-				return formData.inventoryQuantity >= 0;
-			case 8:
-				return formData.mediumTypes.length > 0 && !!formData.mediumDescription;
-			case 9:
-				// At least one dimension should be provided
-				const dims = formData.dimensions;
-				return !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
-			case 10:
-				return !!formData.conditionType;
-			case 11:
-				// Either existing images or new images should be present
-				return formData.existingImages.length > 0 || formData.images.length > 0;
-			default:
-				return false;
-		}
-	};
-
-	if (loading) {
-		return <div className="add-item-loading">Loading item data...</div>;
-	}
-
-	if (error) {
-		return <div className="add-item-error">{error}</div>;
-	}
+	];
 
 	return (
 		<div className="add-item-page">
@@ -518,40 +613,43 @@ const EditItemPage = () => {
 				</button>
 			</div>
 
-			<StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
-
-			<div className="add-item-content">
-				{renderStep()}
+			<div className="edit-item-accordion">
+				{sections.map((section) => (
+					<div
+						key={section.id}
+						className={`accordion-section ${expandedSections[section.id] ? 'expanded' : ''} ${isSectionValid(section.id) ? 'valid' : 'invalid'}`}
+					>
+						<div
+							className="accordion-header"
+							onClick={() => toggleSection(section.id)}
+						>
+							<h3>{section.title}</h3>
+							<div className="header-indicators">
+								<span className="validation-indicator">
+									{isSectionValid(section.id) ? '✓' : '✗'}
+								</span>
+								<span className="accordion-indicator">
+									{expandedSections[section.id] ? '▲' : '▼'}
+								</span>
+							</div>
+						</div>
+						{expandedSections[section.id] && (
+							<div className="accordion-content">
+								{section.content}
+							</div>
+						)}
+					</div>
+				))}
 			</div>
 
 			<div className="add-item-navigation">
-				{currentStep > 1 && (
-					<button
-						className="prev-button"
-						onClick={handlePrevious}
-						disabled={isSubmitting}
-					>
-						Previous
-					</button>
-				)}
-
-				{currentStep < totalSteps ? (
-					<button
-						className="next-button"
-						onClick={handleNext}
-						disabled={!isStepComplete() || isSubmitting}
-					>
-						Next
-					</button>
-				) : (
-					<button
-						className="submit-button"
-						onClick={handleSubmit}
-						disabled={!isStepComplete() || isSubmitting}
-					>
-						{isSubmitting ? 'Saving Changes...' : 'Save Changes'}
-					</button>
-				)}
+				<button
+					className="submit-button"
+					onClick={handleSubmit}
+					disabled={!isFormValid() || isSubmitting}
+				>
+					{isSubmitting ? 'Saving Changes...' : 'Save Changes'}
+				</button>
 			</div>
 		</div>
 	);

@@ -4,7 +4,6 @@ import '../../styles/StepComponents.css';
 
 const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelectComplete}) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newPeriodName, setNewPeriodName] = useState('');
 	const [newPeriodDisplayName, setNewPeriodDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
@@ -67,8 +66,8 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 
 	const handleCreatePeriod = async (e) => {
 		e.preventDefault();
-		if (!newPeriodName || !newPeriodDisplayName) {
-			setError('Both name and display name are required');
+		if (!newPeriodDisplayName) {
+			setError('Display name is required');
 			return;
 		}
 
@@ -76,8 +75,12 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 			setIsSubmitting(true);
 			setError(null);
 
-			// Format the period name
-			const formattedName = newPeriodName.toLowerCase().replace(/\s+/g, '_');
+			// Generate the system name from display name
+			// Convert to lowercase, replace spaces with underscores, remove special characters
+			const formattedName = newPeriodDisplayName
+				.toLowerCase()
+				.replace(/\s+/g, '_')
+				.replace(/[^a-z0-9_]/g, '');
 
 			// Create the new period
 			const newPeriodData = {
@@ -97,7 +100,6 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 
 			// Close the modal
 			setShowCreateModal(false);
-			setNewPeriodName('');
 			setNewPeriodDisplayName('');
 		} catch (err) {
 			setError('Error creating period: ' + err.message);
@@ -140,19 +142,6 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 						<h3>Create New Period</h3>
 						<form onSubmit={handleCreatePeriod}>
 							<div className="form-group">
-								<label htmlFor="periodName">Name (for system):</label>
-								<input
-									type="text"
-									id="periodName"
-									value={newPeriodName}
-									onChange={(e) => setNewPeriodName(e.target.value)}
-									placeholder="e.g. 18th_century"
-									autoFocus
-								/>
-								<small>Use lowercase with underscores instead of spaces</small>
-							</div>
-
-							<div className="form-group">
 								<label htmlFor="periodDisplayName">Display Name:</label>
 								<input
 									type="text"
@@ -160,8 +149,9 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 									value={newPeriodDisplayName}
 									onChange={(e) => setNewPeriodDisplayName(e.target.value)}
 									placeholder="e.g. 18th Century"
+									autoFocus
 								/>
-								<small>This is how the period will be displayed to users</small>
+								<small>The system name will be automatically generated</small>
 							</div>
 
 							<div className="modal-actions">
@@ -170,7 +160,6 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 									className="cancel-button"
 									onClick={() => {
 										setShowCreateModal(false);
-										setNewPeriodName('');
 										setNewPeriodDisplayName('');
 										setError(null);
 									}}
@@ -182,7 +171,7 @@ const PeriodSelector = ({ periods, selectedPeriod, onChange, setPeriods, onSelec
 								<button
 									type="submit"
 									className="confirm-button"
-									disabled={!newPeriodName || !newPeriodDisplayName || isSubmitting}
+									disabled={!newPeriodDisplayName || isSubmitting}
 								>
 									{isSubmitting ? 'Creating...' : 'Create Period'}
 								</button>

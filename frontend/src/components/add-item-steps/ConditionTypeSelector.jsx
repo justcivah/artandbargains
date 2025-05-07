@@ -11,7 +11,6 @@ const ConditionTypeSelector = ({
 	setConditionTypes
 }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newConditionName, setNewConditionName] = useState('');
 	const [newConditionDisplayName, setNewConditionDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
@@ -56,8 +55,8 @@ const ConditionTypeSelector = ({
 	const handleCreateCondition = async (e) => {
 		e.preventDefault();
 
-		if (!newConditionName || !newConditionDisplayName) {
-			setError('Both name and display name are required');
+		if (!newConditionDisplayName) {
+			setError('Display name is required');
 			return;
 		}
 
@@ -65,8 +64,12 @@ const ConditionTypeSelector = ({
 			setIsSubmitting(true);
 			setError(null);
 
-			// Format the condition name
-			const formattedName = newConditionName.toLowerCase().replace(/\s+/g, '_');
+			// Generate the system name from display name
+			// Convert to lowercase, replace spaces with underscores, remove special characters
+			const formattedName = newConditionDisplayName
+				.toLowerCase()
+				.replace(/\s+/g, '_')
+				.replace(/[^a-z0-9_]/g, '');
 
 			// Create the new condition
 			const newConditionData = {
@@ -86,7 +89,6 @@ const ConditionTypeSelector = ({
 
 			// Close the modal
 			setShowCreateModal(false);
-			setNewConditionName('');
 			setNewConditionDisplayName('');
 		} catch (err) {
 			setError('Error creating condition type: ' + err.message);
@@ -143,19 +145,6 @@ const ConditionTypeSelector = ({
 						<h3>Create New Condition Type</h3>
 						<form onSubmit={handleCreateCondition}>
 							<div className="form-group">
-								<label htmlFor="conditionName">Name (for system):</label>
-								<input
-									type="text"
-									id="conditionName"
-									value={newConditionName}
-									onChange={(e) => setNewConditionName(e.target.value)}
-									placeholder="e.g. mint_condition"
-									autoFocus
-								/>
-								<small>Use lowercase with underscores instead of spaces</small>
-							</div>
-
-							<div className="form-group">
 								<label htmlFor="conditionDisplayName">Display Name:</label>
 								<input
 									type="text"
@@ -163,8 +152,9 @@ const ConditionTypeSelector = ({
 									value={newConditionDisplayName}
 									onChange={(e) => setNewConditionDisplayName(e.target.value)}
 									placeholder="e.g. Mint Condition"
+									autoFocus
 								/>
-								<small>This is how the condition will be displayed to users</small>
+								<small>The system name will be automatically generated</small>
 							</div>
 
 							<div className="modal-actions">
@@ -173,7 +163,6 @@ const ConditionTypeSelector = ({
 									className="cancel-button"
 									onClick={() => {
 										setShowCreateModal(false);
-										setNewConditionName('');
 										setNewConditionDisplayName('');
 										setError(null);
 									}}
@@ -184,7 +173,7 @@ const ConditionTypeSelector = ({
 								<button
 									type="submit"
 									className="confirm-button"
-									disabled={!newConditionName || !newConditionDisplayName || isSubmitting}
+									disabled={!newConditionDisplayName || isSubmitting}
 								>
 									{isSubmitting ? 'Creating...' : 'Create Condition Type'}
 								</button>

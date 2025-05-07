@@ -260,13 +260,10 @@ exports.updateItem = async (req, res) => {
 		const { id } = req.params;
 
 		// First delete the old item and related records
-		console.log("deleting old item");
 		await deleteItemFromDb(id);
 
 		// Then create the updated item with the request body
 		req.body.itemId = id;
-		console.log(req.body);
-		console.log(req.body.metadata);
 		await exports.createItem(req, res);
 	} catch (error) {
 		console.error(`Error updating item ${req.params.id}:`, error);

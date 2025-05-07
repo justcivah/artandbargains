@@ -4,25 +4,24 @@ import '../../styles/StepComponents.css';
 
 const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelectComplete }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
-	const [newTypeName, setNewTypeName] = useState('');
 	const [newTypeDisplayName, setNewTypeDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
 
 	const handleTypeSelect = (type) => {
-        onChange(type);
+		onChange(type);
 
 		// Automatically go to the next step
 		if (onSelectComplete) {
 			onSelectComplete();
 		}
-    };
+	};
 
 	const handleCreateType = async (e) => {
 		e.preventDefault();
 
-		if (!newTypeName || !newTypeDisplayName) {
-			setError('Both name and display name are required');
+		if (!newTypeDisplayName) {
+			setError('Display name is required');
 			return;
 		}
 
@@ -30,8 +29,12 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 			setIsSubmitting(true);
 			setError(null);
 
-			// Format the type name
-			const formattedName = newTypeName.toLowerCase().replace(/\s+/g, '_');
+			// Generate the system name from display name
+			// Convert to lowercase, replace spaces with underscores, remove special characters
+			const formattedName = newTypeDisplayName
+				.toLowerCase()
+				.replace(/\s+/g, '_')
+				.replace(/[^a-z0-9_]/g, '');
 
 			// Create the new type
 			const newTypeData = {
@@ -51,7 +54,6 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 
 			// Close the modal
 			setShowCreateModal(false);
-			setNewTypeName('');
 			setNewTypeDisplayName('');
 		} catch (err) {
 			setError('Error creating type: ' + err.message);
@@ -94,19 +96,6 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 						<h3>Create New Item Type</h3>
 						<form onSubmit={handleCreateType}>
 							<div className="form-group">
-								<label htmlFor="typeName">Name (for system):</label>
-								<input
-									type="text"
-									id="typeName"
-									value={newTypeName}
-									onChange={(e) => setNewTypeName(e.target.value)}
-									placeholder="e.g. antique_clocks"
-									autoFocus
-								/>
-								<small>Use lowercase with underscores instead of spaces</small>
-							</div>
-
-							<div className="form-group">
 								<label htmlFor="typeDisplayName">Display Name:</label>
 								<input
 									type="text"
@@ -114,8 +103,9 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 									value={newTypeDisplayName}
 									onChange={(e) => setNewTypeDisplayName(e.target.value)}
 									placeholder="e.g. Antique Clocks"
+									autoFocus
 								/>
-								<small>This is how the type will be displayed to users</small>
+								<small>The system name will be automatically generated</small>
 							</div>
 
 							<div className="modal-actions">
@@ -124,7 +114,6 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 									className="cancel-button"
 									onClick={() => {
 										setShowCreateModal(false);
-										setNewTypeName('');
 										setNewTypeDisplayName('');
 										setError(null);
 									}}
@@ -135,7 +124,7 @@ const TypeSelector = ({ itemTypes, selectedType, onChange, setItemTypes, onSelec
 								<button
 									type="submit"
 									className="confirm-button"
-									disabled={!newTypeName || !newTypeDisplayName || isSubmitting}
+									disabled={!newTypeDisplayName || isSubmitting}
 								>
 									{isSubmitting ? 'Creating...' : 'Create Type'}
 								</button>
