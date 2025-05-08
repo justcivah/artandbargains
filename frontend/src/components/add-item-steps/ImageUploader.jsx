@@ -1,11 +1,78 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import '../../styles/StepComponents.css';
 
-const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
+const ImageUploader = ({
+	images,
+	primaryIndex,
+	onChange,
+	onPrimaryChange,
+	existingImages = [],
+	onExistingImagesChange,
+	onOrderChange // New prop to track the ordering of all images
+}) => {
 	const fileInputRef = useRef(null);
 	const [dragging, setDragging] = useState(false);
 	const [error, setError] = useState(null);
 	const [processing, setProcessing] = useState(false);
+
+	// Combined array for the UI - this will handle all images together
+	const [combinedImages, setCombinedImages] = useState([]);
+
+	// Store created object URLs to clean up later
+	const [objectUrls, setObjectUrls] = useState([]);
+
+	// Add a state to track if we're handling our own reordering
+	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+
+	// Initialize combined array on component mount
+	useEffect(() => {
+		rebuildCombinedImages();
+	}, []);
+
+	// Handle incoming prop changes, but only if they're not from our own updates
+	useEffect(() => {
+		if (!isInternalUpdate) {
+			rebuildCombinedImages();
+		}
+		setIsInternalUpdate(false);
+	}, [images, existingImages]);
+
+	// Function to rebuild the combined images array from props
+	const rebuildCombinedImages = () => {
+		// Clean up any previously created object URLs to prevent memory leaks
+		objectUrls.forEach(url => URL.revokeObjectURL(url));
+		const newObjectUrls = [];
+
+		// Create combined array with both existing and new images
+		const combined = [
+			...existingImages.map(img => ({
+				type: 'existing',
+				data: img,
+				preview: img.url,
+				id: `existing-${img.url}-${Date.now()}`
+			})),
+			...images.map((img, idx) => {
+				const objectUrl = URL.createObjectURL(img);
+				newObjectUrls.push(objectUrl);
+				return {
+					type: 'new',
+					data: img,
+					preview: objectUrl,
+					id: `new-${idx}-${Date.now()}`
+				};
+			})
+		];
+
+		setCombinedImages(combined);
+		setObjectUrls(newObjectUrls);
+	};
+
+	// Clean up object URLs on component unmount
+	useEffect(() => {
+		return () => {
+			objectUrls.forEach(url => URL.revokeObjectURL(url));
+		};
+	}, [objectUrls]);
 
 	// Process image - resize, compress, and convert to webp
 	const processImage = (file) => {
@@ -69,6 +136,7 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 		});
 	};
 
+	// Handle file selection for upload
 	const handleFileSelection = async (files) => {
 		if (!files || files.length === 0) return;
 
@@ -88,14 +156,31 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 				Array.from(files).map(file => processImage(file))
 			);
 
-			// Update images
-			const newImages = [...images, ...processedImages];
-			onChange(newImages);
+			// Create new object URLs for the processed images
+			const newObjectUrls = [];
+			const newItems = processedImages.map((img, idx) => {
+				const objectUrl = URL.createObjectURL(img);
+				newObjectUrls.push(objectUrl);
+				return {
+					type: 'new',
+					data: img,
+					preview: objectUrl,
+					id: `new-${images.length + idx}-${Date.now()}`
+				};
+			});
 
-			// If this is the first image, set it as primary
-			if (images.length === 0 && processedImages.length > 0) {
-				onPrimaryChange(0);
-			}
+			// Update our combined images array
+			const updatedCombined = [...combinedImages, ...newItems];
+			setCombinedImages(updatedCombined);
+
+			// Add the new object URLs to our tracking array
+			setObjectUrls([...objectUrls, ...newObjectUrls]);
+
+			// Set the internal update flag
+			setIsInternalUpdate(true);
+
+			// Update the parent with the new images
+			updateParentState(updatedCombined);
 		} catch (err) {
 			console.error('Image processing error:', err);
 			setError('Failed to process one or more images. Please try again.');
@@ -104,6 +189,118 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 		}
 	};
 
+	// Helper to update the parent state after reordering
+	const updateParentState = (reorderedImages) => {
+		// Set the flag to indicate we're handling our own update
+		setIsInternalUpdate(true);
+
+		// Extract existing and new images from the combined array
+		const newExistingImages = [];
+		const newUploadedImages = [];
+
+		// Create an order array to track the final position of all images
+		const imagesOrder = [];
+
+		// First image will be primary
+		let firstImageIsNew = false;
+		let newImagePrimaryIndex = -1;
+
+		reorderedImages.forEach((img, index) => {
+			if (img.type === 'existing') {
+				// For existing images, copy the data and update primary flag
+				const isFirst = index === 0;
+				newExistingImages.push({
+					...img.data,
+					is_primary: isFirst
+				});
+
+				// Add to order array
+				imagesOrder.push({
+					type: 'existing',
+					url: img.data.url
+				});
+			} else {
+				// For new images, just add the File object
+				newUploadedImages.push(img.data);
+
+				// Add to order array with current index
+				imagesOrder.push({
+					type: 'new',
+					index: newUploadedImages.length - 1
+				});
+
+				// If this is the first image in the combined list and it's new
+				if (index === 0) {
+					firstImageIsNew = true;
+					newImagePrimaryIndex = newUploadedImages.length - 1;
+				}
+			}
+		});
+
+		// Update parent state
+		onExistingImagesChange(newExistingImages);
+		onChange(newUploadedImages);
+
+		// Send the ordering information to the parent
+		if (typeof onOrderChange === 'function') {
+			onOrderChange(imagesOrder);
+		}
+
+		// Update primary index for new images
+		if (firstImageIsNew) {
+			onPrimaryChange(newImagePrimaryIndex);
+		} else {
+			onPrimaryChange(-1); // No primary among new images
+		}
+	};
+
+	// Move an image left in the order
+	const handleMoveLeft = (index) => {
+		if (index <= 0) return; // Can't move first image left
+
+		const reorderedImages = [...combinedImages];
+		// Swap with previous
+		const temp = reorderedImages[index];
+		reorderedImages[index] = reorderedImages[index - 1];
+		reorderedImages[index - 1] = temp;
+
+		// Update the UI
+		setCombinedImages(reorderedImages);
+
+		// Update parent state
+		updateParentState(reorderedImages);
+	};
+
+	// Move an image right in the order
+	const handleMoveRight = (index) => {
+		if (index >= combinedImages.length - 1) return; // Can't move last image right
+
+		const reorderedImages = [...combinedImages];
+		// Swap with next
+		const temp = reorderedImages[index];
+		reorderedImages[index] = reorderedImages[index + 1];
+		reorderedImages[index + 1] = temp;
+
+		// Update the UI
+		setCombinedImages(reorderedImages);
+
+		// Update parent state
+		updateParentState(reorderedImages);
+	};
+
+	// Remove an image from the list
+	const handleRemoveImage = (index) => {
+		const reorderedImages = [...combinedImages];
+		reorderedImages.splice(index, 1);
+
+		// Update the UI
+		setCombinedImages(reorderedImages);
+
+		// Update parent state
+		updateParentState(reorderedImages);
+	};
+
+	// UI event handlers
 	const handleFileBrowse = () => {
 		fileInputRef.current.click();
 	};
@@ -140,29 +337,12 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 		handleFileSelection(files);
 	};
 
-	const handleRemoveImage = (index) => {
-		const newImages = [...images];
-		newImages.splice(index, 1);
-		onChange(newImages);
-
-		// Update primary index if needed
-		if (primaryIndex === index) {
-			onPrimaryChange(newImages.length > 0 ? 0 : -1);
-		} else if (primaryIndex > index) {
-			onPrimaryChange(primaryIndex - 1);
-		}
-	};
-
-	const handleSetPrimary = (index) => {
-		onPrimaryChange(index);
-	};
-
 	return (
 		<div className="step-container">
 			<h2>Item Images</h2>
 			<p className="step-description">
 				Upload images of the item. Images will be automatically resized, compressed, and converted to WebP format.
-				The primary image will be used as the main display image.
+				The first image in order will be used as the primary image. Use the arrow buttons to reorder images.
 			</p>
 
 			{error && <div className="step-error">{error}</div>}
@@ -191,7 +371,7 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 				</div>
 				<div className="upload-text">
 					<p>Drag and drop images here, or click to browse</p>
-					<p className="upload-hint">Images will be converted to WebP with longest side at 2000px</p>
+					<p className="upload-hint">Images will be converted to WebP with longest side at 2048px</p>
 				</div>
 				<input
 					type="file"
@@ -204,33 +384,54 @@ const ImageUploader = ({ images, primaryIndex, onChange, onPrimaryChange }) => {
 				/>
 			</div>
 
-			{images.length > 0 && (
+			{combinedImages.length > 0 && (
 				<div className="uploaded-images">
-					<h3>Uploaded Images ({images.length})</h3>
+					<h3>All Images ({combinedImages.length})</h3>
 					<div className="image-preview-grid">
-						{images.map((image, index) => (
+						{combinedImages.map((image, index) => (
 							<div
-								key={index}
-								className={`image-preview-item ${index === primaryIndex ? 'primary' : ''}`}
+								key={image.id}
+								className={`image-preview-item ${index === 0 ? 'primary' : ''}`}
 							>
 								<div className="image-preview">
-									<img src={URL.createObjectURL(image)} alt={`Preview ${index + 1}`} />
+									<img src={image.preview} alt={`Preview ${index + 1}`} />
+									{image.type === 'new' && (
+										<span className="image-badge new-badge">New</span>
+									)}
+									{index === 0 && (
+										<span className="image-badge primary-badge">Primary</span>
+									)}
 								</div>
 								<div className="image-actions">
 									<div className="image-name">
-										{image.name}
-										<span className="image-type">WebP</span>
+										{image.type === 'existing' ? 'Existing Image' : image.data.name}
+										{image.type === 'new' && <span className="image-type">WebP</span>}
 									</div>
 									<div className="image-controls">
-										<label className={`primary-control ${index === primaryIndex ? 'is-primary' : ''}`}>
-											<input
-												type="radio"
-												name="primaryImage"
-												checked={index === primaryIndex}
-												onChange={() => handleSetPrimary(index)}
-											/>
-											{index === primaryIndex ? 'Primary Image' : 'Set as Primary'}
-										</label>
+										<div className="image-order-controls">
+											<button
+												type="button"
+												className="order-button move-left"
+												onClick={() => handleMoveLeft(index)}
+												disabled={index === 0}
+												aria-label="Move left"
+											>
+												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path d="M15 6L9 12L15 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+												</svg>
+											</button>
+											<button
+												type="button"
+												className="order-button move-right"
+												onClick={() => handleMoveRight(index)}
+												disabled={index === combinedImages.length - 1}
+												aria-label="Move right"
+											>
+												<svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+													<path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+												</svg>
+											</button>
+										</div>
 										<button
 											type="button"
 											className="remove-image"

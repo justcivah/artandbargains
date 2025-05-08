@@ -176,11 +176,22 @@ const AddItemPage = () => {
 			if (formData.dimensions.diameter) dimensions.diameter = parseFloat(formData.dimensions.diameter);
 			dimensions.unit = formData.dimensionsUnit;
 
-			// Format contributors
-			const contributors = formData.contributors.map(contrib => ({
-				position: contrib.position,
-				contributor_id: contrib.contributor.name
-			}));
+			// Format contributors for API - extract ID from PK or use name
+			const contributors = formData.contributors.map(contrib => {
+				// If PK exists and follows format "CONTRIBUTOR#id", extract the ID
+				let contributorId;
+				if (contrib.contributor.PK && contrib.contributor.PK.includes('#')) {
+					contributorId = contrib.contributor.PK.split('#')[1];
+				} else {
+					// Fallback to name for compatibility
+					contributorId = contrib.contributor.name;
+				}
+
+				return {
+					position: contrib.position,
+					contributor_id: contributorId
+				};
+			});
 
 			// Prepare the item data for DynamoDB
 			const itemData = {

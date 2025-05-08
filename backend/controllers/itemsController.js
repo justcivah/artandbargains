@@ -261,7 +261,7 @@ exports.updateItem = async (req, res) => {
 
 		// First delete the old item and related records
 		await deleteItemFromDb(id);
-
+		
 		// Then create the updated item with the request body
 		req.body.itemId = id;
 		await exports.createItem(req, res);

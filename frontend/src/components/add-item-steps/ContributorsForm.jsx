@@ -88,9 +88,10 @@ const ContributorsForm = ({
 		onPrimaryChange(contributor.display_name);
 	};
 
-	// Update organization display name based on name
-	const updateOrgDisplayName = () => {
-		setOrgDisplayName(orgName);
+	// Helper function to capitalize first letter of each word
+	const capitalizeFirstLetter = (string) => {
+		if (!string) return '';
+		return string.replace(/\b\w/g, char => char.toUpperCase());
 	};
 
 	// Update isLiving based on death year
@@ -103,12 +104,6 @@ const ContributorsForm = ({
 	const handleDissolutionYearChange = (value) => {
 		setDissolutionYear(value);
 		setIsActive(!value);
-	};
-
-	// Helper function to capitalize first letter of each word
-	const capitalizeFirstLetter = (string) => {
-		if (!string) return '';
-		return string.replace(/\b\w/g, char => char.toUpperCase());
 	};
 
 	// Create a new contributor
@@ -144,7 +139,8 @@ const ContributorsForm = ({
 					death_year: deathYear ? parseInt(deathYear) : null,
 					is_living: isLiving,
 					bio: bio,
-					entity_type: 'contributor'
+					entity_type: 'contributor',
+					name: contributorId // Include name for compatibility
 				};
 			} else {
 				// Validate required fields
@@ -160,14 +156,13 @@ const ContributorsForm = ({
 				newContributorData = {
 					PK: `CONTRIBUTOR#${contributorId}`,
 					contributor_type: 'organization',
-					name: orgName,
+					name: contributorId, // Ensure name is set consistently
 					display_name: orgDisplayName,
 					founding_year: foundingYear ? parseInt(foundingYear) : null,
 					dissolution_year: dissolutionYear ? parseInt(dissolutionYear) : null,
 					is_active: isActive,
 					bio: bio,
-					entity_type: 'contributor',
-					name: contributorId
+					entity_type: 'contributor'
 				};
 			}
 
@@ -180,6 +175,14 @@ const ContributorsForm = ({
 
 			// Update the list of contributors
 			setContributorsList([...contributorsList, newContributorData]);
+
+			// Add the newly created contributor to the current list and select it
+			if (contributors.length > 0) {
+				const lastEmptyIndex = contributors.findIndex(c => !c.contributor);
+				if (lastEmptyIndex >= 0) {
+					handleContributorSelect(lastEmptyIndex, newContributorData);
+				}
+			}
 
 			// Close the modal
 			setShowCreateModal(false);
@@ -260,16 +263,16 @@ const ContributorsForm = ({
 
 							<div className="contributor-select">
 								<select
-									value={contributor.contributor ? contributor.contributor.name : ''}
+									value={contributor.contributor ? contributor.contributor.PK : ''}
 									onChange={(e) => {
-										const selected = contributorsList.find(c => c.name === e.target.value);
+										const selected = contributorsList.find(c => c.PK === e.target.value);
 										handleContributorSelect(index, selected);
 									}}
 									className="contributor-dropdown"
 								>
 									<option value="">-- Select Contributor --</option>
 									{contributorsList.map(c => (
-										<option key={c.PK} value={c.name}>
+										<option key={c.PK} value={c.PK}>
 											{c.display_name} ({c.contributor_type === 'individual' ? 'Individual' : 'Organization'})
 										</option>
 									))}

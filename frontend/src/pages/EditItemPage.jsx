@@ -33,6 +33,9 @@ const EditItemPage = () => {
 	const [conditionTypes, setConditionTypes] = useState([]);
 	const [contributorsList, setContributorsList] = useState([]);
 
+	// Add state to track image order
+	const [imagesOrder, setImagesOrder] = useState([]);
+
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
@@ -111,9 +114,11 @@ const EditItemPage = () => {
 				}
 				dateInfo.circa = item.date_info.circa || false;
 
-				// Format contributors
+				// Format contributors - use PK to find contributor
 				const formattedContributors = item.contributors.map(contrib => {
-					const contributor = contributors.find(c => c.name === contrib.contributor_id);
+					// First try to find by PK, then by name (for compatibility)
+					const contributorPK = `CONTRIBUTOR#${contrib.contributor_id}`;
+					const contributor = contributors.find(c => c.PK === contributorPK || c.name === contrib.contributor_id);
 					return {
 						position: contrib.position,
 						contributor: contributor
@@ -147,6 +152,14 @@ const EditItemPage = () => {
 					existingImages: item.images || []
 				});
 
+				// Initialize the image order with existing images
+				if (item.images && item.images.length > 0) {
+					setImagesOrder(item.images.map(img => ({
+						type: 'existing',
+						url: img.url
+					})));
+				}
+
 				// Auto-expand first section
 				setExpandedSections({ "item-type": true });
 
@@ -177,64 +190,47 @@ const EditItemPage = () => {
 		}));
 	};
 
-	// Handle removing an existing image
-	const handleRemoveExistingImage = (index) => {
-		// Create a copy of existing images
-		const updatedExistingImages = [...formData.existingImages];
-
-		// Check if the image being removed is primary
-		const removingPrimary = updatedExistingImages[index].is_primary;
-
-		// Remove the image
-		updatedExistingImages.splice(index, 1);
-
-		// If we removed the primary image and there are still images left,
-		// set the first one as primary
-		if (removingPrimary && updatedExistingImages.length > 0) {
-			updatedExistingImages[0].is_primary = true;
-		}
-
-		// Update form data with the new array
-		updateFormData('existingImages', updatedExistingImages);
-	};
-
 	// Handle form submission
 	const handleSubmit = async () => {
 		try {
 			setIsSubmitting(true);
 
-			// Upload new images to Backblaze
-			let imageUrls = [...formData.existingImages];
-
-			// Upload new images if any
+			// Upload new images first to get their URLs
+			let newUploadedImages = [];
 			if (formData.images.length > 0) {
 				const uploadResults = await uploadMultipleImages(formData.images);
-				const newImages = uploadResults.map((result, index) => ({
+				newUploadedImages = uploadResults.map(result => ({
 					url: result.fileUrl,
-					is_primary: false // Will set the primary flag below
+					is_primary: false // Will be set correctly later
 				}));
-
-				imageUrls = [...imageUrls, ...newImages];
 			}
 
-			// Set primary image flag
-			// First, mark all images as non-primary
-			imageUrls = imageUrls.map(img => ({ ...img, is_primary: false }));
+			// Create final image array based on the order from the order state
+			let finalImageUrls = [];
 
-			// Determine the index of the primary image
-			let primaryIndex = formData.primaryImageIndex;
-			if (primaryIndex >= 0 && primaryIndex < formData.images.length) {
-				// If it's a new image, calculate the index in the combined array
-				primaryIndex = formData.existingImages.length + primaryIndex;
-			}
-
-			// Mark the primary image
-			if (primaryIndex >= 0 && primaryIndex < imageUrls.length) {
-				imageUrls[primaryIndex].is_primary = true;
-			} else if (imageUrls.length > 0) {
-				// Default to first image if index is invalid
-				imageUrls[0].is_primary = true;
-			}
+			// Use the imagesOrder to arrange images in the correct order
+			imagesOrder.forEach((orderItem, index) => {
+				if (orderItem.type === 'existing') {
+					// Find existing image by URL
+					const existingImage = formData.existingImages.find(img => img.url === orderItem.url);
+					if (existingImage) {
+						// Add to final array, first image will be primary
+						finalImageUrls.push({
+							...existingImage,
+							is_primary: index === 0
+						});
+					}
+				} else if (orderItem.type === 'new') {
+					// New image - use index to find in newUploadedImages
+					const imageIndex = orderItem.index;
+					if (imageIndex >= 0 && imageIndex < newUploadedImages.length) {
+						finalImageUrls.push({
+							...newUploadedImages[imageIndex],
+							is_primary: index === 0
+						});
+					}
+				}
+			});
 
 			// Prepare date information
 			const dateInfo = {};
@@ -264,11 +260,22 @@ const EditItemPage = () => {
 			if (formData.dimensions.diameter) dimensions.diameter = parseFloat(formData.dimensions.diameter);
 			dimensions.unit = formData.dimensionsUnit;
 
-			// Format contributors
-			const contributors = formData.contributors.map(contrib => ({
-				position: contrib.position,
-				contributor_id: contrib.contributor.name
-			}));
+			// Format contributors for API - extract ID from PK or use name
+			const contributors = formData.contributors.map(contrib => {
+				// If PK exists and follows format "CONTRIBUTOR#id", extract the ID
+				let contributorId;
+				if (contrib.contributor.PK && contrib.contributor.PK.includes('#')) {
+					contributorId = contrib.contributor.PK.split('#')[1];
+				} else {
+					// Fallback to name for compatibility
+					contributorId = contrib.contributor.name;
+				}
+
+				return {
+					position: contrib.position,
+					contributor_id: contributorId
+				};
+			});
 
 			// Prepare the item data for DynamoDB
 			const itemData = {
@@ -293,7 +300,7 @@ const EditItemPage = () => {
 						status: formData.conditionType,
 						description: formData.conditionDescription
 					},
-					images: imageUrls
+					images: finalImageUrls
 				},
 				categories: formData.categories,
 				mediumTypes: formData.mediumTypes,
@@ -534,68 +541,19 @@ const EditItemPage = () => {
 			content: (
 				<div className="image-management-section">
 					<p className="section-description">
-						You can add new images or change the primary image. Existing images are shown below.
+						Manage your item images below. Upload new images or reorder existing ones.
+						The first image in the list will always be the primary image shown to customers.
 					</p>
 
-					{formData.existingImages.length > 0 && (
-						<div className="existing-images">
-							<h3>Existing Images</h3>
-							<div className="image-preview-grid">
-								{formData.existingImages.map((image, index) => (
-									<div
-										key={`existing-${index}`}
-										className={`image-preview-item ${image.is_primary ? 'primary' : ''}`}
-									>
-										<div className="image-preview">
-											<img src={image.url} alt={`Item ${index + 1}`} />
-										</div>
-										<div className="image-actions">
-											<div className="image-name">Existing Image {index + 1}</div>
-											<div className="image-controls">
-												<label className={`primary-control ${image.is_primary ? 'is-primary' : ''}`}>
-													<input
-														type="radio"
-														name="primaryImage"
-														checked={image.is_primary}
-														onChange={() => {
-															// Create a new array with updated primary flags
-															const updatedImages = formData.existingImages.map((img, i) => ({
-																...img,
-																is_primary: i === index
-															}));
-															updateFormData('existingImages', updatedImages);
-															updateFormData('primaryImageIndex', -1); // Reset new image primary
-														}}
-													/>
-													{image.is_primary ? 'Primary Image' : 'Set as Primary'}
-												</label>
-												<button
-													type="button"
-													className="remove-image"
-													onClick={(e) => {
-														e.stopPropagation();
-														handleRemoveExistingImage(index);
-													}}
-												>
-													Remove
-												</button>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-						</div>
-					)}
-
-					<div className="new-images-section">
-						<h3>Add New Images</h3>
-						<ImageUploader
-							images={formData.images}
-							primaryIndex={formData.primaryImageIndex}
-							onChange={(images) => updateFormData('images', images)}
-							onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
-						/>
-					</div>
+					<ImageUploader
+						images={formData.images}
+						primaryIndex={formData.primaryImageIndex}
+						onChange={(images) => updateFormData('images', images)}
+						onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
+						existingImages={formData.existingImages}
+						onExistingImagesChange={(images) => updateFormData('existingImages', images)}
+						onOrderChange={setImagesOrder}
+					/>
 				</div>
 			)
 		}
