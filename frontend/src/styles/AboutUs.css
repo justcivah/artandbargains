@@ -9,20 +9,27 @@
 	/* Should match navbar height */
 }
 
-/* Hero Section */
-.about-hero {
-	height: 50vh;
-	min-height: 400px;
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+/* Fixed Background Element */
+.about-hero-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
 	background-image: url('/src/assets/about-hero-background.jpeg');
 	background-size: cover;
 	background-position: center;
-	text-align: center;
-	color: var(--light-color);
-	padding: var(--spacing-xl) var(--spacing-md);
+	z-index: 0;
+	transition: opacity 0.3s ease;
+}
+
+.about-hero-background.visible {
+	opacity: 1;
+}
+
+.about-hero-background.hidden {
+	opacity: 0;
+	visibility: hidden;
 }
 
 .about-hero-overlay {
@@ -32,7 +39,22 @@
 	width: 100%;
 	height: 100%;
 	background-color: rgba(0, 0, 0, 0.6);
+	z-index: -1;
+}
+
+/* Hero Section */
+.about-hero {
+	height: 50vh;
+	min-height: 400px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	color: var(--light-color);
+	padding: var(--spacing-xl) var(--spacing-md);
 	z-index: 1;
+	/* Ensure it's above the background */
 }
 
 .about-hero-content {
@@ -56,6 +78,14 @@
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+/* White container for content below hero */
+.about-content-container {
+	background-color: #fff;
+	position: relative;
+	z-index: 2;
+	box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
 }
 
 /* Story Section */

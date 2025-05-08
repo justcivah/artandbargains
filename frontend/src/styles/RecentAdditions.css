@@ -70,6 +70,10 @@
 	z-index: 10;
 	position: absolute;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .slider-button:hover {
@@ -90,13 +94,17 @@
 	right: -20px;
 }
 
-/* Mobile navigation controls (new) */
+/* Mobile navigation controls */
 .navigation-controls {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	margin-top: var(--spacing-md);
 	position: relative;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 /* Mobile button styles */
@@ -247,6 +255,10 @@
 	display: flex;
 	justify-content: center;
 	gap: 8px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .indicator {
@@ -259,6 +271,10 @@
 	padding: 0;
 	cursor: pointer;
 	transition: all 0.3s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
 .indicator.active {
@@ -316,11 +332,11 @@
 	}
 
 	.slider-button.prev {
-		margin-left: 25px;
+		margin-left: 20px;
 	}
 
 	.slider-button.next {
-		margin-right: 25px;
+		margin-right: 20px;
 	}
 
 	.section-title {

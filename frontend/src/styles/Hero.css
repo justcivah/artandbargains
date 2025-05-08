@@ -8,7 +8,7 @@
     background-image: url('/src/assets/home-hero-background.png');
     background-size: cover;
     background-position: center;
-    z-index: -2; /* Keep it behind everything */
+    z-index: -2;
     transition: opacity 0.3s ease;
 }
 
