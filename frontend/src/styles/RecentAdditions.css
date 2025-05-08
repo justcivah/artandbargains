@@ -90,6 +90,24 @@
 	right: -20px;
 }
 
+/* Mobile navigation controls (new) */
+.navigation-controls {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: var(--spacing-md);
+	position: relative;
+}
+
+/* Mobile button styles */
+.slider-button.mobile {
+	position: static;
+	width: 32px;
+	height: 32px;
+	font-size: 0.9rem;
+	margin: 0 var(--spacing-sm);
+}
+
 /* Changed from grid to flex for horizontal sliding */
 .recent-items-container {
 	display: flex;
@@ -228,7 +246,6 @@
 .slider-indicators {
 	display: flex;
 	justify-content: center;
-	margin-top: var(--spacing-md);
 	gap: 8px;
 }
 
@@ -298,6 +315,14 @@
 		font-size: 1rem;
 	}
 
+	.slider-button.prev {
+		margin-left: 25px;
+	}
+
+	.slider-button.next {
+		margin-right: 25px;
+	}
+
 	.section-title {
 		font-size: 1.6rem;
 	}
@@ -315,96 +340,48 @@
 	}
 }
 
-/* Mobile view enhancements */
 @media (max-width: 576px) {
 
-	/* Make the recent slider container full-width */
+	/* Make the recent item as wide as possible */
+	.recent-item {
+		flex: 0 0 100%;
+		margin-right: 0;
+	}
+
+	/* Make the slider container full width with no padding to maximize space */
 	.recent-slider-container {
 		padding: 0;
-		margin: 0;
-		width: 100%;
-		max-width: 100%;
 	}
 
-	/* Hide the buttons on mobile */
-	.slider-button {
+	/* Remove the original arrows from the slider container on mobile */
+	.slider-button.prev,
+	.slider-button.next {
 		display: none;
 	}
 
-	/* Enable touch scrolling for mobile */
-	.slider-overflow {
-		overflow-x: auto;
-		overflow-y: hidden;
-		-webkit-overflow-scrolling: touch;
-		/* Smooth scrolling on iOS */
-		scroll-behavior: smooth;
-		/* Smooth scrolling on modern browsers */
-		scrollbar-width: none;
-		/* Hide scrollbar on Firefox */
-		-ms-overflow-style: none;
-		/* Hide scrollbar on IE and Edge */
-		padding: 1rem 0;
-		margin: 0 -1rem;
-		width: 100vw;
-	}
-
-	/* Hide scrollbar on Chrome and Safari */
-	.slider-overflow::-webkit-scrollbar {
-		display: none;
-	}
-
-	/* Adjust items container for touch scrolling */
-	.recent-items-container {
+	/* Update mobile navigation controls */
+	.navigation-controls {
 		display: flex;
-		transform: none !important;
-		/* Remove transform-based sliding */
-		transition: none !important;
-		/* Remove transition to prevent lag during scrolling */
-		margin: 0;
-		padding: 0 1rem;
-		scroll-snap-type: x mandatory;
-		/* Enable scroll snapping */
-		width: auto;
-		/* Allow container to expand beyond viewport */
-		height: auto;
+		align-items: center;
+		justify-content: space-between;
+		margin-top: var(--spacing-md);
+		width: 100%;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	
+	/* Style mobile slider buttons */
+	.slider-button.mobile {
+		display: flex;
+		position: relative;
+		width: 40px;
+		height: 40px;
+		font-size: 0.8rem;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
 	}
 
-	/* Make the recent item snap to scroll positions */
-	.recent-item {
-		flex: 0 0 calc(100vw - 2rem);
-		/* Full viewport width minus padding */
-		margin-right: 1rem;
-		scroll-snap-align: center;
-		/* Center items when scrolling */
-		scroll-snap-stop: always;
-		/* Force stop at each item */
-		border-radius: var(--border-radius-md);
-		transform: none !important;
-		/* Prevent hover transform on mobile */
-	}
-
-	/* Item should not elevate on touch devices */
-	.recent-item:hover {
-		transform: none !important;
-	}
-
-	/* Enhance image container for mobile */
-	.item-image-container {
-		height: 220px;
-	}
-
-	/* Adjust indicators for better mobile experience */
-	.slider-indicators {
-		margin-top: 1.5rem;
-	}
-
-	.indicator {
-		width: 8px;
-		height: 8px;
-	}
-
-	/* Subtle visual feedback when touching a card */
-	.recent-item:active {
-		opacity: 0.9;
+	/* Make sure container has appropriate positioning */
+	.recent-items-container {
+		margin-left: 0;
 	}
 }

@@ -1,18 +1,14 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/RecentAdditions.css';
 
 const RecentAdditions = () => {
 	const sectionRef = useRef(null);
 	const sliderRef = useRef(null);
-	const overflowRef = useRef(null);
 	const [currentIndex, setCurrentIndex] = useState(0);
 	const [isVisible, setIsVisible] = useState(false);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
-	const [isDragging, setIsDragging] = useState(false);
-	const [startX, setStartX] = useState(0);
-	const [scrollLeft, setScrollLeft] = useState(0);
 
 	// Updated data structure with title, author, year, description and using actual image URLs
 	const recentItems = [
@@ -114,15 +110,6 @@ const RecentAdditions = () => {
 			const width = window.innerWidth;
 			setWindowWidth(width);
 			setIsMobile(width <= 576);
-
-			// Reset current index when switching between mobile and desktop
-			if ((width <= 576 && !isMobile) || (width > 576 && isMobile)) {
-				setCurrentIndex(0);
-				// Reset scroll position when switching to mobile
-				if (width <= 576 && overflowRef.current) {
-					overflowRef.current.scrollLeft = 0;
-				}
-			}
 		};
 
 		window.addEventListener('resize', handleResize);
@@ -130,7 +117,7 @@ const RecentAdditions = () => {
 		return () => {
 			window.removeEventListener('resize', handleResize);
 		};
-	}, [isMobile]);
+	}, []);
 
 	// Calculate total number of slides (pages) based on items per view
 	const itemsPerView = getItemsPerView();
@@ -138,8 +125,6 @@ const RecentAdditions = () => {
 
 	// Navigation functions
 	const nextSlide = () => {
-		if (isMobile) return; // Don't use button navigation on mobile
-
 		setCurrentIndex((prevIndex) => {
 			// Only go up to the max slide index based on dynamic itemsPerView
 			const nextIndex = prevIndex >= totalSlides - 1 ? 0 : prevIndex + 1;
@@ -148,8 +133,6 @@ const RecentAdditions = () => {
 	};
 
 	const prevSlide = () => {
-		if (isMobile) return; // Don't use button navigation on mobile
-
 		setCurrentIndex((prevIndex) => {
 			const nextIndex = prevIndex === 0 ? totalSlides - 1 : prevIndex - 1;
 			return nextIndex;
@@ -157,23 +140,11 @@ const RecentAdditions = () => {
 	};
 
 	const goToSlide = (index) => {
-		if (isMobile && overflowRef.current) {
-			// On mobile, scroll to the target element
-			const itemWidth = overflowRef.current.clientWidth;
-			overflowRef.current.scrollTo({
-				left: index * itemWidth,
-				behavior: 'smooth'
-			});
-		} else {
-			setCurrentIndex(index);
-		}
+		setCurrentIndex(index);
 	};
 
 	// Auto-play function
 	useEffect(() => {
-		// Only auto-play in desktop mode
-		if (isMobile) return;
-
 		const interval = setInterval(() => {
 			if (isVisible) {
 				nextSlide();
@@ -181,79 +152,13 @@ const RecentAdditions = () => {
 		}, 5000);
 
 		return () => clearInterval(interval);
-	}, [isVisible, currentIndex, totalSlides, isMobile]);
+	}, [isVisible, currentIndex, totalSlides]);
 
 	// Calculate the transform position based on current index and responsive view
 	const getSliderTransform = () => {
-		if (isMobile) return 'none'; // No transform on mobile, we use native scrolling
-
 		const itemsPerView = getItemsPerView();
 		// Calculate percentage to move based on the number of items in view
 		return `translateX(-${currentIndex * (100 / itemsPerView)}%)`;
-	};
-
-	// Handle scroll events for indicator sync on mobile
-	const handleScroll = useCallback(() => {
-		if (!isMobile || !overflowRef.current) return;
-
-		const scrollPosition = overflowRef.current.scrollLeft;
-		const itemWidth = overflowRef.current.clientWidth;
-		const newIndex = Math.round(scrollPosition / itemWidth);
-
-		if (newIndex !== currentIndex) {
-			setCurrentIndex(newIndex);
-		}
-	}, [isMobile, currentIndex]);
-
-	// Set up scroll event listener for mobile
-	useEffect(() => {
-		const slider = overflowRef.current;
-		if (isMobile && slider) {
-			slider.addEventListener('scroll', handleScroll);
-			return () => slider.removeEventListener('scroll', handleScroll);
-		}
-	}, [isMobile, handleScroll]);
-
-	// Touch handlers for mobile
-	const handleMouseDown = (e) => {
-		if (!isMobile || !overflowRef.current) return;
-
-		setIsDragging(true);
-		setStartX(e.pageX - overflowRef.current.offsetLeft);
-		setScrollLeft(overflowRef.current.scrollLeft);
-	};
-
-	const handleTouchStart = (e) => {
-		if (!isMobile || !overflowRef.current) return;
-
-		setIsDragging(true);
-		setStartX(e.touches[0].pageX - overflowRef.current.offsetLeft);
-		setScrollLeft(overflowRef.current.scrollLeft);
-	};
-
-	const handleMouseUp = () => {
-		setIsDragging(false);
-	};
-
-	const handleTouchEnd = () => {
-		setIsDragging(false);
-	};
-
-	const handleMouseMove = (e) => {
-		if (!isDragging || !isMobile || !overflowRef.current) return;
-
-		e.preventDefault();
-		const x = e.pageX - overflowRef.current.offsetLeft;
-		const walk = (x - startX) * 2; // Adjust the multiplier for faster/slower scrolling
-		overflowRef.current.scrollLeft = scrollLeft - walk;
-	};
-
-	const handleTouchMove = (e) => {
-		if (!isDragging || !isMobile || !overflowRef.current) return;
-
-		const x = e.touches[0].pageX - overflowRef.current.offsetLeft;
-		const walk = (x - startX) * 2;
-		overflowRef.current.scrollLeft = scrollLeft - walk;
 	};
 
 	return (
@@ -271,7 +176,6 @@ const RecentAdditions = () => {
 			</div>
 
 			<div className="recent-slider-container">
-				{/* Only render buttons on non-mobile devices */}
 				{!isMobile && (
 					<button
 						className="slider-button prev"
@@ -282,21 +186,11 @@ const RecentAdditions = () => {
 					</button>
 				)}
 
-				<div
-					className="slider-overflow"
-					ref={overflowRef}
-					onMouseDown={handleMouseDown}
-					onMouseUp={handleMouseUp}
-					onMouseLeave={handleMouseUp}
-					onMouseMove={handleMouseMove}
-					onTouchStart={handleTouchStart}
-					onTouchEnd={handleTouchEnd}
-					onTouchMove={handleTouchMove}
-				>
-					<div
+				<div className="slider-overflow">
+					<div 
 						className="recent-items-container"
 						ref={sliderRef}
-						style={{
+						style={{ 
 							transform: getSliderTransform(),
 						}}
 					>
@@ -335,7 +229,6 @@ const RecentAdditions = () => {
 					</div>
 				</div>
 
-				{/* Only render buttons on non-mobile devices */}
 				{!isMobile && (
 					<button
 						className="slider-button next"
@@ -346,16 +239,37 @@ const RecentAdditions = () => {
 				)}
 			</div>
 
-			<div className="slider-indicators">
-				{Array.from({ length: totalSlides }, (_, index) => (
+			<div className="navigation-controls">
+				{isMobile && (
 					<button
-						key={index}
-						className={`indicator ${index === currentIndex ? 'active' : ''}`}
-						onClick={() => goToSlide(index)}
-						aria-label={`Go to slide ${index + 1}`}
-						aria-current={index === currentIndex}
-					></button>
-				))}
+						className="slider-button prev mobile"
+						onClick={prevSlide}
+						aria-label="Previous slide"
+					>
+						&#10094;
+					</button>
+				)}
+				
+				<div className="slider-indicators">
+					{Array.from({ length: totalSlides }, (_, index) => (
+						<button
+							key={index}
+							className={`indicator ${index === currentIndex ? 'active' : ''}`}
+							onClick={() => goToSlide(index)}
+							aria-label={`Go to slide ${index + 1}`}
+							aria-current={index === currentIndex}
+						></button>
+					))}
+				</div>
+				
+				{isMobile && (
+					<button
+						className="slider-button next mobile"
+						onClick={nextSlide}
+						aria-label="Next slide">
+						&#10095;
+					</button>
+				)}
 			</div>
 
 			<div className="view-all-container">
