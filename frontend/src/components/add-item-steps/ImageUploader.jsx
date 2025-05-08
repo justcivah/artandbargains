@@ -8,7 +8,7 @@ const ImageUploader = ({
 	onPrimaryChange,
 	existingImages = [],
 	onExistingImagesChange,
-	onOrderChange // New prop to track the ordering of all images
+	onOrderChange
 }) => {
 	const fileInputRef = useRef(null);
 	const [dragging, setDragging] = useState(false);
@@ -24,18 +24,21 @@ const ImageUploader = ({
 	// Add a state to track if we're handling our own reordering
 	const [isInternalUpdate, setIsInternalUpdate] = useState(false);
 
+	// Flag to prevent rebuilding during order changes
+	const orderChangeRef = useRef(false);
+
 	// Initialize combined array on component mount
 	useEffect(() => {
 		rebuildCombinedImages();
-	}, []);
+	}, []); // Run only once on mount
 
 	// Handle incoming prop changes, but only if they're not from our own updates
 	useEffect(() => {
-		if (!isInternalUpdate) {
+		if (!isInternalUpdate && !orderChangeRef.current) {
 			rebuildCombinedImages();
 		}
 		setIsInternalUpdate(false);
-	}, [images, existingImages]);
+	}, [images, existingImages, isInternalUpdate]); // Added isInternalUpdate as dependency
 
 	// Function to rebuild the combined images array from props
 	const rebuildCombinedImages = () => {
@@ -84,7 +87,7 @@ const ImageUploader = ({
 				let width = img.width;
 				let height = img.height;
 
-				// Determine scale factor to resize longest side to 2000px
+				// Determine scale factor to resize longest side to 2048px
 				const maxSize = 2048;
 				let scaleFactor = 1;
 
@@ -193,6 +196,7 @@ const ImageUploader = ({
 	const updateParentState = (reorderedImages) => {
 		// Set the flag to indicate we're handling our own update
 		setIsInternalUpdate(true);
+		orderChangeRef.current = true;
 
 		// Extract existing and new images from the combined array
 		const newExistingImages = [];
@@ -237,9 +241,14 @@ const ImageUploader = ({
 			}
 		});
 
-		// Update parent state
-		onExistingImagesChange(newExistingImages);
-		onChange(newUploadedImages);
+		// Update parent state - check if callbacks exist before calling them
+		if (typeof onExistingImagesChange === 'function') {
+			onExistingImagesChange(newExistingImages);
+		}
+
+		if (typeof onChange === 'function') {
+			onChange(newUploadedImages);
+		}
 
 		// Send the ordering information to the parent
 		if (typeof onOrderChange === 'function') {
@@ -247,16 +256,23 @@ const ImageUploader = ({
 		}
 
 		// Update primary index for new images
-		if (firstImageIsNew) {
+		if (firstImageIsNew && typeof onPrimaryChange === 'function') {
 			onPrimaryChange(newImagePrimaryIndex);
-		} else {
+		} else if (typeof onPrimaryChange === 'function') {
 			onPrimaryChange(-1); // No primary among new images
 		}
+
+		// Reset the order change flag after a short delay to allow state updates to complete
+		setTimeout(() => {
+			orderChangeRef.current = false;
+		}, 50);
 	};
 
 	// Move an image left in the order
 	const handleMoveLeft = (index) => {
 		if (index <= 0) return; // Can't move first image left
+
+		orderChangeRef.current = true; // Set flag to prevent rebuild during reorder
 
 		const reorderedImages = [...combinedImages];
 		// Swap with previous
@@ -264,7 +280,7 @@ const ImageUploader = ({
 		reorderedImages[index] = reorderedImages[index - 1];
 		reorderedImages[index - 1] = temp;
 
-		// Update the UI
+		// Update the UI immediately
 		setCombinedImages(reorderedImages);
 
 		// Update parent state
@@ -275,13 +291,15 @@ const ImageUploader = ({
 	const handleMoveRight = (index) => {
 		if (index >= combinedImages.length - 1) return; // Can't move last image right
 
+		orderChangeRef.current = true; // Set flag to prevent rebuild during reorder
+
 		const reorderedImages = [...combinedImages];
 		// Swap with next
 		const temp = reorderedImages[index];
 		reorderedImages[index] = reorderedImages[index + 1];
 		reorderedImages[index + 1] = temp;
 
-		// Update the UI
+		// Update the UI immediately
 		setCombinedImages(reorderedImages);
 
 		// Update parent state
@@ -290,10 +308,12 @@ const ImageUploader = ({
 
 	// Remove an image from the list
 	const handleRemoveImage = (index) => {
+		orderChangeRef.current = true; // Set flag to prevent rebuild during operation
+
 		const reorderedImages = [...combinedImages];
 		reorderedImages.splice(index, 1);
 
-		// Update the UI
+		// Update the UI immediately
 		setCombinedImages(reorderedImages);
 
 		// Update parent state

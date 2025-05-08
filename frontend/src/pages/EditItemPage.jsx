@@ -114,11 +114,9 @@ const EditItemPage = () => {
 				}
 				dateInfo.circa = item.date_info.circa || false;
 
-				// Format contributors - use PK to find contributor
+				// Format contributors
 				const formattedContributors = item.contributors.map(contrib => {
-					// First try to find by PK, then by name (for compatibility)
-					const contributorPK = `CONTRIBUTOR#${contrib.contributor_id}`;
-					const contributor = contributors.find(c => c.PK === contributorPK || c.name === contrib.contributor_id);
+					const contributor = contributors.find(c => c.name === contrib.contributor_id);
 					return {
 						position: contrib.position,
 						contributor: contributor
@@ -260,22 +258,11 @@ const EditItemPage = () => {
 			if (formData.dimensions.diameter) dimensions.diameter = parseFloat(formData.dimensions.diameter);
 			dimensions.unit = formData.dimensionsUnit;
 
-			// Format contributors for API - extract ID from PK or use name
-			const contributors = formData.contributors.map(contrib => {
-				// If PK exists and follows format "CONTRIBUTOR#id", extract the ID
-				let contributorId;
-				if (contrib.contributor.PK && contrib.contributor.PK.includes('#')) {
-					contributorId = contrib.contributor.PK.split('#')[1];
-				} else {
-					// Fallback to name for compatibility
-					contributorId = contrib.contributor.name;
-				}
-
-				return {
-					position: contrib.position,
-					contributor_id: contributorId
-				};
-			});
+			// Format contributors
+			const contributors = formData.contributors.map(contrib => ({
+				position: contrib.position,
+				contributor_id: contrib.contributor.name
+			}));
 
 			// Prepare the item data for DynamoDB
 			const itemData = {

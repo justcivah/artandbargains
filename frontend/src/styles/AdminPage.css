@@ -65,7 +65,7 @@ body {
 	padding: 15px;
 }
 
-.item-image {
+.item-card .item-image {
 	width: 100px;
 	min-width: 100px;
 	height: 100px;

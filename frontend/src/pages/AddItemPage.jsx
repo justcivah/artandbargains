@@ -31,6 +31,9 @@ const AddItemPage = () => {
 	const [conditionTypes, setConditionTypes] = useState([]);
 	const [contributorsList, setContributorsList] = useState([]);
 
+	// Add state to track image order (needed for new ImageUploader)
+	const [imagesOrder, setImagesOrder] = useState([]);
+
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
@@ -62,7 +65,8 @@ const AddItemPage = () => {
 		price: '',
 		description: '',
 		images: [],
-		primaryImageIndex: 0
+		primaryImageIndex: 0,
+		existingImages: [] // Add this empty array for compatibility
 	});
 
 	const [loading, setLoading] = useState(true);
@@ -139,10 +143,28 @@ const AddItemPage = () => {
 			let imageUrls = [];
 			if (formData.images.length > 0) {
 				const uploadResults = await uploadMultipleImages(formData.images);
-				imageUrls = uploadResults.map((result, index) => ({
-					url: result.fileUrl,
-					is_primary: index === formData.primaryImageIndex
-				}));
+
+				// If we have an order array from ImageUploader, use it
+				if (imagesOrder.length > 0) {
+					// All images are new in AddItemPage, so we can create the array directly
+					imageUrls = imagesOrder.map((orderItem, index) => {
+						const imageIndex = orderItem.index;
+						// Ensure the index is valid
+						if (imageIndex >= 0 && imageIndex < uploadResults.length) {
+							return {
+								url: uploadResults[imageIndex].fileUrl,
+								is_primary: index === 0 // First image is primary
+							};
+						}
+						return null;
+					}).filter(img => img !== null); // Remove any null entries
+				} else {
+					// Fallback to the original method if ordering wasn't used
+					imageUrls = uploadResults.map((result, index) => ({
+						url: result.fileUrl,
+						is_primary: index === formData.primaryImageIndex
+					}));
+				}
 			}
 
 			// Prepare date information - FIXED: include type field
@@ -346,6 +368,9 @@ const AddItemPage = () => {
 						primaryIndex={formData.primaryImageIndex}
 						onChange={(images) => updateFormData('images', images)}
 						onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
+						existingImages={formData.existingImages}
+						onExistingImagesChange={(images) => updateFormData('existingImages', images)}
+						onOrderChange={setImagesOrder}
 					/>
 				);
 			default:
