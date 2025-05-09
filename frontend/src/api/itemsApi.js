@@ -59,6 +59,28 @@ export const fetchRecentItems = async (limit = 10) => {
 	}
 };
 
+export const searchItems = async (params = {}) => {
+	try {
+		// Convert params object to URL query string
+		const queryParams = new URLSearchParams();
+
+		Object.entries(params).forEach(([key, value]) => {
+			if (Array.isArray(value)) {
+				value.forEach(val => queryParams.append(key, val));
+			} else if (value !== undefined && value !== null && value !== '') {
+				queryParams.append(key, value);
+			}
+		});
+
+		const queryString = queryParams.toString();
+		const response = await api.get(`/api/items/search?${queryString}`);
+		return response.data;
+	} catch (error) {
+		console.error('Error searching items:', error);
+		throw error;
+	}
+};
+
 // Delete an item
 export const deleteItem = async (itemId) => {
 	try {
@@ -166,17 +188,6 @@ export const createEntity = async (entityType, entityData) => {
 		return response.data;
 	} catch (error) {
 		console.error(`Error creating ${entityType}:`, error);
-		throw error;
-	}
-};
-
-// Generate a new item ID
-export const generateItemId = async () => {
-	try {
-		const response = await api.get('/api/items/generateId');
-		return response.data.itemId;
-	} catch (error) {
-		console.error('Error generating item ID:', error);
 		throw error;
 	}
 };

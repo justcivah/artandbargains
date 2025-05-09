@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import Navbar from './components/Navbar.jsx';
 import Footer from './components/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
+import ShopPage from './pages/ShopPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import AddItemPage from './pages/AddItemPage.jsx';
@@ -81,6 +82,11 @@ function App() {
 					<Route path="/" element={
 						<PageLayout>
 							<HomePage />
+						</PageLayout>
+					} />
+					<Route path="/shop" element={
+						<PageLayout>
+							<ShopPage />
 						</PageLayout>
 					} />
 					<Route path="/about" element={

@@ -348,7 +348,7 @@ const RecentAdditions = () => {
 			</div>
 
 			<div className="view-all-container">
-				<Link to="/shop/new-arrivals" className="view-all-button">
+				<Link to="/shop?sort=date_desc" className="view-all-button">
 					View All New Arrivals
 				</Link>
 			</div>

@@ -69,6 +69,7 @@
 	margin-bottom: var(--spacing-xs);
 	line-height: 1.2;
 	font-family: var(--heading-font);
+	color: var(--light-color);
 }
 
 .about-subtitle {
@@ -78,6 +79,7 @@
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
+	color: var(--light-color);
 }
 
 /* White container for content below hero */

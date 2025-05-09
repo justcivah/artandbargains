@@ -1,0 +1,107 @@
+/* Fixed Background Element */
+.shop-hero-background {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100vh;
+	background-image: url('/src/assets/porcelain.png');
+	background-size: cover;
+	background-position: center;
+	z-index: -2;
+	transition: opacity 0.3s ease;
+}
+
+.shop-hero-background.visible {
+	opacity: 1;
+}
+
+.shop-hero-background.hidden {
+	opacity: 0;
+	visibility: hidden;
+}
+
+.shop-hero-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.6);
+	z-index: -1;
+}
+
+/* Hero Section */
+.shop-hero {
+	height: 40vh;
+	min-height: 300px;
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+	padding: var(--spacing-xl) var(--spacing-md);
+	color: var(--light-color);
+	z-index: 1;
+}
+
+.shop-hero-content {
+	position: relative;
+	z-index: 2;
+	max-width: 800px;
+}
+
+.shop-title {
+	font-size: 3.5rem;
+	font-weight: 700;
+	margin-bottom: var(--spacing-xs);
+	line-height: 1.2;
+	font-family: var(--heading-font);
+	color: var(--light-color);
+}
+
+.shop-subtitle {
+	font-size: 1.2rem;
+	margin-top: var(--spacing-sm);
+	font-weight: 400;
+	max-width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+/* Media queries */
+@media (max-width: 992px) {
+	.shop-title {
+		font-size: 3rem;
+	}
+}
+
+@media (max-width: 768px) {
+	.shop-hero {
+		min-height: 250px;
+		padding: var(--spacing-lg) var(--spacing-sm);
+	}
+
+	.shop-title {
+		font-size: 2.5rem;
+	}
+
+	.shop-subtitle {
+		font-size: 1.1rem;
+	}
+}
+
+@media (max-width: 576px) {
+	.shop-hero {
+		min-height: 200px;
+	}
+
+	.shop-title {
+		font-size: 2rem;
+	}
+
+	.shop-subtitle {
+		font-size: 1rem;
+	}
+}

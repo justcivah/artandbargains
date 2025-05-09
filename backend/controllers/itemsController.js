@@ -43,6 +43,285 @@ exports.getItems = async (req, res) => {
 	}
 };
 
+// Search for items with filtering, sorting, and pagination
+exports.searchItems = async (req, res) => {
+	try {
+		// Extract query parameters
+		const {
+			search,
+			types,
+			categories,
+			contributors,
+			periods,
+			mediumTypes,
+			conditions,
+			minPrice,
+			maxPrice,
+			sort,
+			page = 1,
+			limit = 24
+		} = req.query;
+
+		// Start with a base scan operation for all items
+		let params = {
+			TableName: TABLE_NAME,
+			FilterExpression: "SK = :sk AND entity_type = :entityType",
+			ExpressionAttributeValues: {
+				":sk": "METADATA",
+				":entityType": "item"
+			}
+		};
+
+		// Add search term filter if provided
+		if (search) {
+			const searchTerm = search.toLowerCase();
+			params.FilterExpression += " AND (contains(lower(title), :search) OR contains(lower(description), :search) OR contains(lower(primary_contributor_display), :search))";
+			params.ExpressionAttributeValues[":search"] = searchTerm;
+		}
+
+		// Add type filter
+		if (types && types.length) {
+			const typeArray = Array.isArray(types) ? types : [types];
+			const typeValues = typeArray.map((t, i) => `:type${i}`);
+
+			params.FilterExpression += ` AND item_type IN (${typeValues.join(', ')})`;
+
+			typeArray.forEach((type, i) => {
+				params.ExpressionAttributeValues[`:type${i}`] = type;
+			});
+		}
+
+		// Add price range filters
+		if (minPrice) {
+			params.FilterExpression += " AND price >= :minPrice";
+			params.ExpressionAttributeValues[":minPrice"] = Number(minPrice);
+		}
+
+		if (maxPrice) {
+			params.FilterExpression += " AND price <= :maxPrice";
+			params.ExpressionAttributeValues[":maxPrice"] = Number(maxPrice);
+		}
+
+		// Add period filter
+		if (periods && periods.length) {
+			const periodArray = Array.isArray(periods) ? periods : [periods];
+			const periodValues = periodArray.map((p, i) => `:period${i}`);
+
+			params.FilterExpression += ` AND period IN (${periodValues.join(', ')})`;
+
+			periodArray.forEach((period, i) => {
+				params.ExpressionAttributeValues[`:period${i}`] = period;
+			});
+		}
+
+		// Execute the scan
+		const result = await dynamoDB.send(new ScanCommand(params));
+
+		// Post-process to further filter by categories, contributors, mediumTypes, and conditions
+		// as these require multiple queries or more complex filtering
+		let filteredItems = result.Items;
+
+		// Apply additional client-side filtering for categories (if needed)
+		if (categories && categories.length) {
+			const categoryArray = Array.isArray(categories) ? categories : [categories];
+
+			// Need to handle this via a separate query for each category since 
+			// they're in separate records linked by GSI3
+			const categoryPromises = categoryArray.map(category => {
+				const categoryParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'CategoryArticleIndex',
+					KeyConditionExpression: "GSI3PK = :category",
+					ExpressionAttributeValues: {
+						":category": `CATEGORY#${category}`
+					}
+				};
+				return dynamoDB.send(new QueryCommand(categoryParams));
+			});
+
+			const categoryResults = await Promise.all(categoryPromises);
+			const itemIdsByCategory = new Set();
+
+			categoryResults.forEach(result => {
+				result.Items.forEach(item => {
+					itemIdsByCategory.add(item.PK);
+				});
+			});
+
+			filteredItems = filteredItems.filter(item => itemIdsByCategory.has(item.PK));
+		}
+
+		// Apply additional client-side filtering for contributors (if needed)
+		if (contributors && contributors.length) {
+			const contributorArray = Array.isArray(contributors) ? contributors : [contributors];
+
+			const contributorPromises = contributorArray.map(contributor => {
+				const contributorParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'ContributorArticleIndex',
+					KeyConditionExpression: "GSI6PK = :contributor",
+					ExpressionAttributeValues: {
+						":contributor": `CONTRIBUTOR#${contributor}`
+					}
+				};
+				return dynamoDB.send(new QueryCommand(contributorParams));
+			});
+
+			const contributorResults = await Promise.all(contributorPromises);
+			const itemIdsByContributor = new Set();
+
+			contributorResults.forEach(result => {
+				result.Items.forEach(item => {
+					itemIdsByContributor.add(item.PK);
+				});
+			});
+
+			filteredItems = filteredItems.filter(item => itemIdsByContributor.has(item.PK));
+		}
+
+		// Apply additional client-side filtering for medium types (if needed)
+		if (mediumTypes && mediumTypes.length) {
+			const mediumTypeArray = Array.isArray(mediumTypes) ? mediumTypes : [mediumTypes];
+
+			const mediumTypePromises = mediumTypeArray.map(mediumType => {
+				const mediumTypeParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'MediumTypeArticleIndex',
+					KeyConditionExpression: "GSI4PK = :mediumType",
+					ExpressionAttributeValues: {
+						":mediumType": `MEDIUMTYPE#${mediumType}`
+					}
+				};
+				return dynamoDB.send(new QueryCommand(mediumTypeParams));
+			});
+
+			const mediumTypeResults = await Promise.all(mediumTypePromises);
+			const itemIdsByMediumType = new Set();
+
+			mediumTypeResults.forEach(result => {
+				result.Items.forEach(item => {
+					itemIdsByMediumType.add(item.PK);
+				});
+			});
+
+			filteredItems = filteredItems.filter(item => itemIdsByMediumType.has(item.PK));
+		}
+
+		// Apply additional client-side filtering for conditions (if needed)
+		if (conditions && conditions.length) {
+			const conditionArray = Array.isArray(conditions) ? conditions : [conditions];
+
+			const conditionPromises = conditionArray.map(condition => {
+				const conditionParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'ConditionArticleIndex',
+					KeyConditionExpression: "GSI5PK = :condition",
+					ExpressionAttributeValues: {
+						":condition": `CONDITIONTYPE#${condition}`
+					}
+				};
+				return dynamoDB.send(new QueryCommand(conditionParams));
+			});
+
+			const conditionResults = await Promise.all(conditionPromises);
+			const itemIdsByCondition = new Set();
+
+			conditionResults.forEach(result => {
+				result.Items.forEach(item => {
+					itemIdsByCondition.add(item.PK);
+				});
+			});
+
+			filteredItems = filteredItems.filter(item => itemIdsByCondition.has(item.PK));
+		}
+
+		// Apply sorting
+		if (sort) {
+			switch (sort) {
+				case 'date_desc':
+					filteredItems.sort((a, b) => new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp));
+					break;
+				case 'date_asc':
+					filteredItems.sort((a, b) => new Date(a.insertion_timestamp) - new Date(b.insertion_timestamp));
+					break;
+				case 'price_asc':
+					filteredItems.sort((a, b) => a.price - b.price);
+					break;
+				case 'price_desc':
+					filteredItems.sort((a, b) => b.price - a.price);
+					break;
+				case 'alpha_asc':
+					filteredItems.sort((a, b) => a.title.localeCompare(b.title));
+					break;
+				case 'alpha_desc':
+					filteredItems.sort((a, b) => b.title.localeCompare(a.title));
+					break;
+				default:
+					// Default sort by newest
+					filteredItems.sort((a, b) => new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp));
+			}
+		} else {
+			// Default sort by newest
+			filteredItems.sort((a, b) => new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp));
+		}
+
+		// Apply pagination
+		const startIndex = (page - 1) * limit;
+		const endIndex = page * limit;
+
+		const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+		// Prepare pagination metadata
+		const totalPages = Math.ceil(filteredItems.length / limit);
+
+		res.json({
+			items: paginatedItems,
+			pagination: {
+				total: filteredItems.length,
+				page: parseInt(page),
+				limit: parseInt(limit),
+				totalPages
+			}
+		});
+	} catch (error) {
+		console.error('Error searching items:', error);
+		res.status(500).json({ error: 'Failed to search items: ' + error.message });
+	}
+};
+
+// Get recent items
+exports.getRecentItems = async (req, res) => {
+	try {
+		const { limit = 10 } = req.query;
+		const parsedLimit = parseInt(limit);
+
+		// Query for all items with METADATA in the sort key
+		const params = {
+			TableName: TABLE_NAME,
+			FilterExpression: "SK = :sk AND entity_type = :entityType",
+			ExpressionAttributeValues: {
+				":sk": "METADATA",
+				":entityType": "item"
+			}
+		};
+
+		const result = await dynamoDB.send(new ScanCommand(params));
+
+		// Sort by insertion_timestamp in descending order (newest first)
+		const sortedItems = result.Items.sort((a, b) => {
+			return new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp);
+		});
+
+		// Limit the results
+		const limitedItems = sortedItems.slice(0, parsedLimit);
+
+		res.json(limitedItems);
+	} catch (error) {
+		console.error('Error fetching recent items:', error);
+		res.status(500).json({ error: 'Failed to fetch recent items' });
+	}
+};
+
 // Get a single item
 exports.getItem = async (req, res) => {
 	try {
@@ -67,39 +346,6 @@ exports.getItem = async (req, res) => {
 	} catch (error) {
 		console.error(`Error fetching item ${req.params.id}:`, error);
 		res.status(500).json({ error: 'Failed to fetch item' });
-	}
-};
-
-// Get recent items (add this to itemsController.js)
-exports.getRecentItems = async (req, res) => {
-	try {
-		// Get limit from query params, default to 5
-		const limit = parseInt(req.query.limit) || 5;
-
-		// Query for all items with METADATA in the sort key
-		const params = {
-			TableName: TABLE_NAME,
-			FilterExpression: "begins_with(SK, :sk) AND entity_type = :entityType",
-			ExpressionAttributeValues: {
-				":sk": "METADATA",
-				":entityType": "item"
-			}
-		};
-
-		const result = await dynamoDB.send(new ScanCommand(params));
-
-		// Sort by insertion_timestamp in descending order (newest first)
-		const sortedItems = result.Items.sort((a, b) => {
-			return new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp);
-		});
-
-		// Return only the number of items requested
-		const recentItems = sortedItems.slice(0, limit);
-
-		res.json(recentItems);
-	} catch (error) {
-		console.error('Error fetching recent items:', error);
-		res.status(500).json({ error: 'Failed to fetch recent items' });
 	}
 };
 
@@ -321,12 +567,6 @@ exports.deleteItem = async (req, res) => {
 	}
 };
 
-// Generate a new unique item ID
-exports.generateId = (req, res) => {
-	const itemId = `ITEM#${uuidv4()}`;
-	res.json({ itemId });
-};
-
 // Helper function to delete an item and all related records
 async function deleteItemFromDb(itemId) {
 	// First, get all records with the same PK
@@ -356,4 +596,30 @@ async function deleteItemFromDb(itemId) {
 	await Promise.all(deletePromises);
 
 	return { success: true };
+}
+
+// Helper function to sort items
+function sortItems(items, sortBy) {
+	switch (sortBy) {
+		case 'newest':
+			return items.sort((a, b) => new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp));
+
+		case 'oldest':
+			return items.sort((a, b) => new Date(a.insertion_timestamp) - new Date(b.insertion_timestamp));
+
+		case 'price_asc':
+			return items.sort((a, b) => a.price - b.price);
+
+		case 'price_desc':
+			return items.sort((a, b) => b.price - a.price);
+
+		case 'title_asc':
+			return items.sort((a, b) => a.title.localeCompare(b.title));
+
+		case 'title_desc':
+			return items.sort((a, b) => b.title.localeCompare(a.title));
+
+		default:
+			return items;
+	}
 }

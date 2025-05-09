@@ -46,21 +46,21 @@ const Categories = () => {
       title: 'Prints',
       description: 'Unique artistic prints from renowned and emerging artists',
       image: '/src/assets/prints.jpg',
-      link: '/shop/prints',
+      link: '/shop?types=print',
     },
     {
       id: 2,
       title: 'Porcelain',
       description: 'Exquisite porcelain pieces with timeless craftsmanship',
       image: '/src/assets/porcelain.png',
-      link: '/shop/porcelain',
+      link: '/shop?types=porcelain',
     },
     {
       id: 3,
       title: 'Vintage Furnishings',
       description: 'Classic furniture pieces with character and history',
       image: '/src/assets/vintage-furnishing.png',
-      link: '/shop/furnishings',
+      link: '/shop?types=vintage_furnishing',
     },
   ];
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-	createItem, generateItemId, fetchItemTypes, fetchCategories, fetchPeriods,
+	createItem, fetchItemTypes, fetchCategories, fetchPeriods,
 	fetchMediumTypes, fetchConditionTypes, fetchContributors
 } from '../api/itemsApi';
 import { uploadMultipleImages } from '../api/imagesApi';
@@ -66,7 +66,7 @@ const AddItemPage = () => {
 		description: '',
 		images: [],
 		primaryImageIndex: 0,
-		existingImages: [] // Add this empty array for compatibility
+		existingImages: []
 	});
 
 	const [loading, setLoading] = useState(true);
@@ -107,6 +107,23 @@ const AddItemPage = () => {
 		loadMetadata();
 	}, []);
 
+	const generateIdFromTitle = (title) => {
+		const normalizedTitle = title
+			.toLowerCase()
+			.replace(/'/g, '-')
+			.replace(/[^a-z0-9\s-]/g, '')
+			.trim()
+			.replace(/\s+/g, '-');
+
+		const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+		let code = '';
+		for (let i = 0; i < 6; i++) {
+			code += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
+
+		return `${normalizedTitle}-${code}`;
+	}
+
 	// Update form data
 	const updateFormData = (field, value) => {
 		setFormData(prevData => ({
@@ -137,7 +154,7 @@ const AddItemPage = () => {
 			setIsSubmitting(true);
 
 			// Generate a new item ID
-			const itemId = await generateItemId();
+			const itemId = `ITEM#${generateIdFromTitle(formData.title)}`;
 
 			// Upload images to Backblaze
 			let imageUrls = [];
