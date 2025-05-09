@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { fetchRecentItems } from '../api/itemsApi';
 import '../styles/RecentAdditions.css';
 
 const RecentAdditions = () => {
@@ -9,75 +10,77 @@ const RecentAdditions = () => {
 	const [isVisible, setIsVisible] = useState(false);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
+	const [recentItems, setRecentItems] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState(null);
 
-	// Updated data structure with title, author, year, description and using actual image URLs
-	const recentItems = [
-		{
-			id: 1,
-			title: 'Abstract Geometric Print',
-			author: 'Sarah Johnson',
-			year: 2023,
-			description: 'A modern interpretation of geometric patterns with vibrant color palettes that create depth and movement.',
-			category: 'Prints',
-			price: 189.99,
-			image: 'https://images.desenio.com/zoom/17414_1.jpg',
-			link: '/shop/prints/abstract-geometric'
-		},
-		{
-			id: 2,
-			title: 'Vintage Blue Porcelain Vase',
-			author: 'Ming Dynasty Collection',
-			year: 1657,
-			description: 'An exquisite reproduction of traditional blue porcelain with intricate hand-painted details.',
-			category: 'Porcelain',
-			price: 249.99,
-			image: 'https://image.made-in-china.com/155f0j00utWoEzIGTebp/Wholesale-Vintage-Chinese-Style-Home-Decor-Blue-and-White-Porcelain-Ceramic-Vase.webp',
-			link: '/shop/porcelain/blue-vase'
-		},
-		{
-			id: 3,
-			title: 'Mid-century Side Table',
-			author: 'Charles Eames',
-			year: 1952,
-			description: 'Authentic mid-century design featuring walnut veneer and tapered legs with brass accents.',
-			category: 'Furnishings',
-			price: 399.99,
-			image: 'https://images.artfulhome.com/item_images/Additional/P/7901-8000/7918/eventh/7cf0e8a9-8caf-4e83-a5bb-9795be9769e5_262111_event_h.jpg',
-			link: '/shop/furnishings/mid-century-table'
-		},
-		{
-			id: 4,
-			title: 'Botanical Illustration',
-			author: 'Emma Blackwell',
-			year: 2021,
-			description: 'Detailed botanical prints featuring native flora with scientifically accurate renderings.',
-			category: 'Prints',
-			price: 159.99,
-			image: 'https://artandbargains.com/wp-content/uploads/2020/08/Aconit-Napel-Phytographie-Medicale-by-Joseph-Roques-1821.jpg',
-			link: '/shop/prints/botanical'
-		},
-		{
-			id: 5,
-			title: 'Art Deco Tea Set',
-			author: 'Clarice Cliff',
-			year: 1934,
-			description: 'A complete tea service for four featuring geometric patterns and gold accents in classic Art Deco style.',
-			category: 'Porcelain',
-			price: 329.99,
-			image: 'https://i.etsystatic.com/21435935/r/il/4e8130/2817245925/il_1588xN.2817245925_g7r5.jpg',
-			link: '/shop/porcelain/art-deco-tea-set'
-		}
-	];
+	// Fetch recent items from the API
+	useEffect(() => {
+		const fetchRecentAdditions = async () => {
+			try {
+				setLoading(true);
+				const data = await fetchRecentItems();
 
-	// Updated to be responsive based on screen width
-	const getItemsPerView = () => {
-		if (windowWidth <= 576) {
-			return 1; // Mobile: show 1 item
-		} else if (windowWidth <= 992) {
-			return 2; // Tablet: show 2 items
-		} else {
-			return 3; // Desktop: show 3 items
+				// Transform the API response to match our component's expected format
+				const transformedItems = data.map(item => ({
+					id: item.PK.replace('ITEM#', ''),
+					title: item.title,
+					author: item.primary_contributor_display || 'Unknown',
+					year: getYearFromDateInfo(item.date_info),
+					description: item.description || 'No description available',
+					category: formatCategory(item.item_type),
+					price: item.price,
+					image: getMainImage(item),
+					link: `/shop/${item.item_type}/${item.PK.replace('ITEM#', '')}`
+				}));
+
+				setRecentItems(transformedItems);
+				setError(null);
+			} catch (err) {
+				console.error('Error fetching recent items:', err);
+				setError('Failed to load recent items. Please try again later.');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		fetchRecentAdditions();
+	}, []);
+
+	// Helper function to extract year from date_info
+	const getYearFromDateInfo = (dateInfo) => {
+		if (!dateInfo) return 'Unknown';
+
+		if (dateInfo.type === 'exact' && dateInfo.year_exact) {
+			return dateInfo.year_exact;
+		} else if (dateInfo.type === 'range' && dateInfo.year_range_start) {
+			return dateInfo.year_range_start;
+		} else if (dateInfo.period_text) {
+			return dateInfo.period_text;
 		}
+
+		return 'Unknown';
+	};
+
+	// Helper function to get the main image URL
+	const getMainImage = (item) => {
+		if (!item.images || !item.images.length) {
+			return 'https://via.placeholder.com/400x300?text=No+Image';
+		}
+
+		const mainImage = item.images.find(img => img.is_primary);
+		return mainImage ? mainImage.url : item.images[0].url;
+	};
+
+	// Format category name for display
+	const formatCategory = (category) => {
+		if (!category) return 'Other';
+
+		// Convert snake_case to Title Case
+		return category
+			.split('_')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+			.join(' ');
 	};
 
 	// Set up the intersection observer to detect when the section is visible
@@ -110,6 +113,9 @@ const RecentAdditions = () => {
 			const width = window.innerWidth;
 			setWindowWidth(width);
 			setIsMobile(width <= 576);
+
+			// Reset current index when resizing to avoid invalid indices
+			setCurrentIndex(0);
 		};
 
 		window.addEventListener('resize', handleResize);
@@ -120,6 +126,16 @@ const RecentAdditions = () => {
 	}, []);
 
 	// Calculate total number of slides (pages) based on items per view
+	const getItemsPerView = () => {
+		if (windowWidth <= 576) {
+			return 1;
+		} else if (windowWidth <= 992) {
+			return 2;
+		} else {
+			return 3;
+		}
+	};
+
 	const itemsPerView = getItemsPerView();
 	const totalSlides = Math.max(1, recentItems.length - (itemsPerView - 1));
 
@@ -145,6 +161,8 @@ const RecentAdditions = () => {
 
 	// Auto-play function
 	useEffect(() => {
+		if (recentItems.length === 0) return;
+
 		const interval = setInterval(() => {
 			if (isVisible) {
 				nextSlide();
@@ -152,7 +170,7 @@ const RecentAdditions = () => {
 		}, 5000);
 
 		return () => clearInterval(interval);
-	}, [isVisible, currentIndex, totalSlides]);
+	}, [isVisible, currentIndex, totalSlides, recentItems]);
 
 	// Calculate the transform position based on current index and responsive view
 	const getSliderTransform = () => {
@@ -160,6 +178,63 @@ const RecentAdditions = () => {
 		// Calculate percentage to move based on the number of items in view
 		return `translateX(-${currentIndex * (100 / itemsPerView)}%)`;
 	};
+
+	// Loading state
+	if (loading) {
+		return (
+			<section
+				className={`recent-additions-section ${isVisible ? 'fade-in' : ''}`}
+				ref={sectionRef}
+			>
+				<div className="section-header">
+					<h2 className="section-title">Recent Additions</h2>
+					<div className="title-underline"></div>
+					<p className="section-subtitle">
+						Loading our newest treasures...
+					</p>
+				</div>
+				<div className="recent-slider-container" style={{ minHeight: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+					<div className="loading-spinner">Loading...</div>
+				</div>
+			</section>
+		);
+	}
+
+	// Error state
+	if (error) {
+		return (
+			<section
+				className={`recent-additions-section ${isVisible ? 'fade-in' : ''}`}
+				ref={sectionRef}
+			>
+				<div className="section-header">
+					<h2 className="section-title">Recent Additions</h2>
+					<div className="title-underline"></div>
+					<p className="section-subtitle">
+						{error}
+					</p>
+				</div>
+			</section>
+		);
+	}
+
+	// Empty state
+	if (recentItems.length === 0) {
+		return (
+			<section
+				className={`recent-additions-section ${isVisible ? 'fade-in' : ''}`}
+				ref={sectionRef}
+			>
+				<div className="section-header">
+					<h2 className="section-title">Recent Additions</h2>
+					<div className="title-underline"></div>
+					<p className="section-subtitle">
+						No recent items found. Check back soon for new additions!
+					</p>
+				</div>
+			</section>
+		);
+	}
 
 	return (
 		<section
@@ -187,10 +262,10 @@ const RecentAdditions = () => {
 				)}
 
 				<div className="slider-overflow">
-					<div 
+					<div
 						className="recent-items-container"
 						ref={sliderRef}
-						style={{ 
+						style={{
 							transform: getSliderTransform(),
 						}}
 					>
@@ -249,7 +324,7 @@ const RecentAdditions = () => {
 						&#10094;
 					</button>
 				)}
-				
+
 				<div className="slider-indicators">
 					{Array.from({ length: totalSlides }, (_, index) => (
 						<button
@@ -261,7 +336,7 @@ const RecentAdditions = () => {
 						></button>
 					))}
 				</div>
-				
+
 				{isMobile && (
 					<button
 						className="slider-button next mobile"

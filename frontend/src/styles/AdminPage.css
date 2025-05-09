@@ -12,6 +12,10 @@ body {
 	line-height: 1.6;
 }
 
+.admin-page a:hover {
+	color: var(--light-color);
+}
+
 /* Admin page styles */
 .admin-page {
 	max-width: 1200px;

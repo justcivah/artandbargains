@@ -48,6 +48,17 @@ export const fetchItem = async (itemId) => {
 	}
 };
 
+// Get latest items
+export const fetchRecentItems = async (limit = 10) => {
+	try {
+		const response = await api.get(`/api/items/recent?limit=${limit}`);
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching recent items:', error);
+		throw error;
+	}
+};
+
 // Delete an item
 export const deleteItem = async (itemId) => {
 	try {

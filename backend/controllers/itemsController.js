@@ -70,6 +70,39 @@ exports.getItem = async (req, res) => {
 	}
 };
 
+// Get recent items (add this to itemsController.js)
+exports.getRecentItems = async (req, res) => {
+	try {
+		// Get limit from query params, default to 5
+		const limit = parseInt(req.query.limit) || 5;
+
+		// Query for all items with METADATA in the sort key
+		const params = {
+			TableName: TABLE_NAME,
+			FilterExpression: "begins_with(SK, :sk) AND entity_type = :entityType",
+			ExpressionAttributeValues: {
+				":sk": "METADATA",
+				":entityType": "item"
+			}
+		};
+
+		const result = await dynamoDB.send(new ScanCommand(params));
+
+		// Sort by insertion_timestamp in descending order (newest first)
+		const sortedItems = result.Items.sort((a, b) => {
+			return new Date(b.insertion_timestamp) - new Date(a.insertion_timestamp);
+		});
+
+		// Return only the number of items requested
+		const recentItems = sortedItems.slice(0, limit);
+
+		res.json(recentItems);
+	} catch (error) {
+		console.error('Error fetching recent items:', error);
+		res.status(500).json({ error: 'Failed to fetch recent items' });
+	}
+};
+
 // Helper function to sanitize data for DynamoDB
 function sanitizeForDynamoDB(obj) {
 	if (obj === null || obj === undefined) return null;
@@ -261,7 +294,7 @@ exports.updateItem = async (req, res) => {
 
 		// First delete the old item and related records
 		await deleteItemFromDb(id);
-		
+
 		// Then create the updated item with the request body
 		req.body.itemId = id;
 		await exports.createItem(req, res);

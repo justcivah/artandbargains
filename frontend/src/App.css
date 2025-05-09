@@ -97,7 +97,7 @@ a {
 }
 
 a:hover {
-	color: var(--light-color);
+	color: var(--secondary-color);
 }
 
 ul {
