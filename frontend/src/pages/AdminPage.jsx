@@ -18,6 +18,14 @@ const AdminPage = () => {
 		loadItems();
 	}, []);
 
+	useEffect(() => {
+		// Scroll to top when component mounts
+		window.scrollTo(0, 0);
+		
+		// Set page title
+		document.title = 'Admin - Art & Bargains';
+	  }, []);
+
 	const loadItems = async () => {
 		try {
 			setLoading(true);

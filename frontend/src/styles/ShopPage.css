@@ -47,7 +47,7 @@
 	left: 0;
 	width: 100%;
 	height: 100vh;
-	background-image: url('/src/assets/shop-hero-background.jpeg');
+	background-image: url('/src/assets/shop-hero-background.png');
 	background-size: cover;
 	background-position: center;
 	z-index: 0;
@@ -115,7 +115,7 @@
 .title-underline {
 	height: 4px;
 	width: 60px;
-	background-color: var(--accent-color);
+	background-color: var(--secondary-color);
 	margin-bottom: var(--spacing-md);
 }
 

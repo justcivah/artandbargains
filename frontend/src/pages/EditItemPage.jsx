@@ -230,8 +230,12 @@ const EditItemPage = () => {
 				}
 			});
 
-			// Prepare date information
-			const dateInfo = {};
+			// Prepare date information - FIXED: include type field
+			const dateInfo = {
+				type: formData.dateInfo.type, // Adding the type field
+				circa: formData.dateInfo.circa
+			};
+
 			if (formData.dateInfo.type === 'exact') {
 				dateInfo.year_exact = parseInt(formData.dateInfo.yearExact) || null;
 				dateInfo.year_range_start = null;
@@ -248,7 +252,6 @@ const EditItemPage = () => {
 				dateInfo.year_range_end = null;
 				dateInfo.period_text = formData.dateInfo.periodText;
 			}
-			dateInfo.circa = formData.dateInfo.circa;
 
 			// Prepare dimensions
 			const dimensions = {};
@@ -269,11 +272,14 @@ const EditItemPage = () => {
 				metadata: {
 					PK: itemId,
 					title: formData.title,
+					title_lower: formData.title.toLowerCase(),
 					categories: formData.categories,
 					date_info: dateInfo,
 					contributors: contributors,
 					primary_contributor_display: formData.primaryContributor,
+					primary_contributor_display_lower: formData.primaryContributor.toLowerCase(),
 					description: formData.description,
+					description_lower: formData.description.toLowerCase(),
 					price: parseFloat(formData.price),
 					item_type: formData.itemType,
 					period: formData.period,

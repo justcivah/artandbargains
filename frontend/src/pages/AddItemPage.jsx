@@ -235,12 +235,15 @@ const AddItemPage = () => {
 			// Prepare the item data for DynamoDB
 			const itemData = {
 				metadata: {
-					PK: itemId, // Set the primary key to the generated ID
+					PK: itemId,
 					title: formData.title,
+					title_lower: formData.title.toLowerCase(),
 					date_info: dateInfo,
 					contributors: contributors,
 					primary_contributor_display: formData.primaryContributor,
+					primary_contributor_display_lower: formData.primaryContributor.toLowerCase(),
 					description: formData.description,
+					description_lower: formData.description.toLowerCase(),
 					price: parseFloat(formData.price),
 					item_type: formData.itemType,
 					period: formData.period,

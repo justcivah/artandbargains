@@ -75,7 +75,7 @@ exports.searchItems = async (req, res) => {
 		// Add search term filter if provided
 		if (search) {
 			const searchTerm = search.toLowerCase();
-			params.FilterExpression += " AND (contains(lower(title), :search) OR contains(lower(description), :search) OR contains(lower(primary_contributor_display), :search))";
+			params.FilterExpression += " AND (contains(title_lower, :search) OR contains(description_lower, :search) OR contains(primary_contributor_display_lower, :search))";
 			params.ExpressionAttributeValues[":search"] = searchTerm;
 		}
 

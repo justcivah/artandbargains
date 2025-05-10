@@ -44,8 +44,8 @@
 
 /* Hero Section */
 .about-hero {
-	height: 50vh;
-	min-height: 400px;
+	height: 40vh;
+	min-height: 300px;
 	position: relative;
 	display: flex;
 	align-items: center;
@@ -141,7 +141,7 @@
 .title-underline {
 	height: 4px;
 	width: 60px;
-	background-color: var(--accent-color);
+	background-color: var(--secondary-color);
 	margin-bottom: var(--spacing-md);
 }
 
@@ -230,6 +230,7 @@
 	font-size: 2.2rem;
 	margin-bottom: var(--spacing-sm);
 	font-weight: 600;
+	color: var(--light-color);
 }
 
 .cta-content p {
@@ -238,6 +239,7 @@
 	max-width: 600px;
 	margin-left: auto;
 	margin-right: auto;
+	color: var(--light-color);
 }
 
 .cta-buttons {
