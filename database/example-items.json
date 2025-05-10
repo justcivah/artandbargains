@@ -460,6 +460,7 @@
 	  "PK": "ITEM#001",
 	  "SK": "METADATA",
 	  "title": "Map of Europe",
+	  "title_lower": "map of europe",
 	  "categories": ["map"],
 	  "date_info": {
 		"type": "exact",
@@ -475,7 +476,9 @@
 		{"position": "engraver", "contributor_id": "william_johnson"}
 	  ],
 	  "primary_contributor_display": "John Smith",
+	  "primary_contributor_display_lower": "john smith",
 	  "description": "A detailed map of Europe showing political boundaries of the 18th century.",
+	  "description_lower": "a detailed map of europe showing political boundaries of the 18th century.",
 	  "price": 399.99,
 	  "item_type": "prints",
 	  "period": "18th_century",
@@ -562,6 +565,7 @@
 	  "PK": "ITEM#002",
 	  "SK": "METADATA",
 	  "title": "Japanese Ukiyo-e Bird Print",
+	  "title_lower": "japanese ukiyo-e bird print",
 	  "categories": ["japanese_woodblock", "animal"],
 	  "date_info": {
 		"type": "range",
@@ -576,7 +580,9 @@
 		{"position": "publisher", "contributor_id": "tsutaya_kichizo"}
 	  ],
 	  "primary_contributor_display": "Utagawa Hiroshige",
+	  "primary_contributor_display_lower": "utagawa hiroshige",
 	  "description": "Original woodblock print depicting cranes in a traditional Japanese style.",
+	  "description_lower": "original woodblock print depicting cranes in a traditional japanese style.",
 	  "price": 1250.00,
 	  "item_type": "prints",
 	  "period": "19th_century",
@@ -669,6 +675,7 @@
 	  "PK": "ITEM#003",
 	  "SK": "METADATA",
 	  "title": "Sèvres Porcelain Vase",
+	  "title_lower": "sèvres porcelain vase",
 	  "categories": ["poster"],
 	  "date_info": {
 		"type": "range",
@@ -683,7 +690,9 @@
 		{"position": "manufacturer", "contributor_id": "sevres_manufactory"}
 	  ],
 	  "primary_contributor_display": "Sèvres Porcelain Manufactory",
+	  "primary_contributor_display_lower": "sèvres porcelain manufactory",
 	  "description": "Exquisite Sèvres blue porcelain vase with gilt bronze mounts, featuring neoclassical motifs.",
+	  "description_lower": "exquisite sèvres blue porcelain vase with gilt bronze mounts, featuring neoclassical motifs.",
 	  "price": 8500.00,
 	  "item_type": "porcelains",
 	  "period": "18th_century",
@@ -771,6 +780,7 @@
 	  "PK": "ITEM#004",
 	  "SK": "METADATA",
 	  "title": "Art Nouveau Cabinet",
+	  "title_lower": "art nouveau cabinet",
 	  "categories": ["poster"],
 	  "date_info": {
 		"type": "exact",
@@ -785,7 +795,9 @@
 		{"position": "manufacturer", "contributor_id": "majorelle_freres"}
 	  ],
 	  "primary_contributor_display": "Louis Majorelle",
+	  "primary_contributor_display_lower": "louis majorelle",
 	  "description": "Elegant Art Nouveau cabinet with marquetry floral designs and curved brass hardware.",
+	  "description_lower": "elegant art nouveau cabinet with marquetry floral designs and curved brass hardware.",
 	  "price": 12500.00,
 	  "item_type": "vintage_furnishings",
 	  "period": "20th_century",
@@ -875,6 +887,7 @@
 	  "PK": "ITEM#005",
 	  "SK": "METADATA",
 	  "title": "Botanical Study: Rosa Gallica",
+	  "title_lower": "botanical study: rosa gallica",
 	  "categories": ["botany"],
 	  "date_info": {
 		"type": "exact",
@@ -889,7 +902,9 @@
 		{"position": "engraver", "contributor_id": "langlois"}
 	  ],
 	  "primary_contributor_display": "Pierre-Joseph Redouté",
+	  "primary_contributor_display_lower": "pierre-joseph redouté",
 	  "description": "Beautiful hand-colored stipple engraving of Rosa Gallica from Redouté's famous 'Les Roses' series.",
+	  "description_lower": "beautiful hand-colored stipple engraving of rosa gallica from redouté's famous 'les roses' series.",
 	  "price": 2200.00,
 	  "item_type": "prints",
 	  "period": "19th_century",
@@ -975,6 +990,7 @@
 	  "PK": "ITEM#006",
 	  "SK": "METADATA",
 	  "title": "Vintage Travel Poster - Paris",
+	  "title_lower": "vintage travel poster - paris",
 	  "categories": ["poster"],
 	  "date_info": {
 		"type": "exact",
@@ -990,7 +1006,9 @@
 		{"position": "publisher", "contributor_id": "paris_lyon_mediterranee"}
 	  ],
 	  "primary_contributor_display": "Roger Broders",
+	  "primary_contributor_display_lower": "roger broders",
 	  "description": "Original Art Deco travel poster promoting Paris, featuring the Eiffel Tower in a bold, stylized design.",
+	  "description_lower": "original art deco travel poster promoting paris, featuring the eiffel tower in a bold, stylized design.",
 	  "price": 3800.00,
 	  "item_type": "prints",
 	  "period": "20th_century",
@@ -1084,6 +1102,7 @@
 	  "PK": "ITEM#007",
 	  "SK": "METADATA",
 	  "title": "Ming Dynasty Style Porcelain Bowl",
+	  "title_lower": "ming dynasty style porcelain bowl",
 	  "categories": ["poster"],
 	  "date_info": {
 		"type": "text",
@@ -1097,7 +1116,9 @@
 		{"position": "manufacturer", "contributor_id": "jingdezhen_workshop"}
 	  ],
 	  "primary_contributor_display": "Jingdezhen Porcelain Workshop",
+	  "primary_contributor_display_lower": "jingdezhen porcelain workshop",
 	  "description": "Fine reproduction of a Ming Dynasty blue and white porcelain bowl with traditional motifs.",
+	  "description_lower": "fine reproduction of a ming dynasty blue and white porcelain bowl with traditional motifs.",
 	  "price": 950.00,
 	  "item_type": "porcelains",
 	  "period": "20th_century",
@@ -1169,6 +1190,7 @@
 	  "PK": "ITEM#008",
 	  "SK": "METADATA",
 	  "title": "Victorian Mahogany Dining Table",
+	  "title_lower": "victorian mahogany dining table",
 	  "categories": ["poster"],
 	  "date_info": {
 		"type": "range",
@@ -1182,7 +1204,9 @@
 		{"position": "manufacturer", "contributor_id": "english_workshop"}
 	  ],
 	  "primary_contributor_display": "English Workshop",
+	  "primary_contributor_display_lower": "english workshop",
 	  "description": "Elegant Victorian extending dining table in solid mahogany with turned baluster legs.",
+	  "description_lower": "elegant victorian extending dining table in solid mahogany with turned baluster legs.",
 	  "price": 4200.00,
 	  "item_type": "vintage_furnishings",
 	  "period": "19th_century",
@@ -1258,6 +1282,7 @@
 	  "PK": "ITEM#009",
 	  "SK": "METADATA",
 	  "title": "Chinese Famille Rose Vase",
+	  "title_lower": "chinese famille rose vase",
 	  "categories": ["map"],
 	  "date_info": {
 		"type": "text",
@@ -1271,7 +1296,9 @@
 		{"position": "manufacturer", "contributor_id": "jingdezhen_workshop"}
 	  ],
 	  "primary_contributor_display": "Jingdezhen Porcelain Workshop",
+	  "primary_contributor_display_lower": "jingdezhen porcelain workshop",
 	  "description": "Porcelain vase with famille rose decoration in the style of the Qianlong period, featuring floral and bird motifs.",
+	  "description_lower": "porcelain vase with famille rose decoration in the style of the Qianlong period, featuring floral and bird motifs.",
 	  "price": 1200.00,
 	  "item_type": "porcelains",
 	  "period": "20th_century",

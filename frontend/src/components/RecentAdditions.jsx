@@ -31,7 +31,7 @@ const RecentAdditions = () => {
 					category: formatCategory(item.item_type),
 					price: item.price,
 					image: getMainImage(item),
-					link: `/shop/${item.item_type}/${item.PK.replace('ITEM#', '')}`
+					link: `/item/${item.PK.replace('ITEM#', '')}`
 				}));
 
 				setRecentItems(transformedItems);
