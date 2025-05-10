@@ -15,6 +15,7 @@
 .empty-icon {
 	color: var(--text-color-light);
 	margin-bottom: var(--spacing-sm);
+	color: var(--secondary-color);
 }
 
 .empty-title {
