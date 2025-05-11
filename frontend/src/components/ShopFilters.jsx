@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import '../styles/ShopFilters.css';
 
 const ShopFilters = ({
-	itemTypes,
-	categories,
-	periods,
-	mediumTypes,
-	conditionTypes,
-	contributors,
+	itemTypes = [],
+	subjects = [],
+	techniques = [],
+	periods = [],
+	mediumTypes = [],
+	contributors = [],
 	selectedFilters,
 	onFilterChange,
 	onResetFilters
@@ -18,7 +18,8 @@ const ShopFilters = ({
 	// State for expanded filters sections
 	const [expandedSections, setExpandedSections] = useState({
 		type: true,
-		category: true,
+		subject: true,
+		technique: true,
 		period: true,
 		contributor: true,
 		mediumType: true,
@@ -29,7 +30,8 @@ const ShopFilters = ({
 	// State for search inputs in filter sections
 	const [filterSearches, setFilterSearches] = useState({
 		type: '',
-		category: '',
+		subject: '',
+		technique: '',
 		period: '',
 		contributor: '',
 		mediumType: '',
@@ -39,7 +41,8 @@ const ShopFilters = ({
 	// State for showing all items in a filter section
 	const [showAll, setShowAll] = useState({
 		type: false,
-		category: false,
+		subject: false,
+		technique: false,
 		period: false,
 		contributor: false,
 		mediumType: false,
@@ -94,7 +97,7 @@ const ShopFilters = ({
 
 	// Filter items based on search
 	const filterItems = (items, section) => {
-		if (!filterSearches[section]) return items;
+		if (!items || !filterSearches[section]) return items || [];
 
 		const search = filterSearches[section].toLowerCase();
 		return items.filter(item => {
@@ -107,6 +110,8 @@ const ShopFilters = ({
 
 	// Sort periods from newest to oldest
 	const sortPeriods = (periods) => {
+		if (!periods) return [];
+
 		// Create a copy of the periods array to avoid modifying the original
 		return [...periods].sort((a, b) => {
 			// Extract years or century information from period names if possible
@@ -146,6 +151,8 @@ const ShopFilters = ({
 
 	// Limit items shown unless "show all" is enabled
 	const getLimitedItems = (items, section) => {
+		if (!items) return [];
+
 		// Sort periods if this is the period section
 		const itemsToProcess = section === 'period' ? sortPeriods(items) : items;
 		const filtered = filterItems(itemsToProcess, section);
@@ -233,7 +240,6 @@ const ShopFilters = ({
 													onChange={() => onFilterChange('types', type.name)}
 												/>
 												<span className="option-name">{type.display_name}</span>
-												{/* <span className="option-count">(42)</span> */}
 											</label>
 										</div>
 									))}
@@ -251,21 +257,21 @@ const ShopFilters = ({
 						)}
 					</div>
 
-					{/* Categories Filter */}
+					{/* Subject Filter */}
 					<div className="filter-section">
 						<div
 							className="filter-header"
-							onClick={() => toggleSection('category')}
+							onClick={() => toggleSection('subject')}
 						>
-							<h3>Categories</h3>
-							<span className={`toggle-icon ${expandedSections.category ? 'open' : 'closed'}`}>
-								{expandedSections.category ? '−' : '+'}
+							<h3>Subject</h3>
+							<span className={`toggle-icon ${expandedSections.subject ? 'open' : 'closed'}`}>
+								{expandedSections.subject ? '−' : '+'}
 							</span>
 						</div>
 
-						{expandedSections.category && (
+						{expandedSections.subject && (
 							<div className="filter-body">
-								{categories.length > 8 && (
+								{subjects.length > 8 && (
 									<div className="filter-search">
 										<div className="search-input-container">
 											<span className="search-icon">
@@ -276,36 +282,95 @@ const ShopFilters = ({
 											</span>
 											<input
 												type="text"
-												placeholder="Search categories..."
-												value={filterSearches.category}
-												onChange={(e) => handleFilterSearch('category', e.target.value)}
+												placeholder="Search subjects..."
+												value={filterSearches.subject}
+												onChange={(e) => handleFilterSearch('subject', e.target.value)}
 											/>
 										</div>
 									</div>
 								)}
 
 								<div className="filter-options">
-									{getLimitedItems(categories, 'category').map((category) => (
-										<div key={category.name} className="filter-option">
+									{getLimitedItems(subjects, 'subject').map((subject) => (
+										<div key={subject.name} className="filter-option">
 											<label>
 												<input
 													type="checkbox"
-													checked={selectedFilters.categories.includes(category.name)}
-													onChange={() => onFilterChange('categories', category.name)}
+													checked={selectedFilters.subjects.includes(subject.name)}
+													onChange={() => onFilterChange('subjects', subject.name)}
 												/>
-												<span className="option-name">{category.display_name}</span>
-												{/* <span className="option-count">(23)</span> */}
+												<span className="option-name">{subject.display_name}</span>
 											</label>
 										</div>
 									))}
 								</div>
 
-								{categories.length > 8 && !filterSearches.category && (
+								{subjects.length > 8 && !filterSearches.subject && (
 									<button
 										className="show-more-btn"
-										onClick={() => toggleShowAll('category')}
+										onClick={() => toggleShowAll('subject')}
 									>
-										{showAll.category ? 'Show Less' : 'Show More'}
+										{showAll.subject ? 'Show Less' : 'Show More'}
+									</button>
+								)}
+							</div>
+						)}
+					</div>
+
+					{/* Technique Filter */}
+					<div className="filter-section">
+						<div
+							className="filter-header"
+							onClick={() => toggleSection('technique')}
+						>
+							<h3>Technique</h3>
+							<span className={`toggle-icon ${expandedSections.technique ? 'open' : 'closed'}`}>
+								{expandedSections.technique ? '−' : '+'}
+							</span>
+						</div>
+
+						{expandedSections.technique && (
+							<div className="filter-body">
+								{techniques.length > 8 && (
+									<div className="filter-search">
+										<div className="search-input-container">
+											<span className="search-icon">
+												<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+													<circle cx="11" cy="11" r="8"></circle>
+													<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+												</svg>
+											</span>
+											<input
+												type="text"
+												placeholder="Search techniques..."
+												value={filterSearches.technique}
+												onChange={(e) => handleFilterSearch('technique', e.target.value)}
+											/>
+										</div>
+									</div>
+								)}
+
+								<div className="filter-options">
+									{getLimitedItems(techniques, 'technique').map((technique) => (
+										<div key={technique.name} className="filter-option">
+											<label>
+												<input
+													type="checkbox"
+													checked={selectedFilters.techniques.includes(technique.name)}
+													onChange={() => onFilterChange('techniques', technique.name)}
+												/>
+												<span className="option-name">{technique.display_name}</span>
+											</label>
+										</div>
+									))}
+								</div>
+
+								{techniques.length > 8 && !filterSearches.technique && (
+									<button
+										className="show-more-btn"
+										onClick={() => toggleShowAll('technique')}
+									>
+										{showAll.technique ? 'Show Less' : 'Show More'}
 									</button>
 								)}
 							</div>
@@ -355,7 +420,6 @@ const ShopFilters = ({
 													onChange={() => onFilterChange('periods', period.name)}
 												/>
 												<span className="option-name">{period.display_name}</span>
-												{/* <span className="option-count">(15)</span> */}
 											</label>
 										</div>
 									))}
@@ -416,7 +480,6 @@ const ShopFilters = ({
 													onChange={() => onFilterChange('contributors', contributor.name)}
 												/>
 												<span className="option-name">{contributor.display_name}</span>
-												{/* <span className="option-count">(8)</span> */}
 											</label>
 										</div>
 									))}
@@ -477,7 +540,6 @@ const ShopFilters = ({
 													onChange={() => onFilterChange('mediumTypes', mediumType.name)}
 												/>
 												<span className="option-name">{mediumType.display_name}</span>
-												{/* <span className="option-count">(12)</span> */}
 											</label>
 										</div>
 									))}
@@ -495,7 +557,7 @@ const ShopFilters = ({
 						)}
 					</div>
 
-					{/* Price Range Filter - MOVED TO LAST POSITION */}
+					{/* Price Range Filter */}
 					<div className="filter-section">
 						<div
 							className="filter-header"

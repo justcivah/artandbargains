@@ -4,8 +4,7 @@ import ShopFilters from '../components/ShopFilters';
 import ShopItems from '../components/ShopItems';
 import ShopPagination from '../components/ShopPagination';
 import {
-	searchItems, fetchItemTypes, fetchCategories, fetchPeriods, fetchMediumTypes,
-	fetchConditionTypes, fetchContributors
+	searchItems, fetchItemTypes, fetchSubjects, fetchTechniques, fetchPeriods, fetchMediumTypes, fetchContributors
 } from '../api/itemsApi';
 import '../styles/ShopPage.css';
 
@@ -26,17 +25,18 @@ const ShopPage = () => {
 
 	// Filter states
 	const [itemTypes, setItemTypes] = useState([]);
-	const [categories, setCategories] = useState([]);
+	const [subjects, setSubjects] = useState([]);
+	const [techniques, setTechniques] = useState([]);
 	const [periods, setPeriods] = useState([]);
 	const [mediumTypes, setMediumTypes] = useState([]);
-	const [conditionTypes, setConditionTypes] = useState([]);
 	const [contributors, setContributors] = useState([]);
 
 	// Selected filter states
 	const [selectedFilters, setSelectedFilters] = useState({
 		search: '',
 		types: [],
-		categories: [],
+		subjects: [],
+		techniques: [],
 		periods: [],
 		contributors: [],
 		mediumTypes: [],
@@ -55,7 +55,8 @@ const ShopPage = () => {
 		const initialFilters = {
 			search: params.get('search') || '',
 			types: params.getAll('types') || [],
-			categories: params.getAll('categories') || [],
+			subjects: params.getAll('subjects') || [],
+			techniques: params.getAll('techniques') || [],
 			periods: params.getAll('periods') || [],
 			contributors: params.getAll('contributors') || [],
 			mediumTypes: params.getAll('mediumTypes') || [],
@@ -111,25 +112,25 @@ const ShopPage = () => {
 			try {
 				const [
 					typesData,
-					categoriesData,
+					subjectsData,
+					techniquesData,
 					periodsData,
 					mediumTypesData,
-					conditionTypesData,
 					contributorsData
 				] = await Promise.all([
 					fetchItemTypes(),
-					fetchCategories(),
+					fetchSubjects(),
+					fetchTechniques(),
 					fetchPeriods(),
 					fetchMediumTypes(),
-					fetchConditionTypes(),
 					fetchContributors()
 				]);
 
 				setItemTypes(typesData);
-				setCategories(categoriesData);
+				setSubjects(subjectsData);
+				setTechniques(techniquesData);
 				setPeriods(periodsData);
 				setMediumTypes(mediumTypesData);
-				setConditionTypes(conditionTypesData);
 				setContributors(contributorsData);
 			} catch (err) {
 				console.error('Error loading filter metadata:', err);
@@ -174,7 +175,8 @@ const ShopPage = () => {
 		if (selectedFilters.maxPrice) params.append('maxPrice', selectedFilters.maxPrice);
 
 		selectedFilters.types.forEach(type => params.append('types', type));
-		selectedFilters.categories.forEach(category => params.append('categories', category));
+		selectedFilters.subjects.forEach(subject => params.append('subjects', subject));
+		selectedFilters.techniques.forEach(technique => params.append('techniques', technique));
 		selectedFilters.periods.forEach(period => params.append('periods', period));
 		selectedFilters.contributors.forEach(contributor => params.append('contributors', contributor));
 		selectedFilters.mediumTypes.forEach(mediumType => params.append('mediumTypes', mediumType));
@@ -219,7 +221,8 @@ const ShopPage = () => {
 		setSelectedFilters({
 			search: '',
 			types: [],
-			categories: [],
+			subjects: [],
+			techniques: [],
 			periods: [],
 			contributors: [],
 			mediumTypes: [],
@@ -264,10 +267,10 @@ const ShopPage = () => {
 				<div className="shop-container">
 					<ShopFilters
 						itemTypes={itemTypes}
-						categories={categories}
+						subjects={subjects}
+						techniques={techniques}
 						periods={periods}
 						mediumTypes={mediumTypes}
-						conditionTypes={conditionTypes}
 						contributors={contributors}
 						selectedFilters={selectedFilters}
 						onFilterChange={handleFilterChange}

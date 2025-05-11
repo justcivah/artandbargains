@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-	fetchItem, updateItem, fetchItemTypes, fetchCategories, fetchPeriods,
-	fetchMediumTypes, fetchConditionTypes, fetchContributors
+	fetchItem, updateItem, fetchItemTypes, fetchSubjects, fetchTechniques, fetchPeriods,
+	fetchMediumTypes, fetchContributors
 } from '../api/itemsApi';
 import { uploadMultipleImages } from '../api/imagesApi';
 import TypeSelector from '../components/add-item-steps/TypeSelector';
-import CategorySelector from '../components/add-item-steps/CategorySelector';
+import SubjectSelector from '../components/add-item-steps/SubjectSelector';
+import TechniqueSelector from '../components/add-item-steps/TechniqueSelector';
 import ItemDetailsForm from '../components/add-item-steps/ItemDetailsForm';
 import ContributorsForm from '../components/add-item-steps/ContributorsForm';
 import PeriodSelector from '../components/add-item-steps/PeriodSelector';
@@ -27,10 +28,10 @@ const EditItemPage = () => {
 
 	// Metadata states
 	const [itemTypes, setItemTypes] = useState([]);
-	const [categories, setCategories] = useState([]);
+	const [subjects, setSubjects] = useState([]);
+	const [techniques, setTechniques] = useState([]);
 	const [periods, setPeriods] = useState([]);
 	const [mediumTypes, setMediumTypes] = useState([]);
-	const [conditionTypes, setConditionTypes] = useState([]);
 	const [contributorsList, setContributorsList] = useState([]);
 
 	// Add state to track image order
@@ -39,7 +40,8 @@ const EditItemPage = () => {
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
-		categories: [],
+		subject: '', // Changed from categories array to single subject
+		technique: '', // Added new technique field
 		title: '',
 		dateInfo: {
 			type: 'exact',
@@ -82,21 +84,21 @@ const EditItemPage = () => {
 				setLoading(true);
 
 				// Fetch all metadata in parallel
-				const [item, types, cats, pers, mediums, conditions, contributors] = await Promise.all([
+				const [item, types, subjs, techs, pers, mediums, contributors] = await Promise.all([
 					fetchItem(itemId.replace("ITEM#", "")),
 					fetchItemTypes(),
-					fetchCategories(),
+					fetchSubjects(),
+					fetchTechniques(),
 					fetchPeriods(),
 					fetchMediumTypes(),
-					fetchConditionTypes(),
 					fetchContributors()
 				]);
 
 				setItemTypes(types);
-				setCategories(cats);
+				setSubjects(subjs);
+				setTechniques(techs);
 				setPeriods(pers);
 				setMediumTypes(mediums);
-				setConditionTypes(conditions);
 				setContributorsList(contributors);
 
 				// Set form data from item
@@ -146,7 +148,8 @@ const EditItemPage = () => {
 
 				setFormData({
 					itemType: item.item_type,
-					categories: item.categories,
+					subject: item.subject || '', // Changed from categories to subject
+					technique: item.technique || '', // Added technique field
 					title: item.title,
 					dateInfo,
 					contributors: formattedContributors,
@@ -309,7 +312,8 @@ const EditItemPage = () => {
 					PK: itemId,
 					title: formData.title,
 					title_lower: formData.title.toLowerCase(),
-					categories: formData.categories,
+					subject: formData.subject, // Changed from categories to subject
+					technique: formData.technique, // Added technique field
 					date_info: dateInfo,
 					contributors: contributors,
 					primary_contributor_display: formData.primaryContributor,
@@ -331,7 +335,8 @@ const EditItemPage = () => {
 					},
 					images: finalImageUrls
 				},
-				categories: formData.categories,
+				subject: formData.subject, // Changed from categories to subject
+				technique: formData.technique, // Added technique field
 				mediumTypes: formData.mediumTypes,
 				contributors: contributors,
 				conditionType: formData.conditionType
@@ -354,7 +359,8 @@ const EditItemPage = () => {
 	const isFormValid = () => {
 		// Validate all required fields
 		const hasValidItemType = !!formData.itemType;
-		const hasValidCategories = formData.categories.length > 0;
+		const hasValidSubject = !!formData.subject;
+		const hasValidTechnique = !!formData.technique;
 		const hasValidBasicInfo = !!formData.title && !!formData.description && !!formData.price;
 
 		let hasValidDateInfo = false;
@@ -371,15 +377,36 @@ const EditItemPage = () => {
 		const hasValidInventory = formData.inventoryQuantity >= 0;
 		const hasValidMedium = formData.mediumTypes.length > 0;
 
-		const dims = formData.dimensions;
-		const hasValidDimensions = !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
+		// Fixed dimensions validation
+		const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
+		const hasValidDimensions = dimensionParts.some(part => {
+			const dims = formData.dimensions[part];
+			return dims && (dims.height || dims.width || dims.depth || dims.diameter);
+		});
 
 		const hasValidCondition = !!formData.conditionType;
 		const hasValidImages = formData.existingImages.length > 0 || formData.images.length > 0;
 
+		// For debugging, you can log which checks are failing
+		console.log({
+			hasValidItemType,
+			hasValidSubject,
+			hasValidTechnique,
+			hasValidBasicInfo,
+			hasValidDateInfo,
+			hasValidContributors,
+			hasValidPeriod,
+			hasValidInventory,
+			hasValidMedium,
+			hasValidDimensions,
+			hasValidCondition,
+			hasValidImages
+		});
+
 		return (
 			hasValidItemType &&
-			hasValidCategories &&
+			hasValidSubject &&
+			hasValidTechnique &&
 			hasValidBasicInfo &&
 			hasValidDateInfo &&
 			hasValidContributors &&
@@ -397,8 +424,10 @@ const EditItemPage = () => {
 		switch (sectionId) {
 			case "item-type":
 				return !!formData.itemType;
-			case "category":
-				return formData.categories.length > 0;
+			case "subject":
+				return !!formData.subject; // Changed to check for subject
+			case "technique":
+				return !!formData.technique; // Added check for technique
 			case "item-details":
 				return !!formData.title && !!formData.description && !!formData.price;
 			case "date-info":
@@ -455,14 +484,26 @@ const EditItemPage = () => {
 			)
 		},
 		{
-			id: "category",
-			title: "Categories",
+			id: "subject",
+			title: "Subject",
 			content: (
-				<CategorySelector
-					categories={categories}
-					selectedCategories={formData.categories}
-					onChange={(cats) => updateFormData('categories', cats)}
-					setCategories={setCategories}
+				<SubjectSelector
+					subjects={subjects}
+					selectedSubject={formData.subject}
+					onChange={(subject) => updateFormData('subject', subject)}
+					setSubjects={setSubjects}
+				/>
+			)
+		},
+		{
+			id: "technique",
+			title: "Technique",
+			content: (
+				<TechniqueSelector
+					techniques={techniques}
+					selectedTechnique={formData.technique}
+					onChange={(technique) => updateFormData('technique', technique)}
+					setTechniques={setTechniques}
 				/>
 			)
 		},
@@ -558,12 +599,10 @@ const EditItemPage = () => {
 			title: "Condition",
 			content: (
 				<ConditionTypeSelector
-					conditionTypes={conditionTypes}
 					selectedConditionType={formData.conditionType}
 					conditionDescription={formData.conditionDescription}
 					onChange={(type) => updateFormData('conditionType', type)}
 					onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
-					setConditionTypes={setConditionTypes}
 				/>
 			)
 		},

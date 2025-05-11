@@ -169,17 +169,6 @@ export const fetchMediumTypes = async () => {
 	}
 };
 
-// Fetch all condition types
-export const fetchConditionTypes = async () => {
-	try {
-		const response = await api.get('/api/conditionTypes');
-		return response.data;
-	} catch (error) {
-		console.error('Error fetching condition types:', error);
-		throw error;
-	}
-};
-
 // Fetch all contributors
 export const fetchContributors = async () => {
 	try {

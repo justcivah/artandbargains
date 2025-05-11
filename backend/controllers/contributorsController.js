@@ -296,8 +296,8 @@ exports.deleteContributor = async (req, res) => {
 		// Next, check if the contributor is used by any items
 		const queryParams = {
 			TableName: TABLE_NAME,
-			IndexName: 'ContributorArticleIndex', // Using GSI6
-			KeyConditionExpression: "GSI6PK = :pk",
+			IndexName: 'ContributorArticleIndex', // Using GSI4
+			KeyConditionExpression: "GSI4PK = :pk",
 			ExpressionAttributeValues: {
 				":pk": `CONTRIBUTOR#${id}`
 			}

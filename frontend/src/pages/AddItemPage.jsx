@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-	createItem, fetchItemTypes, fetchCategories, fetchPeriods,
-	fetchMediumTypes, fetchConditionTypes, fetchContributors
+	createItem, fetchItemTypes, fetchSubjects, fetchTechniques, fetchPeriods,
+	fetchMediumTypes, fetchContributors
 } from '../api/itemsApi';
 import { uploadMultipleImages } from '../api/imagesApi';
 import TypeSelector from '../components/add-item-steps/TypeSelector';
-import CategorySelector from '../components/add-item-steps/CategorySelector';
+import SubjectSelector from '../components/add-item-steps/SubjectSelector';
+import TechniqueSelector from '../components/add-item-steps/TechniqueSelector';
 import ItemDetailsForm from '../components/add-item-steps/ItemDetailsForm';
 import ContributorsForm from '../components/add-item-steps/ContributorsForm';
 import PeriodSelector from '../components/add-item-steps/PeriodSelector';
@@ -21,14 +22,14 @@ import '../styles/AddItemPage.css';
 const AddItemPage = () => {
 	const navigate = useNavigate();
 	const [currentStep, setCurrentStep] = useState(1);
-	const totalSteps = 11;
+	const totalSteps = 12; // Increased by 1 for the extra selector
 
 	// Metadata states
 	const [itemTypes, setItemTypes] = useState([]);
-	const [categories, setCategories] = useState([]);
+	const [subjects, setSubjects] = useState([]);
+	const [techniques, setTechniques] = useState([]);
 	const [periods, setPeriods] = useState([]);
 	const [mediumTypes, setMediumTypes] = useState([]);
-	const [conditionTypes, setConditionTypes] = useState([]);
 	const [contributorsList, setContributorsList] = useState([]);
 
 	// Add state to track image order (needed for new ImageUploader)
@@ -37,7 +38,8 @@ const AddItemPage = () => {
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
-		categories: [],
+		subject: '', // Changed from categories array to single subject
+		technique: '', // Added new technique field
 		title: '',
 		dateInfo: {
 			type: 'exact',
@@ -75,20 +77,20 @@ const AddItemPage = () => {
 				setLoading(true);
 
 				// Fetch all metadata in parallel
-				const [types, cats, pers, mediums, conditions, contributors] = await Promise.all([
+				const [types, subjs, techs, pers, mediums, contributors] = await Promise.all([
 					fetchItemTypes(),
-					fetchCategories(),
+					fetchSubjects(),
+					fetchTechniques(),
 					fetchPeriods(),
 					fetchMediumTypes(),
-					fetchConditionTypes(),
 					fetchContributors()
 				]);
 
 				setItemTypes(types);
-				setCategories(cats);
+				setSubjects(subjs);
+				setTechniques(techs);
 				setPeriods(pers);
 				setMediumTypes(mediums);
-				setConditionTypes(conditions);
 				setContributorsList(contributors);
 
 				setLoading(false);
@@ -202,7 +204,6 @@ const AddItemPage = () => {
 				dateInfo.period_text = formData.dateInfo.periodText;
 			}
 
-			// Prepare dimensions
 			// Prepare dimensions with unit included at top level
 			const dimensionsWithUnit = {
 				...formData.dimensions,
@@ -274,10 +275,12 @@ const AddItemPage = () => {
 						description: formData.conditionDescription
 					},
 					images: imageUrls,
-					// Add categories array to the metadata
-					categories: formData.categories
+					// Replace categories with subject and technique
+					subject: formData.subject,
+					technique: formData.technique
 				},
-				categories: formData.categories,
+				subject: formData.subject,
+				technique: formData.technique,
 				mediumTypes: formData.mediumTypes,
 				contributors: contributors,
 				conditionType: formData.conditionType,
@@ -312,14 +315,25 @@ const AddItemPage = () => {
 				);
 			case 2:
 				return (
-					<CategorySelector
-						categories={categories}
-						selectedCategories={formData.categories}
-						onChange={(cats) => updateFormData('categories', cats)}
-						setCategories={setCategories}
+					<SubjectSelector
+						subjects={subjects}
+						selectedSubject={formData.subject}
+						onChange={(subject) => updateFormData('subject', subject)}
+						setSubjects={setSubjects}
+						onSelectComplete={handleNext}
 					/>
 				);
 			case 3:
+				return (
+					<TechniqueSelector
+						techniques={techniques}
+						selectedTechnique={formData.technique}
+						onChange={(technique) => updateFormData('technique', technique)}
+						setTechniques={setTechniques}
+						onSelectComplete={handleNext}
+					/>
+				);
+			case 4:
 				return (
 					<ItemDetailsForm
 						title={formData.title}
@@ -330,7 +344,7 @@ const AddItemPage = () => {
 						onPriceChange={(price) => updateFormData('price', price)}
 					/>
 				);
-			case 4:
+			case 5:
 				return (
 					<ItemDetailsForm
 						dateInfo={formData.dateInfo}
@@ -338,7 +352,7 @@ const AddItemPage = () => {
 						isDateStep={true}
 					/>
 				);
-			case 5:
+			case 6:
 				return (
 					<ContributorsForm
 						contributors={formData.contributors}
@@ -349,7 +363,7 @@ const AddItemPage = () => {
 						setContributorsList={setContributorsList}
 					/>
 				);
-			case 6:
+			case 7:
 				return (
 					<PeriodSelector
 						periods={periods}
@@ -359,14 +373,14 @@ const AddItemPage = () => {
 						onSelectComplete={handleNext}
 					/>
 				);
-			case 7:
+			case 8:
 				return (
 					<InventoryForm
 						inventoryQuantity={formData.inventoryQuantity}
 						onChange={(qty) => updateFormData('inventoryQuantity', qty)}
 					/>
 				);
-			case 8:
+			case 9:
 				return (
 					<MediumTypeSelector
 						mediumTypes={mediumTypes}
@@ -377,7 +391,7 @@ const AddItemPage = () => {
 						setMediumTypes={setMediumTypes}
 					/>
 				);
-			case 9:
+			case 10:
 				return (
 					<DimensionsForm
 						dimensions={formData.dimensions}
@@ -386,18 +400,17 @@ const AddItemPage = () => {
 						onUnitChange={(unit) => updateFormData('dimensionsUnit', unit)}
 					/>
 				);
-			case 10:
+			case 11:
 				return (
 					<ConditionTypeSelector
-						conditionTypes={conditionTypes}
 						selectedConditionType={formData.conditionType}
 						conditionDescription={formData.conditionDescription}
 						onChange={(type) => updateFormData('conditionType', type)}
 						onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
-						setConditionTypes={setConditionTypes}
+						onSelectComplete={handleNext}
 					/>
 				);
-			case 11:
+			case 12:
 				return (
 					<ImageUploader
 						images={formData.images}
@@ -420,10 +433,12 @@ const AddItemPage = () => {
 			case 1:
 				return !!formData.itemType;
 			case 2:
-				return formData.categories.length > 0;
+				return !!formData.subject; // Changed to check for single subject value
 			case 3:
-				return !!formData.title && !!formData.description && !!formData.price;
+				return !!formData.technique; // Check for single technique value
 			case 4:
+				return !!formData.title && !!formData.description && !!formData.price;
+			case 5:
 				if (formData.dateInfo.type === 'exact') {
 					return !!formData.dateInfo.yearExact;
 				} else if (formData.dateInfo.type === 'range') {
@@ -431,24 +446,24 @@ const AddItemPage = () => {
 				} else {
 					return !!formData.dateInfo.periodText;
 				}
-			case 5:
-				return formData.contributors.length > 0 && !!formData.primaryContributor;
 			case 6:
-				return !!formData.period;
+				return formData.contributors.length > 0 && !!formData.primaryContributor;
 			case 7:
-				return formData.inventoryQuantity >= 0;
+				return !!formData.period;
 			case 8:
-				return formData.mediumTypes.length > 0;
+				return formData.inventoryQuantity >= 0;
 			case 9:
+				return formData.mediumTypes.length > 0;
+			case 10:
 				// At least one dimension should be provided
 				const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
 				return dimensionParts.some(part => {
 					const dims = formData.dimensions[part];
 					return dims.height || dims.width || dims.depth || dims.diameter;
 				});
-			case 10:
-				return !!formData.conditionType;
 			case 11:
+				return !!formData.conditionType;
+			case 12:
 				return formData.images.length > 0;
 			default:
 				return false;

@@ -50,11 +50,11 @@ exports.searchItems = async (req, res) => {
 		const {
 			search,
 			types,
-			categories,
+			subjects,
+			techniques,
 			contributors,
 			periods,
 			mediumTypes,
-			conditions,
 			minPrice,
 			maxPrice,
 			sort,
@@ -117,38 +117,66 @@ exports.searchItems = async (req, res) => {
 		// Execute the scan
 		const result = await dynamoDB.send(new ScanCommand(params));
 
-		// Post-process to further filter by categories, contributors, mediumTypes, and conditions
+		// Post-process to further filter by subjects, techniques, contributors, and mediumTypes
 		// as these require multiple queries or more complex filtering
 		let filteredItems = result.Items;
 
-		// Apply additional client-side filtering for categories (if needed)
-		if (categories && categories.length) {
-			const categoryArray = Array.isArray(categories) ? categories : [categories];
+		// Apply additional client-side filtering for subjects (if needed)
+		if (subjects && subjects.length) {
+			const subjectArray = Array.isArray(subjects) ? subjects : [subjects];
 
-			// Need to handle this via a separate query for each category since 
+			// Need to handle this via a separate query for each subject since 
 			// they're in separate records linked by GSI3
-			const categoryPromises = categoryArray.map(category => {
-				const categoryParams = {
+			const subjectPromises = subjectArray.map(subject => {
+				const subjectParams = {
 					TableName: TABLE_NAME,
-					IndexName: 'CategoryArticleIndex',
-					KeyConditionExpression: "GSI3PK = :category",
+					IndexName: 'SubjectArticleIndex',
+					KeyConditionExpression: "GSI7PK = :subject",
 					ExpressionAttributeValues: {
-						":category": `CATEGORY#${category}`
+						":subject": `SUBJECT#${subject}`
 					}
 				};
-				return dynamoDB.send(new QueryCommand(categoryParams));
+				return dynamoDB.send(new QueryCommand(subjectParams));
 			});
 
-			const categoryResults = await Promise.all(categoryPromises);
-			const itemIdsByCategory = new Set();
+			const subjectResults = await Promise.all(subjectPromises);
+			const itemIdsBySubject = new Set();
 
-			categoryResults.forEach(result => {
+			subjectResults.forEach(result => {
 				result.Items.forEach(item => {
-					itemIdsByCategory.add(item.PK);
+					itemIdsBySubject.add(item.PK);
 				});
 			});
 
-			filteredItems = filteredItems.filter(item => itemIdsByCategory.has(item.PK));
+			filteredItems = filteredItems.filter(item => itemIdsBySubject.has(item.PK));
+		}
+
+		// Apply additional client-side filtering for techniques (if needed)
+		if (techniques && techniques.length) {
+			const techniqueArray = Array.isArray(techniques) ? techniques : [techniques];
+
+			const techniquePromises = techniqueArray.map(technique => {
+				const techniqueParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'TechniqueArticleIndex',
+					KeyConditionExpression: "GSI6PK = :technique",
+					ExpressionAttributeValues: {
+						":technique": `TECHNIQUE#${technique}`
+					}
+				};
+				return dynamoDB.send(new QueryCommand(techniqueParams));
+			});
+
+			const techniqueResults = await Promise.all(techniquePromises);
+			const itemIdsByTechnique = new Set();
+
+			techniqueResults.forEach(result => {
+				result.Items.forEach(item => {
+					itemIdsByTechnique.add(item.PK);
+				});
+			});
+
+			filteredItems = filteredItems.filter(item => itemIdsByTechnique.has(item.PK));
 		}
 
 		// Apply additional client-side filtering for contributors (if needed)
@@ -159,7 +187,7 @@ exports.searchItems = async (req, res) => {
 				const contributorParams = {
 					TableName: TABLE_NAME,
 					IndexName: 'ContributorArticleIndex',
-					KeyConditionExpression: "GSI6PK = :contributor",
+					KeyConditionExpression: "GSI4PK = :contributor",
 					ExpressionAttributeValues: {
 						":contributor": `CONTRIBUTOR#${contributor}`
 					}
@@ -187,7 +215,7 @@ exports.searchItems = async (req, res) => {
 				const mediumTypeParams = {
 					TableName: TABLE_NAME,
 					IndexName: 'MediumTypeArticleIndex',
-					KeyConditionExpression: "GSI4PK = :mediumType",
+					KeyConditionExpression: "GSI3PK = :mediumType",
 					ExpressionAttributeValues: {
 						":mediumType": `MEDIUMTYPE#${mediumType}`
 					}
@@ -205,34 +233,6 @@ exports.searchItems = async (req, res) => {
 			});
 
 			filteredItems = filteredItems.filter(item => itemIdsByMediumType.has(item.PK));
-		}
-
-		// Apply additional client-side filtering for conditions (if needed)
-		if (conditions && conditions.length) {
-			const conditionArray = Array.isArray(conditions) ? conditions : [conditions];
-
-			const conditionPromises = conditionArray.map(condition => {
-				const conditionParams = {
-					TableName: TABLE_NAME,
-					IndexName: 'ConditionArticleIndex',
-					KeyConditionExpression: "GSI5PK = :condition",
-					ExpressionAttributeValues: {
-						":condition": `CONDITIONTYPE#${condition}`
-					}
-				};
-				return dynamoDB.send(new QueryCommand(conditionParams));
-			});
-
-			const conditionResults = await Promise.all(conditionPromises);
-			const itemIdsByCondition = new Set();
-
-			conditionResults.forEach(result => {
-				result.Items.forEach(item => {
-					itemIdsByCondition.add(item.PK);
-				});
-			});
-
-			filteredItems = filteredItems.filter(item => itemIdsByCondition.has(item.PK));
 		}
 
 		// Apply sorting
@@ -397,16 +397,15 @@ function sanitizeForDynamoDB(obj) {
 // Create a new item
 exports.createItem = async (req, res) => {
 	try {
-		const { metadata, categories, mediumTypes, contributors, conditionType, itemId } = req.body;
+		const { metadata, subject, technique, mediumTypes, contributors, itemId } = req.body;
 
 		// Use the provided itemId or generate a new one
 		const actualItemId = itemId || metadata.PK || `ITEM#${uuidv4()}`;
 
-		// Create a batch of write operations with the CORRECT BatchWrite structure
+		// Create a batch of write operations
 		const writeRequests = [];
 
 		// Sanitize metadata to handle empty strings, objects, etc.
-		// Add categories array to main item metadata
 		const sanitizedMetadata = sanitizeForDynamoDB({
 			...metadata,
 			PK: actualItemId,
@@ -417,35 +416,49 @@ exports.createItem = async (req, res) => {
 			GSI1SK: actualItemId,
 			GSI2PK: `PERIOD#${metadata.period}`,
 			GSI2SK: actualItemId,
-			GSI7PK: "ITEMS",
-			GSI7SK: `PRICE#${metadata.price.toString().padStart(8, '0')}`
+			// Note: GSI5 is for ItemsByPriceIndex based on your schema
+			GSI5PK: "ITEMS",
+			GSI5SK: `PRICE#${metadata.price.toString().padStart(8, '0')}`
 		});
 
-		// Add the main item metadata with CORRECT structure (PutRequest instead of Put)
+		// Add the main item metadata
 		writeRequests.push({
 			PutRequest: {
 				Item: sanitizedMetadata
 			}
 		});
 
-		// Add categories with CORRECT structure
-		if (categories && categories.length > 0) {
-			categories.forEach(category => {
-				writeRequests.push({
-					PutRequest: {
-						Item: {
-							PK: actualItemId,
-							SK: `CATEGORY#${category}`,
-							entity_type: "item_category",
-							GSI3PK: `CATEGORY#${category}`,
-							GSI3SK: actualItemId
-						}
+		// Add subject - corrected to use GSI7 (SubjectArticleIndex)
+		if (subject) {
+			writeRequests.push({
+				PutRequest: {
+					Item: {
+						PK: actualItemId,
+						SK: `SUBJECT#${subject}`,
+						entity_type: "item_subject",
+						GSI7PK: `SUBJECT#${subject}`,  // Changed from GSI3PK
+						GSI7SK: actualItemId           // Changed from GSI3SK
 					}
-				});
+				}
 			});
 		}
 
-		// Add medium types with CORRECT structure
+		// Add technique - corrected to use GSI6 (TechniqueArticleIndex)
+		if (technique) {
+			writeRequests.push({
+				PutRequest: {
+					Item: {
+						PK: actualItemId,
+						SK: `TECHNIQUE#${technique}`,
+						entity_type: "item_technique",
+						GSI6PK: `TECHNIQUE#${technique}`,  // Changed from GSI4PK
+						GSI6SK: actualItemId              // Changed from GSI4SK
+					}
+				}
+			});
+		}
+
+		// Add medium types - corrected to use GSI3 (MediumTypeArticleIndex)
 		if (mediumTypes && mediumTypes.length > 0) {
 			mediumTypes.forEach(mediumType => {
 				writeRequests.push({
@@ -454,33 +467,17 @@ exports.createItem = async (req, res) => {
 							PK: actualItemId,
 							SK: `MEDIUMTYPE#${mediumType}`,
 							entity_type: "item_medium_type",
-							GSI4PK: `MEDIUMTYPE#${mediumType}`,
-							GSI4SK: actualItemId
+							GSI3PK: `MEDIUMTYPE#${mediumType}`,  // Changed from GSI5PK
+							GSI3SK: actualItemId                 // Changed from GSI5SK
 						}
 					}
 				});
 			});
 		}
 
-		// Add condition type with CORRECT structure
-		if (conditionType) {
-			writeRequests.push({
-				PutRequest: {
-					Item: {
-						PK: actualItemId,
-						SK: `CONDITIONTYPE#${conditionType}`,
-						entity_type: "item_condition_type",
-						GSI5PK: `CONDITIONTYPE#${conditionType}`,
-						GSI5SK: actualItemId
-					}
-				}
-			});
-		}
-
-		// Add contributors with CORRECT structure
+		// Add contributors - corrected to use GSI4 (ContributorArticleIndex)
 		if (contributors && contributors.length > 0) {
 			contributors.forEach(contributor => {
-				// Ensure position is always an array
 				const positions = Array.isArray(contributor.position)
 					? contributor.position
 					: [contributor.position];
@@ -492,8 +489,8 @@ exports.createItem = async (req, res) => {
 							SK: `CONTRIBUTOR#${contributor.contributor_id}`,
 							entity_type: "item_contributor",
 							positions: positions,
-							GSI6PK: `CONTRIBUTOR#${contributor.contributor_id}`,
-							GSI6SK: actualItemId
+							GSI4PK: `CONTRIBUTOR#${contributor.contributor_id}`,  // Changed from GSI7PK
+							GSI4SK: actualItemId                                 // Changed from GSI7SK
 						}
 					}
 				});
@@ -501,12 +498,10 @@ exports.createItem = async (req, res) => {
 		}
 
 		// Execute the batch write operations in chunks
-		// (DynamoDB limits to 25 items per batch)
 		const BATCH_SIZE = 25;
 		for (let i = 0; i < writeRequests.length; i += BATCH_SIZE) {
 			const chunk = writeRequests.slice(i, i + BATCH_SIZE);
 
-			// CORRECT BatchWrite structure
 			const batchParams = {
 				RequestItems: {
 					[TABLE_NAME]: chunk

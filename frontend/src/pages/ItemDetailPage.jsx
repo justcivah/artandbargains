@@ -86,7 +86,7 @@ const ItemDetailPage = () => {
 			return dateInfo.circa ? `Circa ${dateInfo.year_exact}` : `${dateInfo.year_exact}`;
 		} else if (dateInfo.type === 'range' && dateInfo.year_range_start) {
 			return `${dateInfo.year_range_start} - ${dateInfo.year_range_end}`;
-		} else if (dateInfo.type === 'text' && dateInfo.period_text) {
+		} else if (dateInfo.type === 'period' && dateInfo.period_text) {
 			return dateInfo.period_text;
 		}
 
@@ -173,18 +173,27 @@ const ItemDetailPage = () => {
 					{/* Right side: Information */}
 					<div className="item-info">
 						<div className="item-header">
-							{item.categories && item.categories.length > 0 && (
-								<div className="item-categories">
-									<span className="label">Categories:</span>
-									<div className="categories-list">
-										{item.categories.map((category, index) => (
-											<span key={index} className="item-category">
-												{formatItemType(category)}
-											</span>
-										))}
-									</div>
+							<div className="item-categories">
+								<span className="label">Subject:</span>
+								<div className="categories-list">
+									{item.subject && (
+										<span className="item-category">
+											{formatItemType(item.subject)}
+										</span>
+									)}
 								</div>
-							)}
+							</div>
+
+							<div className="item-categories">
+								<span className="label">Technique:</span>
+								<div className="categories-list">
+									{item.technique && (
+										<span className="item-category">
+											{formatItemType(item.technique)}
+										</span>
+									)}
+								</div>
+							</div>
 
 							<h1 className="item-title">{item.title} ({formatDateInfo(item.date_info)})</h1>
 

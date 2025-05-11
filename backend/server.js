@@ -45,8 +45,6 @@ app.get('/api/periods', metadataController.getPeriods);
 app.post('/api/periods', authMiddleware.authenticateAdmin, metadataController.createPeriod);
 app.get('/api/mediumTypes', metadataController.getMediumTypes);
 app.post('/api/mediumTypes', authMiddleware.authenticateAdmin, metadataController.createMediumType);
-app.get('/api/conditionTypes', metadataController.getConditionTypes);
-app.post('/api/conditionTypes', authMiddleware.authenticateAdmin, metadataController.createConditionType);
 
 // Contributors endpoints
 app.get('/api/contributors', contributorsController.getContributors);
