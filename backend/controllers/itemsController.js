@@ -325,8 +325,8 @@ exports.getRecentItems = async (req, res) => {
 // Get a single item
 exports.getItem = async (req, res) => {
 	try {
-		const { id } = req.params;
-		const { sk = "METADATA" } = req.query;
+		const id = "ITEM#" + req.params.id;
+		const sk = "METADATA";
 
 		const params = {
 			TableName: TABLE_NAME,

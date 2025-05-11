@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Import middleware
-const authMiddleware  = require('./middleware/authMiddleware');
+const authMiddleware = require('./middleware/authMiddleware');
 
 // Import controllers
 const itemsController = require('./controllers/itemsController');
@@ -29,8 +29,8 @@ app.post('/api/auth/login', authMiddleware.login);
 app.get('/api/items/recent', itemsController.getRecentItems);
 app.get('/api/items/search', itemsController.searchItems);
 app.get('/api/items', authMiddleware.authenticateAdmin, itemsController.getItems);
-app.get('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.getItem);
 app.post('/api/items', authMiddleware.authenticateAdmin, itemsController.createItem);
+app.get('/api/items/:id', itemsController.getItem);
 app.put('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.updateItem);
 app.delete('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.deleteItem);
 
@@ -48,7 +48,10 @@ app.post('/api/conditionTypes', authMiddleware.authenticateAdmin, metadataContro
 
 // Contributors endpoints
 app.get('/api/contributors', authMiddleware.authenticateAdmin, contributorsController.getContributors);
+app.get('/api/contributors/:id', contributorsController.getContributor);
 app.post('/api/contributors', authMiddleware.authenticateAdmin, contributorsController.createContributor);
+app.put('/api/contributors/:id', authMiddleware.authenticateAdmin, contributorsController.updateContributor);
+app.delete('/api/contributors/:id', authMiddleware.authenticateAdmin, contributorsController.deleteContributor);
 
 // Image upload endpoint
 app.post('/api/images/upload', authMiddleware.authenticateAdmin, imagesController.uploadImage);
@@ -57,5 +60,5 @@ app.post('/api/images/uploadMultiple', authMiddleware.authenticateAdmin, imagesC
 // Start server
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+	console.log(`Server running on port ${PORT}`);
 });

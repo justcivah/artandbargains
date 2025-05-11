@@ -105,9 +105,50 @@ const ShopFilters = ({
 		});
 	};
 
+	// Sort periods from newest to oldest
+	const sortPeriods = (periods) => {
+		// Create a copy of the periods array to avoid modifying the original
+		return [...periods].sort((a, b) => {
+			// Extract years or century information from period names if possible
+			const getTimeValue = (period) => {
+				const name = period.display_name.toLowerCase();
+
+				// Check for century patterns (e.g., "21st century", "19th century")
+				const centuryMatch = name.match(/(\d+)(st|nd|rd|th)\s+century/i);
+				if (centuryMatch) {
+					return -parseInt(centuryMatch[1]); // Negative because higher century = newer
+				}
+
+				// Check for year ranges (e.g., "1950-1960", "1800s")
+				const yearRangeMatch = name.match(/(\d{4})s|\d{4}-\d{4}|\d{4}/);
+				if (yearRangeMatch) {
+					return -parseInt(yearRangeMatch[0].match(/\d{4}/)[0]); // Negative for descending order
+				}
+
+				// For eras without clear numeric indicators, use this rough ordering
+				// Adjust these values based on your actual periods
+				if (name.includes("contemporary") || name.includes("modern")) return -2000;
+				if (name.includes("post-war") || name.includes("postwar")) return -1950;
+				if (name.includes("inter-war") || name.includes("interwar")) return -1930;
+				if (name.includes("pre-war") || name.includes("prewar")) return -1910;
+				if (name.includes("victorian")) return -1880;
+				if (name.includes("renaissance")) return -1500;
+				if (name.includes("medieval")) return -1200;
+				if (name.includes("ancient")) return -500;
+
+				// Default value for items that don't match any pattern
+				return 0;
+			};
+
+			return getTimeValue(a) - getTimeValue(b);
+		});
+	};
+
 	// Limit items shown unless "show all" is enabled
 	const getLimitedItems = (items, section) => {
-		const filtered = filterItems(items, section);
+		// Sort periods if this is the period section
+		const itemsToProcess = section === 'period' ? sortPeriods(items) : items;
+		const filtered = filterItems(itemsToProcess, section);
 
 		if (showAll[section] || filtered.length <= 8 || filterSearches[section]) {
 			return filtered;
@@ -149,46 +190,6 @@ const ShopFilters = ({
 						</div>
 					</div>
 
-					{/* Price Range Filter */}
-					<div className="filter-section">
-						<div
-							className="filter-header"
-							onClick={() => toggleSection('price')}
-						>
-							<h3>Price Range</h3>
-							<span className={`toggle-icon ${expandedSections.price ? 'open' : 'closed'}`}>
-								{expandedSections.price ? '−' : '+'}
-							</span>
-						</div>
-
-						{expandedSections.price && (
-							<div className="filter-body">
-								<div className="price-range">
-									<div className="price-input">
-										<label htmlFor="min-price">Min $</label>
-										<input
-											type="number"
-											id="min-price"
-											min="0"
-											value={selectedFilters.minPrice}
-											onChange={(e) => onFilterChange('minPrice', e.target.value)}
-										/>
-									</div>
-									<div className="price-input">
-										<label htmlFor="max-price">Max $</label>
-										<input
-											type="number"
-											id="max-price"
-											min="0"
-											value={selectedFilters.maxPrice}
-											onChange={(e) => onFilterChange('maxPrice', e.target.value)}
-										/>
-									</div>
-								</div>
-							</div>
-						)}
-					</div>
-
 					{/* Item Type Filter */}
 					<div className="filter-section">
 						<div
@@ -222,7 +223,7 @@ const ShopFilters = ({
 									</div>
 								)}
 
-								<div className="filter-options">
+								<div className="filter-options item-type-options">
 									{getLimitedItems(itemTypes, 'type').map((type) => (
 										<div key={type.name} className="filter-option">
 											<label>
@@ -522,6 +523,46 @@ const ShopFilters = ({
 											</label>
 										</div>
 									))}
+								</div>
+							</div>
+						)}
+					</div>
+
+					{/* Price Range Filter - MOVED TO LAST POSITION */}
+					<div className="filter-section">
+						<div
+							className="filter-header"
+							onClick={() => toggleSection('price')}
+						>
+							<h3>Price Range</h3>
+							<span className={`toggle-icon ${expandedSections.price ? 'open' : 'closed'}`}>
+								{expandedSections.price ? '−' : '+'}
+							</span>
+						</div>
+
+						{expandedSections.price && (
+							<div className="filter-body">
+								<div className="price-range">
+									<div className="price-input">
+										<label htmlFor="min-price">Min $</label>
+										<input
+											type="number"
+											id="min-price"
+											min="0"
+											value={selectedFilters.minPrice}
+											onChange={(e) => onFilterChange('minPrice', e.target.value)}
+										/>
+									</div>
+									<div className="price-input">
+										<label htmlFor="max-price">Max $</label>
+										<input
+											type="number"
+											id="max-price"
+											min="0"
+											value={selectedFilters.maxPrice}
+											onChange={(e) => onFilterChange('maxPrice', e.target.value)}
+										/>
+									</div>
 								</div>
 							</div>
 						)}

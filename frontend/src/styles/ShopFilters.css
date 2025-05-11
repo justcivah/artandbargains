@@ -160,6 +160,24 @@
 	gap: 8px;
 }
 
+/* New class for the item type options */
+.item-type-options {
+	gap: 12px;
+	/* Increased vertical spacing between items */
+}
+
+.item-type-options .filter-option label {
+	font-size: 1.05rem;
+	/* Increased font size for item types */
+	padding: 3px 0;
+	/* Added some padding for larger hit area */
+}
+
+.item-type-options .option-name {
+	font-weight: 500;
+	/* Made item type text slightly bolder */
+}
+
 .filter-option {
 	display: flex;
 	align-items: center;
@@ -178,6 +196,9 @@
 	accent-color: var(--secondary-color);
 	margin-right: 8px;
 	cursor: pointer;
+	/* Increased checkbox size for item types */
+	width: 16px;
+	height: 16px;
 }
 
 .option-name {
