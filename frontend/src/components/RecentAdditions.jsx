@@ -31,7 +31,8 @@ const RecentAdditions = () => {
 					category: formatCategory(item.item_type),
 					price: item.price,
 					image: getMainImage(item),
-					link: `/item/${item.PK.replace('ITEM#', '')}`
+					link: `/shop/item/${item.PK.replace('ITEM#', '')}`,
+					inventoryQuantity: item.inventory_quantity || 0
 				}));
 
 				setRecentItems(transformedItems);
@@ -81,6 +82,11 @@ const RecentAdditions = () => {
 			.split('_')
 			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
 			.join(' ');
+	};
+
+	// Check if an item is out of stock
+	const isOutOfStock = (item) => {
+		return item.inventoryQuantity <= 0;
 	};
 
 	// Set up the intersection observer to detect when the section is visible
@@ -287,6 +293,11 @@ const RecentAdditions = () => {
 										<div className="item-overlay">
 											<span className="view-details">View Details</span>
 										</div>
+										{isOutOfStock(item) && (
+											<div className="out-of-stock-badge">
+												Out of Stock
+											</div>
+										)}
 									</div>
 									<div className="item-info">
 										<span className="item-category">{item.category}</span>
@@ -296,7 +307,12 @@ const RecentAdditions = () => {
 											<span className="item-year">({item.year})</span>
 										</div>
 										<p className="item-description">{item.description}</p>
-										<span className="item-price">${item.price.toFixed(2)}</span>
+										<div className="item-price-row">
+											<span className="item-price">${item.price.toFixed(2)}</span>
+											{isOutOfStock(item) && (
+												<span className="stock-status">Out of Stock</span>
+											)}
+										</div>
 									</div>
 								</Link>
 							</div>

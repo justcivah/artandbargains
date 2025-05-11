@@ -6,6 +6,7 @@ import Footer from './components/Footer.jsx';
 import HomePage from './pages/HomePage.jsx';
 import ShopPage from './pages/ShopPage.jsx';
 import AboutPage from './pages/AboutPage.jsx';
+import ItemDetailPage from './pages/ItemDetailPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import AddItemPage from './pages/AddItemPage.jsx';
 import EditItemPage from './pages/EditItemPage.jsx';
@@ -16,7 +17,6 @@ import './App.css';
 const PageLayout = ({ children }) => {
 	const location = useLocation();
 	const isAdminRoute = location.pathname.startsWith('/admin') || location.pathname === '/login';
-
 	return (
 		<>
 			{!isAdminRoute && <Navbar />}
@@ -29,19 +29,15 @@ const PageLayout = ({ children }) => {
 // Protected route component
 const ProtectedRoute = ({ children }) => {
 	const [isAuthenticated, setIsAuthenticated] = useState(null);
-
 	useEffect(() => {
 		const token = localStorage.getItem('admin_token');
-
 		if (!token) {
 			setIsAuthenticated(false);
 			return;
 		}
-
 		try {
 			const decoded = jwtDecode(token);
 			const currentTime = Date.now() / 1000;
-
 			if (decoded.exp < currentTime) {
 				// Token is expired
 				console.log("Token expired, redirecting to login");
@@ -57,7 +53,6 @@ const ProtectedRoute = ({ children }) => {
 			setIsAuthenticated(false);
 		}
 	}, []);
-
 
 	// Still loading
 	if (isAuthenticated === null) {
@@ -92,6 +87,13 @@ function App() {
 					<Route path="/about" element={
 						<PageLayout>
 							<AboutPage />
+						</PageLayout>
+					} />
+
+					{/* Item detail page */}
+					<Route path="/shop/item/:itemId" element={
+						<PageLayout>
+							<ItemDetailPage />
 						</PageLayout>
 					} />
 

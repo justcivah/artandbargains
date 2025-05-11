@@ -83,7 +83,7 @@ const EditItemPage = () => {
 
 				// Fetch all metadata in parallel
 				const [item, types, cats, pers, mediums, conditions, contributors] = await Promise.all([
-					fetchItem(itemId),
+					fetchItem(itemId.replace("ITEM#", "")),
 					fetchItemTypes(),
 					fetchCategories(),
 					fetchPeriods(),

@@ -1,0 +1,75 @@
+.item-detail-page .contributor-popup {
+	position: absolute;
+	top: calc(100% + 5px);
+	left: 0;
+	width: 300px;
+	background-color: var(--light-color);
+	box-shadow: var(--shadow-md);
+	border-radius: var(--border-radius-sm);
+	padding: var(--spacing-sm);
+	z-index: 1000;
+	animation: fadeIn 0.2s ease;
+	border: 1px solid var(--border-color);
+}
+
+.item-detail-page .contributor-popup h4 {
+	margin: 0 0 var(--spacing-xs);
+	color: var(--primary-color);
+	font-size: 1.1rem;
+	font-weight: 600;
+	padding-bottom: 8px;
+	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.item-detail-page .contributor-info {
+	margin-bottom: var(--spacing-xs);
+}
+
+.item-detail-page .contributor-type {
+	display: inline-block;
+	font-size: 0.75rem;
+	padding: 2px 6px;
+	background-color: var(--accent-color);
+	color: white;
+	border-radius: 3px;
+	margin-bottom: var(--spacing-xs);
+}
+
+.item-detail-page .contributor-dates {
+	font-size: 0.85rem;
+	color: var(--text-color);
+	margin-bottom: var(--spacing-xs);
+	margin-top: 4px;
+}
+
+.item-detail-page .bio-section {
+	border-top: 1px solid rgba(0, 0, 0, 0.1);
+	padding-top: 8px;
+}
+
+.item-detail-page .contributor-popup .label {
+	font-weight: 600;
+	color: var(--primary-color);
+	font-size: 0.85rem;
+}
+
+.item-detail-page .contributor-bio {
+	font-size: 0.9rem;
+	line-height: 1.5;
+	margin: 4px 0 0;
+	color: var(--text-color);
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(5px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

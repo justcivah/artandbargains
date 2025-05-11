@@ -180,6 +180,17 @@ export const fetchContributors = async () => {
 	}
 };
 
+// Fetch a single contributor by ID
+export const fetchContributor = async (contributorId) => {
+	try {
+		const response = await api.get(`/api/contributors/${encodeURIComponent(contributorId)}`);
+		return response.data;
+	} catch (error) {
+		console.error(`Error fetching contributor ${contributorId}:`, error);
+		throw error;
+	}
+};
+
 // Create a new entity (item type, category, period, etc.)
 export const createEntity = async (entityType, entityData) => {
 	try {

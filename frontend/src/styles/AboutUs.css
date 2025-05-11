@@ -88,21 +88,26 @@
 	position: relative;
 	z-index: 2;
 	box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
+	margin-top: var(--spacing-md);
 }
 
 /* Story Section */
-.about-story,
-.about-mission,
-.about-values {
-	padding: var(--spacing-xl) var(--spacing-md);
+.about-story {
+	padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md) var(--spacing-md);
+	opacity: 0;
+	transform: translateY(20px);
+	transition: opacity 1s ease, transform 1s ease;
+}
+
+.about-mission {
+	padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg) var(--spacing-md);
 	opacity: 0;
 	transform: translateY(20px);
 	transition: opacity 1s ease, transform 1s ease;
 }
 
 .about-story.visible,
-.about-mission.visible,
-.about-values.visible {
+.about-mission.visible {
 	opacity: 1;
 	transform: translateY(0);
 }

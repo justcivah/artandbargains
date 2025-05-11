@@ -39,6 +39,11 @@ const ShopItems = ({ items, loading, error }) => {
 			.join(' ');
 	};
 
+	// Helper function to check if item is out of stock
+	const isOutOfStock = (item) => {
+		return !item.inventory_quantity || item.inventory_quantity <= 0;
+	};
+
 	if (loading) {
 		return (
 			<div className="shop-items-loading">
@@ -75,7 +80,7 @@ const ShopItems = ({ items, loading, error }) => {
 		<div className="shop-items-grid">
 			{items.map((item) => (
 				<div key={item.PK} className="shop-item">
-					<Link to={`/shop/${item.item_type}/${item.PK.replace('ITEM#', '')}`} className="item-link">
+					<Link to={`/shop/item/${item.PK.replace('ITEM#', '')}`} className="item-link">
 						<div className="item-image-container">
 							<img
 								src={getMainImage(item)}
@@ -88,6 +93,12 @@ const ShopItems = ({ items, loading, error }) => {
 							<div className="item-overlay">
 								<span className="view-details">View Details</span>
 							</div>
+
+							{isOutOfStock(item) && (
+								<div className="out-of-stock-badge">
+									Out of Stock
+								</div>
+							)}
 						</div>
 						<div className="item-info">
 							<span className="item-category">{formatCategory(item.item_type)}</span>
@@ -97,7 +108,12 @@ const ShopItems = ({ items, loading, error }) => {
 								<span className="item-year">({getYearFromDateInfo(item.date_info)})</span>
 							</div>
 							<p className="item-description">{item.description || 'No description available'}</p>
-							<span className="item-price">${item.price.toFixed(2)}</span>
+							<div className="item-price-row">
+								<span className="item-price">${item.price.toFixed(2)}</span>
+								{isOutOfStock(item) && (
+									<span className="stock-status">Out of Stock</span>
+								)}
+							</div>
 						</div>
 					</Link>
 				</div>

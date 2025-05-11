@@ -1,0 +1,136 @@
+/* Main gallery container */
+.image-gallery {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-md);
+	width: 100%;
+}
+
+/* Main featured image container */
+.image-gallery .main-image-container {
+	position: relative;
+	width: 100%;
+	height: 0;
+	padding-bottom: 100%;
+	border-radius: var(--border-radius-md);
+	overflow: hidden;
+	background-color: #f9f9f9;
+	box-shadow: var(--shadow-md);
+	border: 1px solid var(--border-color);
+}
+
+/* Main image styling */
+.image-gallery .main-image {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	transition: transform 0.3s ease;
+	padding: 10px;
+}
+
+/* Zoom effect for main image */
+.image-gallery .main-image-container.zoomed .main-image {
+	transform: scale(3);
+}
+
+/* Thumbnails grid container */
+.image-gallery .thumbnails {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: var(--spacing-xs);
+	overflow-x: auto;
+	padding-bottom: 5px;
+	scrollbar-width: thin;
+	scrollbar-color: var(--secondary-color) transparent;
+	max-width: 100%;
+}
+
+/* Right-align the last thumbnail if it's alone in its row */
+.image-gallery .thumbnails .thumbnail:last-child:nth-child(odd) {
+	grid-column: 2;
+}
+
+/* Scrollbar styling for thumbnails container */
+.image-gallery .thumbnails::-webkit-scrollbar {
+	height: 6px;
+}
+
+.image-gallery .thumbnails::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.image-gallery .thumbnails::-webkit-scrollbar-thumb {
+	background-color: var(--secondary-color);
+	border-radius: 20px;
+}
+
+/* Individual thumbnail styling */
+.image-gallery .thumbnail {
+	width: 100%;
+	aspect-ratio: 1/1;
+	border-radius: var(--border-radius-sm);
+	overflow: hidden;
+	border: 2px solid var(--border-color);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	opacity: 0.8;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Hover effects for thumbnails */
+.image-gallery .thumbnail:hover {
+	transform: translateY(-2px);
+	opacity: 1;
+}
+
+/* Active (selected) thumbnail styling */
+.image-gallery .thumbnail.active {
+	border-color: var(--secondary-color);
+	opacity: 1;
+}
+
+/* Thumbnail image styling */
+.image-gallery .thumbnail img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+	.image-gallery .main-image-container {
+		padding-bottom: 90%;
+	}
+}
+
+@media (max-width: 768px) {
+	.image-gallery .main-image-container {
+		padding-bottom: 80%;
+	}
+}
+
+@media (max-width: 576px) {
+	.image-gallery .main-image-container {
+		padding-bottom: 75%;
+	}
+
+	/* Adjust to 4-column layout on small screens */
+	.image-gallery .thumbnails {
+		grid-template-columns: repeat(4, 1fr);
+	}
+
+	/* Reset the 2-column right alignment */
+	.image-gallery .thumbnails .thumbnail:last-child:nth-child(odd) {
+		grid-column: auto;
+	}
+
+	/* Right-align thumbnails that are alone in a row for 4-column layout */
+	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-3),
+	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-2),
+	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-1) {
+		grid-column: 4;
+	}
+}
