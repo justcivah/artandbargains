@@ -28,26 +28,28 @@ app.post('/api/auth/login', authMiddleware.login);
 // Items endpoints
 app.get('/api/items/recent', itemsController.getRecentItems);
 app.get('/api/items/search', itemsController.searchItems);
-app.get('/api/items', authMiddleware.authenticateAdmin, itemsController.getItems);
+app.get('/api/items', itemsController.getItems);
 app.post('/api/items', authMiddleware.authenticateAdmin, itemsController.createItem);
 app.get('/api/items/:id', itemsController.getItem);
 app.put('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.updateItem);
 app.delete('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.deleteItem);
 
 // Metadata endpoints
-app.get('/api/itemTypes', authMiddleware.authenticateAdmin, metadataController.getItemTypes);
+app.get('/api/itemTypes', metadataController.getItemTypes);
 app.post('/api/itemTypes', authMiddleware.authenticateAdmin, metadataController.createItemType);
-app.get('/api/categories', authMiddleware.authenticateAdmin, metadataController.getCategories);
-app.post('/api/categories', authMiddleware.authenticateAdmin, metadataController.createCategory);
-app.get('/api/periods', authMiddleware.authenticateAdmin, metadataController.getPeriods);
+app.get('/api/subjects', metadataController.getSubjects);
+app.post('/api/subjects', authMiddleware.authenticateAdmin, metadataController.createSubject);
+app.get('/api/techniques', metadataController.getTechniques);
+app.post('/api/techniques', authMiddleware.authenticateAdmin, metadataController.createTechnique);
+app.get('/api/periods', metadataController.getPeriods);
 app.post('/api/periods', authMiddleware.authenticateAdmin, metadataController.createPeriod);
-app.get('/api/mediumTypes', authMiddleware.authenticateAdmin, metadataController.getMediumTypes);
+app.get('/api/mediumTypes', metadataController.getMediumTypes);
 app.post('/api/mediumTypes', authMiddleware.authenticateAdmin, metadataController.createMediumType);
-app.get('/api/conditionTypes', authMiddleware.authenticateAdmin, metadataController.getConditionTypes);
+app.get('/api/conditionTypes', metadataController.getConditionTypes);
 app.post('/api/conditionTypes', authMiddleware.authenticateAdmin, metadataController.createConditionType);
 
 // Contributors endpoints
-app.get('/api/contributors', authMiddleware.authenticateAdmin, contributorsController.getContributors);
+app.get('/api/contributors', contributorsController.getContributors);
 app.get('/api/contributors/:id', contributorsController.getContributor);
 app.post('/api/contributors', authMiddleware.authenticateAdmin, contributorsController.createContributor);
 app.put('/api/contributors/:id', authMiddleware.authenticateAdmin, contributorsController.updateContributor);

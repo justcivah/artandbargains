@@ -125,13 +125,24 @@ export const fetchItemTypes = async () => {
 	}
 };
 
-// Fetch all categories
-export const fetchCategories = async () => {
+// Fetch all subjects
+export const fetchSubjects = async () => {
 	try {
-		const response = await api.get('/api/categories');
+		const response = await api.get('/api/subjects');
 		return response.data;
 	} catch (error) {
-		console.error('Error fetching categories:', error);
+		console.error('Error fetching subjects:', error);
+		throw error;
+	}
+};
+
+// Fetch all techniques
+export const fetchTechniques = async () => {
+	try {
+		const response = await api.get('/api/techniques');
+		return response.data;
+	} catch (error) {
+		console.error('Error fetching techniques:', error);
 		throw error;
 	}
 };

@@ -123,6 +123,27 @@ const EditItemPage = () => {
 					};
 				});
 
+				// Process dimensions from item data
+				let dimensionsData = {};
+				let dimensionsUnit = 'cm';
+
+				if (item.dimensions) {
+					// Extract the unit from dimensions, default to 'cm' if not found
+					dimensionsUnit = item.dimensions.unit || 'cm';
+
+					// Process each dimension part (excluding unit)
+					Object.keys(item.dimensions).forEach(key => {
+						if (key !== 'unit') {
+							dimensionsData[key] = {
+								height: item.dimensions[key].height || '',
+								width: item.dimensions[key].width || '',
+								depth: item.dimensions[key].depth || '',
+								diameter: item.dimensions[key].diameter || ''
+							};
+						}
+					});
+				}
+
 				setFormData({
 					itemType: item.item_type,
 					categories: item.categories,
@@ -134,13 +155,8 @@ const EditItemPage = () => {
 					inventoryQuantity: item.inventory_quantity,
 					mediumTypes: item.medium.types,
 					mediumDescription: item.medium.description,
-					dimensions: {
-						height: item.dimensions.height || '',
-						width: item.dimensions.width || '',
-						depth: item.dimensions.depth || '',
-						diameter: item.dimensions.diameter || ''
-					},
-					dimensionsUnit: item.dimensions.unit || 'cm',
+					dimensions: dimensionsData,
+					dimensionsUnit: dimensionsUnit,
 					conditionType: item.condition.status,
 					conditionDescription: item.condition.description,
 					price: item.price,
@@ -253,13 +269,33 @@ const EditItemPage = () => {
 				dateInfo.period_text = formData.dateInfo.periodText;
 			}
 
-			// Prepare dimensions
-			const dimensions = {};
-			if (formData.dimensions.height) dimensions.height = parseFloat(formData.dimensions.height);
-			if (formData.dimensions.width) dimensions.width = parseFloat(formData.dimensions.width);
-			if (formData.dimensions.depth) dimensions.depth = parseFloat(formData.dimensions.depth);
-			if (formData.dimensions.diameter) dimensions.diameter = parseFloat(formData.dimensions.diameter);
-			dimensions.unit = formData.dimensionsUnit;
+			// Prepare dimensions with unit included at top level
+			const dimensionsWithUnit = {
+				...formData.dimensions,
+				unit: formData.dimensionsUnit
+			};
+
+			// Format the dimensions to remove empty values
+			const cleanedDimensions = {};
+			Object.keys(dimensionsWithUnit).forEach(key => {
+				if (key === 'unit') {
+					cleanedDimensions.unit = dimensionsWithUnit.unit;
+				} else {
+					// Only include parts that have at least one dimension value
+					const part = dimensionsWithUnit[key];
+					const hasValue = part.height || part.width || part.depth || part.diameter;
+
+					if (hasValue) {
+						cleanedDimensions[key] = {};
+
+						// Only include non-empty dimension values
+						if (part.height) cleanedDimensions[key].height = parseFloat(part.height);
+						if (part.width) cleanedDimensions[key].width = parseFloat(part.width);
+						if (part.depth) cleanedDimensions[key].depth = parseFloat(part.depth);
+						if (part.diameter) cleanedDimensions[key].diameter = parseFloat(part.diameter);
+					}
+				}
+			});
 
 			// Format contributors
 			const contributors = formData.contributors.map(contrib => ({
@@ -288,7 +324,7 @@ const EditItemPage = () => {
 						types: formData.mediumTypes,
 						description: formData.mediumDescription
 					},
-					dimensions: dimensions,
+					dimensions: cleanedDimensions,
 					condition: {
 						status: formData.conditionType,
 						description: formData.conditionDescription
@@ -382,8 +418,11 @@ const EditItemPage = () => {
 			case "medium":
 				return formData.mediumTypes.length > 0;
 			case "dimensions":
-				const dims = formData.dimensions;
-				return !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
+				const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
+				return dimensionParts.some(part => {
+					const dims = formData.dimensions[part];
+					return dims.height || dims.width || dims.depth || dims.diameter;
+				});
 			case "condition":
 				return !!formData.conditionType;
 			case "images":

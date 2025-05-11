@@ -370,6 +370,25 @@
 	border: 1px solid var(--secondary-color);
 }
 
+.multiple-dimensions {
+	margin-top: 10px;
+}
+
+.dimension-part-display:last-child {
+	margin-bottom: 0;
+}
+
+.dimension-part-display p {
+	margin: 0;
+	line-height: 1.5;
+	color: #333;
+}
+
+.dimension-part-display strong {
+	font-weight: 600;
+	color: #555;
+}
+
 /* Media queries */
 @media (max-width: 992px) {
 	.item-detail-page .item-detail-grid {

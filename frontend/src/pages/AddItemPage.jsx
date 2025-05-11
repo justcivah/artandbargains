@@ -53,12 +53,7 @@ const AddItemPage = () => {
 		inventoryQuantity: 1,
 		mediumTypes: [],
 		mediumDescription: '',
-		dimensions: {
-			height: '',
-			width: '',
-			depth: '',
-			diameter: ''
-		},
+		dimensions: {},
 		dimensionsUnit: 'cm',
 		conditionType: '',
 		conditionDescription: '',
@@ -208,12 +203,33 @@ const AddItemPage = () => {
 			}
 
 			// Prepare dimensions
-			const dimensions = {};
-			if (formData.dimensions.height) dimensions.height = parseFloat(formData.dimensions.height);
-			if (formData.dimensions.width) dimensions.width = parseFloat(formData.dimensions.width);
-			if (formData.dimensions.depth) dimensions.depth = parseFloat(formData.dimensions.depth);
-			if (formData.dimensions.diameter) dimensions.diameter = parseFloat(formData.dimensions.diameter);
-			dimensions.unit = formData.dimensionsUnit;
+			// Prepare dimensions with unit included at top level
+			const dimensionsWithUnit = {
+				...formData.dimensions,
+				unit: formData.dimensionsUnit
+			};
+
+			// Format the dimensions to remove empty values
+			const cleanedDimensions = {};
+			Object.keys(dimensionsWithUnit).forEach(key => {
+				if (key === 'unit') {
+					cleanedDimensions.unit = dimensionsWithUnit.unit;
+				} else {
+					// Only include parts that have at least one dimension value
+					const part = dimensionsWithUnit[key];
+					const hasValue = part.height || part.width || part.depth || part.diameter;
+
+					if (hasValue) {
+						cleanedDimensions[key] = {};
+
+						// Only include non-empty dimension values
+						if (part.height) cleanedDimensions[key].height = parseFloat(part.height);
+						if (part.width) cleanedDimensions[key].width = parseFloat(part.width);
+						if (part.depth) cleanedDimensions[key].depth = parseFloat(part.depth);
+						if (part.diameter) cleanedDimensions[key].diameter = parseFloat(part.diameter);
+					}
+				}
+			});
 
 			// Format contributors for API - extract ID from PK or use name
 			const contributors = formData.contributors.map(contrib => {
@@ -252,7 +268,7 @@ const AddItemPage = () => {
 						types: formData.mediumTypes,
 						description: formData.mediumDescription
 					},
-					dimensions: dimensions,
+					dimensions: cleanedDimensions,
 					condition: {
 						status: formData.conditionType,
 						description: formData.conditionDescription
@@ -425,8 +441,11 @@ const AddItemPage = () => {
 				return formData.mediumTypes.length > 0;
 			case 9:
 				// At least one dimension should be provided
-				const dims = formData.dimensions;
-				return !!dims.height || !!dims.width || !!dims.depth || !!dims.diameter;
+				const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
+				return dimensionParts.some(part => {
+					const dims = formData.dimensions[part];
+					return dims.height || dims.width || dims.depth || dims.diameter;
+				});
 			case 10:
 				return !!formData.conditionType;
 			case 11:

@@ -48,7 +48,7 @@
       }
     },
     {
-      "IndexName": "CategoryArticleIndex",
+      "IndexName": "MediumTypeArticleIndex",
       "KeySchema": [
         { "AttributeName": "GSI3PK", "KeyType": "HASH" },
         { "AttributeName": "GSI3SK", "KeyType": "RANGE" }
@@ -60,7 +60,7 @@
       }
     },
     {
-      "IndexName": "MediumTypeArticleIndex",
+      "IndexName": "ContributorArticleIndex",
       "KeySchema": [
         { "AttributeName": "GSI4PK", "KeyType": "HASH" },
         { "AttributeName": "GSI4SK", "KeyType": "RANGE" }
@@ -72,7 +72,7 @@
       }
     },
     {
-      "IndexName": "ConditionArticleIndex",
+      "IndexName": "ItemsByPriceIndex",
       "KeySchema": [
         { "AttributeName": "GSI5PK", "KeyType": "HASH" },
         { "AttributeName": "GSI5SK", "KeyType": "RANGE" }
@@ -84,7 +84,7 @@
       }
     },
     {
-      "IndexName": "ContributorArticleIndex",
+      "IndexName": "TechniqueArticleIndex",
       "KeySchema": [
         { "AttributeName": "GSI6PK", "KeyType": "HASH" },
         { "AttributeName": "GSI6SK", "KeyType": "RANGE" }
@@ -96,7 +96,7 @@
       }
     },
     {
-      "IndexName": "ItemsByPriceIndex",
+      "IndexName": "SubjectArticleIndex",
       "KeySchema": [
         { "AttributeName": "GSI7PK", "KeyType": "HASH" },
         { "AttributeName": "GSI7SK", "KeyType": "RANGE" }

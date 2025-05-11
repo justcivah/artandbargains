@@ -495,39 +495,6 @@ const ShopFilters = ({
 						)}
 					</div>
 
-					{/* Condition Filter */}
-					<div className="filter-section">
-						<div
-							className="filter-header"
-							onClick={() => toggleSection('condition')}
-						>
-							<h3>Condition</h3>
-							<span className={`toggle-icon ${expandedSections.condition ? 'open' : 'closed'}`}>
-								{expandedSections.condition ? '−' : '+'}
-							</span>
-						</div>
-
-						{expandedSections.condition && (
-							<div className="filter-body">
-								<div className="filter-options">
-									{conditionTypes.map((condition) => (
-										<div key={condition.name} className="filter-option">
-											<label>
-												<input
-													type="checkbox"
-													checked={selectedFilters.conditions.includes(condition.name)}
-													onChange={() => onFilterChange('conditions', condition.name)}
-												/>
-												<span className="option-name">{condition.display_name}</span>
-												{/* <span className="option-count">(19)</span> */}
-											</label>
-										</div>
-									))}
-								</div>
-							</div>
-						)}
-					</div>
-
 					{/* Price Range Filter - MOVED TO LAST POSITION */}
 					<div className="filter-section">
 						<div

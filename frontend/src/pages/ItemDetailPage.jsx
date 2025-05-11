@@ -97,29 +97,18 @@ const ItemDetailPage = () => {
 	const formatDimensions = (dimensions) => {
 		if (!dimensions) return 'Dimensions not specified';
 
-		let result = [];
+		// Filter out the unit key to get only dimension parts
+		const dimensionParts = Object.keys(dimensions).filter(key => key !== 'unit');
 
-		if (dimensions.height) {
-			result.push(`Height: ${dimensions.height} ${dimensions.unit || 'cm'}`);
+		if (dimensionParts.length === 0) {
+			return 'Dimensions not specified';
 		}
 
-		if (dimensions.width) {
-			result.push(`Width: ${dimensions.width} ${dimensions.unit || 'cm'}`);
-		}
+		// Get the unit
+		const unit = dimensions.unit || 'cm';
 
-		if (dimensions.depth) {
-			result.push(`Depth: ${dimensions.depth} ${dimensions.unit || 'cm'}`);
-		}
-
-		if (dimensions.diameter) {
-			result.push(`Diameter: ${dimensions.diameter} ${dimensions.unit || 'cm'}`);
-		}
-
-		if (dimensions.length) {
-			result.push(`Length: ${dimensions.length} ${dimensions.unit || 'cm'}`);
-		}
-
-		return result.join(', ') || 'Dimensions not specified';
+		// We will handle this in the render function directly
+		return { dimensionParts, unit };
 	};
 
 	// Format item type for display
@@ -274,7 +263,33 @@ const ItemDetailPage = () => {
 							{item.dimensions && (
 								<div className="item-section">
 									<h3>Dimensions</h3>
-									<p>{formatDimensions(item.dimensions)}</p>
+									{typeof formatDimensions(item.dimensions) === 'string' ? (
+										<p>{formatDimensions(item.dimensions)}</p>
+									) : (
+										<div className="multiple-dimensions">
+											{formatDimensions(item.dimensions).dimensionParts.map(part => {
+												const partDimensions = item.dimensions[part];
+												const dimensionUnit = formatDimensions(item.dimensions).unit;
+												const dimensionValues = [];
+
+												if (partDimensions.height) dimensionValues.push(`Height: ${partDimensions.height} ${dimensionUnit}`);
+												if (partDimensions.width) dimensionValues.push(`Width: ${partDimensions.width} ${dimensionUnit}`);
+												if (partDimensions.depth) dimensionValues.push(`Depth: ${partDimensions.depth} ${dimensionUnit}`);
+												if (partDimensions.diameter) dimensionValues.push(`Diameter: ${partDimensions.diameter} ${dimensionUnit}`);
+
+												if (dimensionValues.length === 0) return null;
+
+												return (
+													<div key={part} className="dimension-part-display">
+														<p>
+															<strong>{part.charAt(0).toUpperCase() + part.slice(1)}:</strong>{' '}
+															{dimensionValues.join(', ')}
+														</p>
+													</div>
+												);
+											})}
+										</div>
+									)}
 								</div>
 							)}
 

@@ -56,7 +56,7 @@ const ContactSection = () => {
               <span className="icon-delivery"></span>
             </div>
             <h3>White Glove Delivery</h3>
-            <p>Learn about our premium delivery and installation service</p>
+            <p>Learn about our premium delivery and get a price estimate</p>
           </div>
         </div>
         <Link to="/contact" className="contact-button">
