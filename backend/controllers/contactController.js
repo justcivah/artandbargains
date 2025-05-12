@@ -1,16 +1,23 @@
 const nodemailer = require('nodemailer');
 const axios = require('axios');
 
-// Create nodemailer transporter
-const transporter = nodemailer.createTransporter({
-	host: process.env.SMTP_HOST,
-	port: process.env.SMTP_PORT,
-	secure: process.env.SMTP_SECURE === 'true',
-	auth: {
-		user: process.env.SMTP_USER,
-		pass: process.env.SMTP_PASS
+// Create nodemailer transporter - lazy initialization
+let transporter = null;
+
+const getTransporter = () => {
+	if (!transporter) {
+		transporter = nodemailer.createTransporter({
+			host: process.env.SMTP_HOST,
+			port: process.env.SMTP_PORT,
+			secure: process.env.SMTP_SECURE === 'true',
+			auth: {
+				user: process.env.SMTP_USER,
+				pass: process.env.SMTP_PASS
+			}
+		});
 	}
-});
+	return transporter;
+};
 
 // Verify reCAPTCHA token
 async function verifyRecaptcha(token) {
@@ -84,8 +91,9 @@ exports.sendContactEmail = async (req, res) => {
 			`
 		};
 
-		// Send email
-		await transporter.sendMail(mailOptions);
+		// Get transporter and send email
+		const mailer = getTransporter();
+		await mailer.sendMail(mailOptions);
 
 		// Send auto-reply to user (optional)
 		const autoReplyOptions = {
@@ -116,7 +124,7 @@ exports.sendContactEmail = async (req, res) => {
 			`
 		};
 
-		await transporter.sendMail(autoReplyOptions);
+		await mailer.sendMail(autoReplyOptions);
 
 		res.json({ success: true, message: 'Email sent successfully' });
 	} catch (error) {
