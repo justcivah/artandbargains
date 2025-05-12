@@ -11,6 +11,7 @@ import AdminPage from './pages/AdminPage.jsx';
 import AddItemPage from './pages/AddItemPage.jsx';
 import EditItemPage from './pages/EditItemPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
+import ContactPage from './pages/ContactPage.jsx';
 import './App.css';
 
 // Wrapper component to conditionally render Navbar and Footer
@@ -87,6 +88,13 @@ function App() {
 					<Route path="/about" element={
 						<PageLayout>
 							<AboutPage />
+						</PageLayout>
+					} />
+
+					{/* Login page - no Navbar or Footer */}
+					<Route path="/contact" element={
+						<PageLayout>
+							<ContactPage />
 						</PageLayout>
 					} />
 

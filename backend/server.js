@@ -13,6 +13,7 @@ const itemsController = require('./controllers/itemsController');
 const metadataController = require('./controllers/metadataController');
 const contributorsController = require('./controllers/contributorsController');
 const imagesController = require('./controllers/imagesController');
+const contactController = require('./controllers/contactController');
 
 // Create Express app
 const app = express();
@@ -56,6 +57,9 @@ app.delete('/api/contributors/:id', authMiddleware.authenticateAdmin, contributo
 // Image upload endpoint
 app.post('/api/images/upload', authMiddleware.authenticateAdmin, imagesController.uploadImage);
 app.post('/api/images/uploadMultiple', authMiddleware.authenticateAdmin, imagesController.uploadMultipleImages);
+
+// Contact endpoint
+app.post('/api/contact', contactController.sendContactEmail);
 
 // Start server
 const PORT = process.env.PORT;

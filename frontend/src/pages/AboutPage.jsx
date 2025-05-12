@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import AboutUs from '../components/AboutUs';
 
-const HomePage = () => {
+const AboutPage = () => {
 	useEffect(() => {
 		// Scroll to top when component mounts
 		window.scrollTo(0, 0);
@@ -17,4 +17,4 @@ const HomePage = () => {
 	);
 };
 
-export default HomePage;
+export default AboutPage;
