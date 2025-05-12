@@ -124,7 +124,7 @@ const AboutUs = () => {
 							</div>
 						</div>
 						<div className="about-image">
-							<img src="/src/assets/craftman.jpeg" alt="Italian craftman" />
+							<img src="/images/craftman.jpeg" alt="Italian craftman" />
 						</div>
 					</div>
 				</section>
@@ -135,7 +135,7 @@ const AboutUs = () => {
 					data-section="mission">
 					<div className="about-container">
 						<div className="about-image">
-							<img src="/src/assets/lake-como.webp" alt="Lake Como" />
+							<img src="/images/lake-como.webp" alt="Lake Como" />
 						</div>
 						<div className="about-content text-right">
 							<h2 className="section-title">Our Location</h2>
