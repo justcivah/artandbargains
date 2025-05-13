@@ -153,7 +153,6 @@
 	font-size: 1rem;
 	color: var(--secondary-color);
 	position: relative;
-	cursor: pointer;
 	font-weight: 500;
 	margin-left: 10px;
 }
@@ -162,10 +161,6 @@
 .item-detail-page .primary-contributor {
 	font-size: 1.25rem;
 	font-weight: 600;
-}
-
-.item-detail-page .contributor-name:hover {
-	text-decoration: underline;
 }
 
 .item-detail-page .item-date {

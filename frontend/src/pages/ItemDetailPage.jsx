@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ImageGallery from '../components/ImageGallery';
-import ContributorPopup from '../components/ContributorPopup';
 import { fetchItem, fetchContributor } from '../api/itemsApi';
 import '../styles/ItemDetailPage.css';
 
@@ -10,7 +9,6 @@ const ItemDetailPage = () => {
 	const [item, setItem] = useState(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
-	const [activeContributor, setActiveContributor] = useState(null);
 	const [contributorDetails, setContributorDetails] = useState({});
 
 	// Fetch item data
@@ -66,16 +64,6 @@ const ItemDetailPage = () => {
 		return index === 0 ||
 			contributor.position.toLowerCase() === 'artist' ||
 			contributor.position.toLowerCase() === 'creator';
-	};
-
-	// Handle contributor hover
-	const handleContributorHover = (contributorId) => {
-		setActiveContributor(contributorId);
-	};
-
-	// Handle contributor hover end
-	const handleContributorHoverEnd = () => {
-		setActiveContributor(null);
 	};
 
 	// Format date info for display
@@ -205,14 +193,8 @@ const ItemDetailPage = () => {
 										</span>
 										<span
 											className={`contributor-name ${isPrimaryContributor(contributor, index) ? 'primary-contributor' : ''}`}
-											onMouseEnter={() => handleContributorHover(contributor.contributor_id)}
-											onMouseLeave={handleContributorHoverEnd}
 										>
 											{contributor.display_name || contributorDetails[contributor.contributor_id]?.display_name || contributor.contributor_id}
-
-											{activeContributor === contributor.contributor_id && (
-												<ContributorPopup contributor={contributorDetails[contributor.contributor_id]} />
-											)}
 										</span>
 									</div>
 								))}
