@@ -119,8 +119,8 @@ const ContributorsForm = ({
 
 			if (contributorType === 'individual') {
 				// Validate required fields
-				if (!firstName || !lastName || !displayName) {
-					setError('First name, last name, and display name are required');
+				if ((!firstName && !lastName) || !displayName) {
+					setError('At least one name (first or last) and display name are required');
 					setIsSubmitting(false);
 					return;
 				}
@@ -371,7 +371,6 @@ const ContributorsForm = ({
 													setFirstName(f);
 													setDisplayName(`${f}${middleName ? ` ${middleName.trim().split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${lastName ? ` ${lastName}` : ''}`);
 												}}
-												required
 											/>
 										</div>
 
@@ -402,7 +401,6 @@ const ContributorsForm = ({
 													setLastName(l);
 													setDisplayName(`${firstName}${middleName ? ` ${middleName.trim().split(' ').map(word => `${word.charAt(0)}.`).join(' ')}` : ''}${l ? ` ${l}` : ''}`);
 												}}
-												required
 											/>
 										</div>
 									</div>

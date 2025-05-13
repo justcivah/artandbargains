@@ -57,9 +57,10 @@ exports.createContributor = async (req, res) => {
 
 		// Validate required fields
 		if (contributorData.contributor_type === 'individual') {
-			if (!contributorData.first_name || !contributorData.last_name || !contributorData.display_name) {
+			// At least one name (first or last) is required
+			if ((!contributorData.first_name && !contributorData.last_name) || !contributorData.display_name) {
 				return res.status(400).json({
-					error: 'For individual contributors, first name, last name, and display name are required'
+					error: 'For individual contributors, at least one name (first or last) and display name are required'
 				});
 			}
 		} else if (contributorData.contributor_type === 'organization') {
@@ -78,7 +79,13 @@ exports.createContributor = async (req, res) => {
 		let contributorId;
 
 		if (contributorData.contributor_type === 'individual') {
-			contributorId = `${contributorData.first_name.toLowerCase()}_${contributorData.last_name.toLowerCase()}`.replace(/\s+/g, '_');
+			if (contributorData.first_name && contributorData.last_name) {
+				contributorId = `${contributorData.first_name.toLowerCase()}_${contributorData.last_name.toLowerCase()}`.replace(/\s+/g, '_');
+			} else if (contributorData.first_name) {
+				contributorId = contributorData.first_name.toLowerCase().replace(/\s+/g, '_');
+			} else {
+				contributorId = contributorData.last_name.toLowerCase().replace(/\s+/g, '_');
+			}
 		} else {
 			contributorId = contributorData.name.toLowerCase().replace(/\s+/g, '_');
 		}
@@ -91,8 +98,15 @@ exports.createContributor = async (req, res) => {
 			...contributorData
 		};
 
-		// Special handling for individuals
+		// Ensure name fields are null if not provided (for individual contributors)
 		if (contributorData.contributor_type === 'individual') {
+			if (!contributorData.first_name) {
+				contributor.first_name = null;
+			}
+			if (!contributorData.last_name) {
+				contributor.last_name = null;
+			}
+
 			// Convert years to integers if provided
 			if (contributorData.birth_year) {
 				contributor.birth_year = parseInt(contributorData.birth_year);
