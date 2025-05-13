@@ -15,6 +15,10 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 		} else {
 			// Select the new technique
 			onChange(technique);
+			// Automatically go to next step after selection
+			if (onSelectComplete) {
+				onSelectComplete();
+			}
 		}
 	};
 
