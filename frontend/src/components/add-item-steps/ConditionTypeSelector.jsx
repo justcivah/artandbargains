@@ -45,15 +45,10 @@ const ConditionTypeSelector = ({
 	selectedConditionType,
 	conditionDescription,
 	onChange,
-	onDescriptionChange,
-	onSelectComplete
+	onDescriptionChange
 }) => {
 	const handleConditionSelect = (condition) => {
 		onChange(condition);
-		// If onSelectComplete is provided, call it (for wizard-style navigation)
-		if (onSelectComplete) {
-			setTimeout(() => onSelectComplete(), 300);
-		}
 	};
 
 	return (

@@ -407,7 +407,6 @@ const AddItemPage = () => {
 						conditionDescription={formData.conditionDescription}
 						onChange={(type) => updateFormData('conditionType', type)}
 						onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
-						onSelectComplete={handleNext}
 					/>
 				);
 			case 12:
