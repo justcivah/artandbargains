@@ -33,6 +33,7 @@ const ContributorsForm = ({
 	// Contributor position options
 	const positionOptions = [
 		'engraver',
+		'lithographer',
 		'drawer',
 		'cartographer',
 		'publisher',
