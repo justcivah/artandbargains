@@ -200,7 +200,7 @@ const RecentAdditions = () => {
 					</p>
 				</div>
 				<div className="recent-slider-container" style={{ minHeight: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-					<div className="loading-spinner">Loading...</div>
+					<div className="loading-spinner"></div>
 				</div>
 			</section>
 		);

@@ -91,7 +91,7 @@
 }
 
 .item-detail-page .item-category {
-	background-color: #f0f0f0;
+	background-color: #f4f4f4;
 	color: var(--primary-color);
 	padding: 4px 10px;
 	border-radius: 20px;
@@ -116,7 +116,7 @@
 	flex-wrap: wrap;
 	gap: var(--spacing-xs) var(--spacing-md);
 	margin-bottom: var(--spacing-sm);
-	background-color: #f0f0f0;
+	background-color: #f4f4f4;
 	padding: var(--spacing-sm);
 	border-radius: var(--border-radius-sm);
 	box-shadow: var(--shadow-md);
@@ -124,7 +124,7 @@
 
 .item-detail-page .item-details {
 	padding: var(--spacing-md);
-	background-color: #f0f0f0;
+	background-color: #f4f4f4;
 	border-radius: var(--border-radius-md);
 	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-md);
@@ -271,7 +271,7 @@
 
 .item-detail-page .item-interest-section {
 	padding: var(--spacing-md);
-	background-color: #f0f0f0;
+	background-color: #f4f4f4;
 	border-radius: var(--border-radius-md);
 	border: 1px solid var(--border-color);
 	box-shadow: var(--shadow-md);
