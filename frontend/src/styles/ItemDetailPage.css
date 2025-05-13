@@ -194,6 +194,7 @@
 .item-detail-page .out-of-stock {
 	color: #f44336;
 	font-weight: 500;
+	margin-left: 15px;
 }
 
 .item-detail-page .item-details {
