@@ -411,7 +411,7 @@ exports.createItem = async (req, res) => {
 			PK: actualItemId,
 			SK: "METADATA",
 			entity_type: "item",
-			insertion_timestamp: new Date().toISOString(),
+			insertion_timestamp: metadata.insertion_timestamp || new Date().toISOString(),
 			GSI1PK: `TYPE#${metadata.item_type}`,
 			GSI1SK: actualItemId,
 			GSI2PK: `PERIOD#${metadata.period}`,
@@ -530,19 +530,30 @@ exports.createItem = async (req, res) => {
 
 // Update an existing item
 exports.updateItem = async (req, res) => {
-	try {
-		const { id } = req.params;
+    try {
+        const { id } = req.params;
+        
+        const getParams = {
+            TableName: TABLE_NAME,
+            Key: {
+                PK: id,
+                SK: "METADATA"
+            }
+        };
+        
+        const existingItem = await dynamoDB.send(new GetCommand(getParams));
 
-		// First delete the old item and related records
-		await deleteItemFromDb(id);
-
-		// Then create the updated item with the request body
-		req.body.itemId = id;
-		await exports.createItem(req, res);
-	} catch (error) {
-		console.error(`Error updating item ${req.params.id}:`, error);
-		res.status(500).json({ error: 'Failed to update item: ' + error.message });
-	}
+        if (existingItem.Item) {
+            req.body.metadata.insertion_timestamp = existingItem.Item.insertion_timestamp;
+        }
+        
+        await deleteItemFromDb(id);
+        req.body.itemId = id;
+        await exports.createItem(req, res);
+    } catch (error) {
+        console.error(`Error updating item ${req.params.id}:`, error);
+        res.status(500).json({ error: 'Failed to update item: ' + error.message });
+    }
 };
 
 // Delete an item
