@@ -93,7 +93,9 @@ const ContributorsForm = ({
 	// Helper function to capitalize first letter of each word
 	const capitalizeFirstLetter = (string) => {
 		if (!string) return '';
-		return string.replace(/\b\w/g, char => char.toUpperCase());
+		return string.split(' ').map(word =>
+			word.charAt(0).toUpperCase() + word.slice(1)
+		).join(' ');
 	};
 
 	// Update isLiving based on death year
