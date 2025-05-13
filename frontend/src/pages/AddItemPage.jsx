@@ -22,7 +22,7 @@ import '../styles/AddItemPage.css';
 const AddItemPage = () => {
 	const navigate = useNavigate();
 	const [currentStep, setCurrentStep] = useState(1);
-	const totalSteps = 12; // Increased by 1 for the extra selector
+	const totalSteps = 12;
 
 	// Metadata states
 	const [itemTypes, setItemTypes] = useState([]);
@@ -32,14 +32,14 @@ const AddItemPage = () => {
 	const [mediumTypes, setMediumTypes] = useState([]);
 	const [contributorsList, setContributorsList] = useState([]);
 
-	// Add state to track image order (needed for new ImageUploader)
+	// Add state to track image order
 	const [imagesOrder, setImagesOrder] = useState([]);
 
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
-		subject: '', // Changed from categories array to single subject
-		technique: '', // Added new technique field
+		subject: '',
+		technique: '', // This will remain empty if no technique is selected
 		title: '',
 		dateInfo: {
 			type: 'exact',
@@ -160,20 +160,17 @@ const AddItemPage = () => {
 
 				// If we have an order array from ImageUploader, use it
 				if (imagesOrder.length > 0) {
-					// All images are new in AddItemPage, so we can create the array directly
 					imageUrls = imagesOrder.map((orderItem, index) => {
 						const imageIndex = orderItem.index;
-						// Ensure the index is valid
 						if (imageIndex >= 0 && imageIndex < uploadResults.length) {
 							return {
 								url: uploadResults[imageIndex].fileUrl,
-								is_primary: index === 0 // First image is primary
+								is_primary: index === 0
 							};
 						}
 						return null;
-					}).filter(img => img !== null); // Remove any null entries
+					}).filter(img => img !== null);
 				} else {
-					// Fallback to the original method if ordering wasn't used
 					imageUrls = uploadResults.map((result, index) => ({
 						url: result.fileUrl,
 						is_primary: index === formData.primaryImageIndex
@@ -181,9 +178,9 @@ const AddItemPage = () => {
 				}
 			}
 
-			// Prepare date information - FIXED: include type field
+			// Prepare date information
 			const dateInfo = {
-				type: formData.dateInfo.type, // Adding the type field
+				type: formData.dateInfo.type,
 				circa: formData.dateInfo.circa
 			};
 
@@ -216,14 +213,11 @@ const AddItemPage = () => {
 				if (key === 'unit') {
 					cleanedDimensions.unit = dimensionsWithUnit.unit;
 				} else {
-					// Only include parts that have at least one dimension value
 					const part = dimensionsWithUnit[key];
 					const hasValue = part.height || part.width || part.depth || part.diameter;
 
 					if (hasValue) {
 						cleanedDimensions[key] = {};
-
-						// Only include non-empty dimension values
 						if (part.height) cleanedDimensions[key].height = parseFloat(part.height);
 						if (part.width) cleanedDimensions[key].width = parseFloat(part.width);
 						if (part.depth) cleanedDimensions[key].depth = parseFloat(part.depth);
@@ -232,14 +226,12 @@ const AddItemPage = () => {
 				}
 			});
 
-			// Format contributors for API - extract ID from PK or use name
+			// Format contributors for API
 			const contributors = formData.contributors.map(contrib => {
-				// If PK exists and follows format "CONTRIBUTOR#id", extract the ID
 				let contributorId;
 				if (contrib.contributor.PK && contrib.contributor.PK.includes('#')) {
 					contributorId = contrib.contributor.PK.split('#')[1];
 				} else {
-					// Fallback to name for compatibility
 					contributorId = contrib.contributor.name;
 				}
 
@@ -275,16 +267,17 @@ const AddItemPage = () => {
 						description: formData.conditionDescription
 					},
 					images: imageUrls,
-					// Replace categories with subject and technique
 					subject: formData.subject,
-					technique: formData.technique
+					// Only include technique if it's not empty
+					...(formData.technique && { technique: formData.technique })
 				},
 				subject: formData.subject,
-				technique: formData.technique,
+				// Only include technique if it's not empty
+				...(formData.technique && { technique: formData.technique }),
 				mediumTypes: formData.mediumTypes,
 				contributors: contributors,
 				conditionType: formData.conditionType,
-				itemId: itemId // Pass the ID separately to ensure it's used consistently
+				itemId: itemId
 			};
 
 			// Create the item in DynamoDB
@@ -432,9 +425,10 @@ const AddItemPage = () => {
 			case 1:
 				return !!formData.itemType;
 			case 2:
-				return !!formData.subject; // Changed to check for single subject value
+				return !!formData.subject;
 			case 3:
-				return !!formData.technique; // Check for single technique value
+				// Technique is now optional, so always return true
+				return true;
 			case 4:
 				return !!formData.title && !!formData.description && !!formData.price;
 			case 5:

@@ -40,8 +40,8 @@ const EditItemPage = () => {
 	// Form states
 	const [formData, setFormData] = useState({
 		itemType: '',
-		subject: '', // Changed from categories array to single subject
-		technique: '', // Added new technique field
+		subject: '',
+		technique: '', // This will remain empty if no technique is selected
 		title: '',
 		dateInfo: {
 			type: 'exact',
@@ -130,10 +130,8 @@ const EditItemPage = () => {
 				let dimensionsUnit = 'cm';
 
 				if (item.dimensions) {
-					// Extract the unit from dimensions, default to 'cm' if not found
 					dimensionsUnit = item.dimensions.unit || 'cm';
 
-					// Process each dimension part (excluding unit)
 					Object.keys(item.dimensions).forEach(key => {
 						if (key !== 'unit') {
 							dimensionsData[key] = {
@@ -148,8 +146,8 @@ const EditItemPage = () => {
 
 				setFormData({
 					itemType: item.item_type,
-					subject: item.subject || '', // Changed from categories to subject
-					technique: item.technique || '', // Added technique field
+					subject: item.subject || '',
+					technique: item.technique || '', // Will be empty if no technique exists
 					title: item.title,
 					dateInfo,
 					contributors: formattedContributors,
@@ -164,7 +162,7 @@ const EditItemPage = () => {
 					conditionDescription: item.condition.description,
 					price: item.price,
 					description: item.description,
-					images: [], // New images to upload
+					images: [],
 					primaryImageIndex: 0,
 					existingImages: item.images || []
 				});
@@ -218,7 +216,7 @@ const EditItemPage = () => {
 				const uploadResults = await uploadMultipleImages(formData.images);
 				newUploadedImages = uploadResults.map(result => ({
 					url: result.fileUrl,
-					is_primary: false // Will be set correctly later
+					is_primary: false
 				}));
 			}
 
@@ -228,17 +226,14 @@ const EditItemPage = () => {
 			// Use the imagesOrder to arrange images in the correct order
 			imagesOrder.forEach((orderItem, index) => {
 				if (orderItem.type === 'existing') {
-					// Find existing image by URL
 					const existingImage = formData.existingImages.find(img => img.url === orderItem.url);
 					if (existingImage) {
-						// Add to final array, first image will be primary
 						finalImageUrls.push({
 							...existingImage,
 							is_primary: index === 0
 						});
 					}
 				} else if (orderItem.type === 'new') {
-					// New image - use index to find in newUploadedImages
 					const imageIndex = orderItem.index;
 					if (imageIndex >= 0 && imageIndex < newUploadedImages.length) {
 						finalImageUrls.push({
@@ -249,9 +244,9 @@ const EditItemPage = () => {
 				}
 			});
 
-			// Prepare date information - FIXED: include type field
+			// Prepare date information
 			const dateInfo = {
-				type: formData.dateInfo.type, // Adding the type field
+				type: formData.dateInfo.type,
 				circa: formData.dateInfo.circa
 			};
 
@@ -284,14 +279,11 @@ const EditItemPage = () => {
 				if (key === 'unit') {
 					cleanedDimensions.unit = dimensionsWithUnit.unit;
 				} else {
-					// Only include parts that have at least one dimension value
 					const part = dimensionsWithUnit[key];
 					const hasValue = part.height || part.width || part.depth || part.diameter;
 
 					if (hasValue) {
 						cleanedDimensions[key] = {};
-
-						// Only include non-empty dimension values
 						if (part.height) cleanedDimensions[key].height = parseFloat(part.height);
 						if (part.width) cleanedDimensions[key].width = parseFloat(part.width);
 						if (part.depth) cleanedDimensions[key].depth = parseFloat(part.depth);
@@ -312,8 +304,9 @@ const EditItemPage = () => {
 					PK: itemId,
 					title: formData.title,
 					title_lower: formData.title.toLowerCase(),
-					subject: formData.subject, // Changed from categories to subject
-					technique: formData.technique, // Added technique field
+					subject: formData.subject,
+					// Only include technique if it's not empty
+					...(formData.technique && { technique: formData.technique }),
 					date_info: dateInfo,
 					contributors: contributors,
 					primary_contributor_display: formData.primaryContributor,
@@ -335,8 +328,9 @@ const EditItemPage = () => {
 					},
 					images: finalImageUrls
 				},
-				subject: formData.subject, // Changed from categories to subject
-				technique: formData.technique, // Added technique field
+				subject: formData.subject,
+				// Only include technique if it's not empty
+				...(formData.technique && { technique: formData.technique }),
 				mediumTypes: formData.mediumTypes,
 				contributors: contributors,
 				conditionType: formData.conditionType
@@ -360,7 +354,7 @@ const EditItemPage = () => {
 		// Validate all required fields
 		const hasValidItemType = !!formData.itemType;
 		const hasValidSubject = !!formData.subject;
-		const hasValidTechnique = !!formData.technique;
+		// Technique is now optional, so we don't check it
 		const hasValidBasicInfo = !!formData.title && !!formData.description && !!formData.price;
 
 		let hasValidDateInfo = false;
@@ -377,7 +371,6 @@ const EditItemPage = () => {
 		const hasValidInventory = formData.inventoryQuantity >= 0;
 		const hasValidMedium = formData.mediumTypes.length > 0;
 
-		// Fixed dimensions validation
 		const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
 		const hasValidDimensions = dimensionParts.some(part => {
 			const dims = formData.dimensions[part];
@@ -387,26 +380,9 @@ const EditItemPage = () => {
 		const hasValidCondition = !!formData.conditionType;
 		const hasValidImages = formData.existingImages.length > 0 || formData.images.length > 0;
 
-		// For debugging, you can log which checks are failing
-		console.log({
-			hasValidItemType,
-			hasValidSubject,
-			hasValidTechnique,
-			hasValidBasicInfo,
-			hasValidDateInfo,
-			hasValidContributors,
-			hasValidPeriod,
-			hasValidInventory,
-			hasValidMedium,
-			hasValidDimensions,
-			hasValidCondition,
-			hasValidImages
-		});
-
 		return (
 			hasValidItemType &&
 			hasValidSubject &&
-			hasValidTechnique &&
 			hasValidBasicInfo &&
 			hasValidDateInfo &&
 			hasValidContributors &&
@@ -425,9 +401,10 @@ const EditItemPage = () => {
 			case "item-type":
 				return !!formData.itemType;
 			case "subject":
-				return !!formData.subject; // Changed to check for subject
+				return !!formData.subject;
 			case "technique":
-				return !!formData.technique; // Added check for technique
+				// Technique is now optional, so always return true
+				return true;
 			case "item-details":
 				return !!formData.title && !!formData.description && !!formData.price;
 			case "date-info":
@@ -497,7 +474,7 @@ const EditItemPage = () => {
 		},
 		{
 			id: "technique",
-			title: "Technique",
+			title: "Technique (Optional)",
 			content: (
 				<TechniqueSelector
 					techniques={techniques}

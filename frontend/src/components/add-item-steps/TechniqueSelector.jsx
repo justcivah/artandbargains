@@ -9,13 +9,17 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 	const [error, setError] = useState(null);
 
 	const handleTechniqueSelect = (technique) => {
-		// Set the selected technique directly (only one allowed)
-		onChange(technique);
-		
-		// Automatically go to the next step
-		if (onSelectComplete) {
-			onSelectComplete();
+		if (selectedTechnique === technique) {
+			// If clicking the same technique, deselect it
+			onChange('');
+		} else {
+			// Select the new technique
+			onChange(technique);
 		}
+	};
+
+	const handleClearSelection = () => {
+		onChange('');
 	};
 
 	const handleCreateTechnique = async (e) => {
@@ -31,7 +35,6 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 			setError(null);
 
 			// Generate the system name from display name
-			// Convert to lowercase, replace spaces with underscores, remove special characters
 			const formattedName = newTechniqueDisplayName
 				.toLowerCase()
 				.replace(/\s+/g, '_')
@@ -64,11 +67,18 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 		}
 	};
 
+	// Handle going to next step
+	const handleContinue = () => {
+		if (onSelectComplete) {
+			onSelectComplete();
+		}
+	};
+
 	return (
 		<div className="step-container">
-			<h2>Select Technique</h2>
+			<h2>Select Technique (Optional)</h2>
 			<p className="step-description">
-				Choose a technique for this item.
+				Choose a technique for this item, or skip this step if not applicable.
 			</p>
 
 			{error && <div className="step-error">{error}</div>}
@@ -95,12 +105,30 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 			<div className="selected-items">
 				<strong>Selected Technique: </strong>
 				{!selectedTechnique ? (
-					<span className="no-selection">None selected</span>
+					<span className="no-selection">None selected (optional)</span>
 				) : (
-					<span className="selected-item">
-						{techniques.find(t => t.name === selectedTechnique)?.display_name || selectedTechnique}
-					</span>
+					<>
+						<span className="selected-item">
+							{techniques.find(t => t.name === selectedTechnique)?.display_name || selectedTechnique}
+						</span>
+						<button
+							className="clear-button"
+							onClick={handleClearSelection}
+						>
+							Clear
+						</button>
+					</>
 				)}
+			</div>
+
+			{/* Skip/Continue button */}
+			<div className="step-actions">
+				<button
+					className="continue-button"
+					onClick={handleContinue}
+				>
+					{selectedTechnique ? 'Continue' : 'Skip'}
+				</button>
 			</div>
 
 			{showCreateModal && (
