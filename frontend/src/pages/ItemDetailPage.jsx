@@ -197,7 +197,7 @@ const ItemDetailPage = () => {
 							<div className="item-categories single-line">
 								{item.item_type && (
 									<span className="item-category">
-										{formatItemType(item.item_type)}
+										{formatItemType(item.technique)}
 									</span>
 								)}
 							</div>
