@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { fetchItems, deleteItem } from '../api/itemsApi';
 import SearchBar from '../components/SearchBar.jsx';
 import DeleteConfirmModal from '../components/DeleteConfirmModal.jsx';
@@ -13,6 +13,7 @@ const AdminPage = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [showDeleteModal, setShowDeleteModal] = useState(false);
 	const [itemToDelete, setItemToDelete] = useState(null);
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		loadItems();
@@ -45,6 +46,35 @@ const AdminPage = () => {
 		}
 	};
 
+	// Helper function to normalize text by removing accents
+	const normalizeText = (text) => {
+		if (!text) return '';
+		return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+	};
+
+	// Helper function to get the primary contributor with position
+	const getPrimaryContributorDisplay = (item) => {
+		if (!item.contributors || item.contributors.length === 0) {
+			return item.primary_contributor_display || 'Unknown';
+		}
+
+		// Find the primary contributor (first one or one with artist/creator position)
+		const primaryContributor = item.contributors.find((contributor, index) => {
+			return index === 0 ||
+				contributor.position.toLowerCase() === 'artist' ||
+				contributor.position.toLowerCase() === 'creator';
+		}) || item.contributors[0];
+
+		const name = primaryContributor.display_name || item.primary_contributor_display || 'Unknown';
+		const position = primaryContributor.position;
+
+		if (position) {
+			return `${name} (${position.charAt(0).toUpperCase() + position.slice(1)})`;
+		}
+
+		return name;
+	};
+
 	const handleSearch = (query) => {
 		setSearchQuery(query);
 
@@ -53,15 +83,15 @@ const AdminPage = () => {
 			return;
 		}
 
-		const lowercaseQuery = query.toLowerCase();
+		const normalizedQuery = normalizeText(query.toLowerCase());
 		const filtered = items.filter(item => {
-			// Search by title
-			const titleMatch = item.title && item.title.toLowerCase().includes(lowercaseQuery);
-			// Search by description
-			const descMatch = item.description && item.description.toLowerCase().includes(lowercaseQuery);
-			// Search by main contributor
+			// Normalize and search by title
+			const titleMatch = item.title && normalizeText(item.title.toLowerCase()).includes(normalizedQuery);
+			// Normalize and search by description
+			const descMatch = item.description && normalizeText(item.description.toLowerCase()).includes(normalizedQuery);
+			// Normalize and search by main contributor
 			const contributorMatch = item.primary_contributor_display &&
-				item.primary_contributor_display.toLowerCase().includes(lowercaseQuery);
+				normalizeText(item.primary_contributor_display.toLowerCase()).includes(normalizedQuery);
 
 			return titleMatch || descMatch || contributorMatch;
 		});
@@ -103,6 +133,19 @@ const AdminPage = () => {
 		return mainImage ? mainImage.url : item.images[0].url;
 	};
 
+	const handleItemClick = (item, e) => {
+		// Don't navigate if clicking on action buttons
+		if (e.target.closest('.item-actions')) {
+			return;
+		}
+
+		// Remove "ITEM#" from the PK to get just the ID
+		const itemId = item.PK.replace('ITEM#', '');
+
+		// Navigate to the shop item detail page
+		navigate(`/shop/item/${itemId}`);
+	};
+
 	if (loading) {
 		return <div className="admin-loading">Loading items...</div>;
 	}
@@ -133,7 +176,11 @@ const AdminPage = () => {
 					<div className="no-items">No items found. Try a different search term.</div>
 				) : (
 					filteredItems.map(item => (
-						<div className="item-card" key={`${item.PK}-${item.SK}`}>
+						<div
+							className="item-card"
+							key={`${item.PK}-${item.SK}`}
+							onClick={(e) => handleItemClick(item, e)}
+						>
 							<div className="item-image">
 								<img src={getMainImage(item)} alt={item.title} />
 							</div>
@@ -157,7 +204,7 @@ const AdminPage = () => {
 									)}
 								</div>
 								<div className="item-contributor">
-									<strong>By:</strong> {item.primary_contributor_display}
+									<strong>By:</strong> {getPrimaryContributorDisplay(item)}
 								</div>
 								<div className={`item-inventory ${(item.inventory_quantity || 0) > 0 ? 'in-stock' : 'out-of-stock'}`}>
 									<strong>{(item.inventory_quantity || 0) > 0

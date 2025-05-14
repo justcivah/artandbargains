@@ -109,6 +109,21 @@ const ItemDetailPage = () => {
 			.join(' ');
 	};
 
+	// Helper function to get the primary contributor name
+	const getPrimaryContributorName = () => {
+		if (!item.contributors || item.contributors.length === 0) return null;
+
+		const primaryContributor = item.contributors.find((contributor, index) =>
+			isPrimaryContributor(contributor, index)
+		);
+
+		if (!primaryContributor) return null;
+
+		return primaryContributor.display_name ||
+			contributorDetails[primaryContributor.contributor_id]?.display_name ||
+			primaryContributor.contributor_id;
+	};
+
 	if (loading) {
 		return (
 			<div className="shop-items-loading">
@@ -143,6 +158,8 @@ const ItemDetailPage = () => {
 		);
 	}
 
+	const primaryContributorName = getPrimaryContributorName();
+
 	return (
 		<main className="item-detail-page">
 			<div className="navbar-spacer"></div>
@@ -162,11 +179,6 @@ const ItemDetailPage = () => {
 					<div className="item-info">
 						<div className="item-header">
 							<div className="item-categories single-line">
-								{item.subject && (
-									<span className="item-category">
-										{formatItemType(item.subject)}
-									</span>
-								)}
 								{item.technique && (
 									<span className="item-category">
 										{formatItemType(item.technique)}
@@ -174,7 +186,9 @@ const ItemDetailPage = () => {
 								)}
 							</div>
 
-							<h1 className="item-title">{item.title} ({formatDateInfo(item.date_info)})</h1>
+							<h1 className="item-title">
+								{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}
+							</h1>
 
 							<div className="item-contributors">
 								{item.contributors && item.contributors.map((contributor, index) => (
@@ -182,9 +196,7 @@ const ItemDetailPage = () => {
 										<span className="contributor-position">
 											{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}:
 										</span>
-										<span
-											className={`contributor-name ${isPrimaryContributor(contributor, index) ? 'primary-contributor-badge' : ''}`}
-										>
+										<span className="contributor-name">
 											{contributor.display_name || contributorDetails[contributor.contributor_id]?.display_name || contributor.contributor_id}
 										</span>
 									</div>

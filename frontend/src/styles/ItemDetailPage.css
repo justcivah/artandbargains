@@ -105,6 +105,7 @@
 	border-radius: 20px;
 	cursor: default;
 	font-size: 0.9rem;
+	font-weight: bold;
 	transition: all var(--transition-normal);
 	user-select: none;
 	text-transform: capitalize;
@@ -161,26 +162,9 @@
 
 .item-detail-page .contributor-name {
 	font-size: 1rem;
-	color: var(--secondary-color);
+	color: var(--text-color);
 	position: relative;
 	font-weight: 500;
-	margin-left: 10px;
-}
-
-/* New style for primary contributor badge */
-.item-detail-page .primary-contributor-badge {
-	display: inline-flex;
-	align-items: center;
-	padding: 0 12px;
-	background-color: #f5f5f5;
-	border: 1px solid var(--secondary-color);
-	border-radius: 20px;
-	cursor: default;
-	font-size: 1rem;
-	font-weight: 500;
-	color: var(--secondary-color);
-	transition: all var(--transition-normal);
-	user-select: none;
 	margin-left: 10px;
 }
 
@@ -451,8 +435,7 @@
 	/* Smaller badges on mobile */
 	.item-detail-page .item-category,
 	.item-detail-page .medium-type,
-	.item-detail-page .condition-status,
-	.item-detail-page .primary-contributor-badge {
+	.item-detail-page .condition-status {
 		padding: 5px 10px;
 		font-size: 0.85rem;
 	}
@@ -460,11 +443,6 @@
 
 @media (max-width: 576px) {
 	.item-detail-page .contributor-name {
-		font-size: 0.9rem;
-	}
-
-	/* Update the primary contributor size for mobile */
-	.item-detail-page .primary-contributor-badge {
 		font-size: 0.9rem;
 	}
 

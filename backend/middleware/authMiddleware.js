@@ -46,7 +46,7 @@ exports.login = async (req, res) => {
 				isAdmin: true
 			},
 			JWT_SECRET,
-			{ expiresIn: '7d' }
+			{ expiresIn: '90d' }
 		);
 
 		res.json({
