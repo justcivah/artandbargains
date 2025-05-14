@@ -7,6 +7,25 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 	const [newSubjectDisplayName, setNewSubjectDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
+
+	// Filter and sort subjects based on search query
+	const filteredSubjects = subjects
+		.filter(subject => {
+			if (!searchQuery) return true;
+
+			const search = searchQuery.toLowerCase();
+			const displayName = subject.display_name ? subject.display_name.toLowerCase() : '';
+			const name = subject.name ? subject.name.toLowerCase() : '';
+
+			return displayName.includes(search) || name.includes(search);
+		})
+		.sort((a, b) => {
+			// Sort alphabetically by display_name
+			const nameA = a.display_name || '';
+			const nameB = b.display_name || '';
+			return nameA.localeCompare(nameB);
+		});
 
 	const handleSubjectSelect = (subject) => {
 		// Set the selected subject directly (only one allowed)
@@ -73,8 +92,28 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 
 			{error && <div className="step-error">{error}</div>}
 
+			{/* Search input */}
+			{subjects.length > 8 && (
+				<div className="filter-search">
+					<div className="search-input-container">
+						<span className="search-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</span>
+						<input
+							type="text"
+							placeholder="Search subjects..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</div>
+			)}
+
 			<div className="selector-grid">
-				{subjects.map((subject) => (
+				{filteredSubjects.map((subject) => (
 					<div
 						key={subject.PK}
 						className={`selector-item ${selectedSubject === subject.name ? 'selected' : ''}`}

@@ -21,10 +21,10 @@ const AdminPage = () => {
 	useEffect(() => {
 		// Scroll to top when component mounts
 		window.scrollTo(0, 0);
-		
+
 		// Set page title
 		document.title = 'Admin - Art & Bargains';
-	  }, []);
+	}, []);
 
 	const loadItems = async () => {
 		try {
@@ -158,6 +158,12 @@ const AdminPage = () => {
 								</div>
 								<div className="item-contributor">
 									<strong>By:</strong> {item.primary_contributor_display}
+								</div>
+								<div className={`item-inventory ${(item.inventory_quantity || 0) > 0 ? 'in-stock' : 'out-of-stock'}`}>
+									<strong>{(item.inventory_quantity || 0) > 0
+										? `Stock: ${item.inventory_quantity} ${item.inventory_quantity === 1 ? 'unit' : 'units'}`
+										: 'Out of stock'}
+									</strong>
 								</div>
 							</div>
 							<div className="item-actions">

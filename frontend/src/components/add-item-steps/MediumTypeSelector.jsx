@@ -14,6 +14,25 @@ const MediumTypeSelector = ({
 	const [newMediumDisplayName, setNewMediumDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
+
+	// Filter and sort medium types based on search query
+	const filteredMediumTypes = mediumTypes
+		.filter(medium => {
+			if (!searchQuery) return true;
+
+			const search = searchQuery.toLowerCase();
+			const displayName = medium.display_name ? medium.display_name.toLowerCase() : '';
+			const name = medium.name ? medium.name.toLowerCase() : '';
+
+			return displayName.includes(search) || name.includes(search);
+		})
+		.sort((a, b) => {
+			// Sort alphabetically by display_name
+			const nameA = a.display_name || '';
+			const nameB = b.display_name || '';
+			return nameA.localeCompare(nameB);
+		});
 
 	const handleMediumSelect = (medium) => {
 		// Toggle selection
@@ -84,8 +103,28 @@ const MediumTypeSelector = ({
 
 			{error && <div className="step-error">{error}</div>}
 
+			{/* Search input */}
+			{mediumTypes.length > 8 && (
+				<div className="filter-search">
+					<div className="search-input-container">
+						<span className="search-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</span>
+						<input
+							type="text"
+							placeholder="Search medium types..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</div>
+			)}
+
 			<div className="selector-grid">
-				{mediumTypes.map((medium) => (
+				{filteredMediumTypes.map((medium) => (
 					<div
 						key={medium.PK}
 						className={`selector-item ${selectedMediumTypes.includes(medium.name) ? 'selected' : ''}`}
@@ -99,6 +138,7 @@ const MediumTypeSelector = ({
 					className="selector-item add-new"
 					onClick={() => setShowCreateModal(true)}
 				>
+					<div className="selector-label"></div>
 				</div>
 			</div>
 

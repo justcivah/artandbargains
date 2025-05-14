@@ -13,6 +13,7 @@ const ContributorsForm = ({
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
+	const [searchQueries, setSearchQueries] = useState({});
 
 	// New contributor form fields
 	const [contributorType, setContributorType] = useState('individual');
@@ -27,7 +28,7 @@ const ContributorsForm = ({
 	const [orgDisplayName, setOrgDisplayName] = useState('');
 	const [foundingYear, setFoundingYear] = useState('');
 	const [dissolutionYear, setDissolutionYear] = useState('');
-	const [isActive, setIsActive] = useState(true);
+	const [isActive, setIsActive] = useState(false);
 	const [bio, setBio] = useState('');
 
 	// Contributor position options
@@ -44,6 +45,56 @@ const ContributorsForm = ({
 		'manufacturer',
 		'printer'
 	];
+
+	// Filter and sort contributors based on search query
+	const filterContributors = (searchQuery) => {
+		// Helper function to remove accents/diacritical marks
+		const removeAccents = (str) => {
+			return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+		};
+
+		if (!searchQuery) {
+			return contributorsList.sort((a, b) => {
+				const nameA = a.display_name || '';
+				const nameB = b.display_name || '';
+				return nameA.localeCompare(nameB);
+			});
+		}
+
+		// Normalize the search query to remove accents
+		const search = removeAccents(searchQuery.toLowerCase());
+
+		return contributorsList
+			.filter(contributor => {
+				// Normalize each field to remove accents before comparing
+				const displayName = contributor.display_name
+					? removeAccents(contributor.display_name.toLowerCase())
+					: '';
+				const id = contributor.name
+					? removeAccents(contributor.name.toLowerCase())
+					: '';
+				const type = contributor.contributor_type
+					? removeAccents(contributor.contributor_type.toLowerCase())
+					: '';
+
+				return displayName.includes(search) ||
+					id.includes(search) ||
+					type.includes(search);
+			})
+			.sort((a, b) => {
+				const nameA = a.display_name || '';
+				const nameB = b.display_name || '';
+				return nameA.localeCompare(nameB);
+			});
+	};
+
+	// Update search query for a specific contributor row
+	const handleSearchChange = (index, value) => {
+		setSearchQueries({
+			...searchQueries,
+			[index]: value
+		});
+	};
 
 	// Add a new contributor to the list
 	const handleAddContributor = () => {
@@ -64,6 +115,11 @@ const ContributorsForm = ({
 		if (primaryContributor && index === contributors.findIndex(c => c.contributor && c.contributor.display_name === primaryContributor)) {
 			onPrimaryChange('');
 		}
+
+		// Clean up search query for this index
+		const updatedQueries = { ...searchQueries };
+		delete updatedQueries[index];
+		setSearchQueries(updatedQueries);
 	};
 
 	// Update a contributor's position
@@ -82,6 +138,40 @@ const ContributorsForm = ({
 		// If this is the first contributor, set it as primary
 		if (!primaryContributor && contributor) {
 			onPrimaryChange(contributor.display_name);
+		}
+	};
+
+	// Handle contributor dropdown change with auto-select first filtered item
+	const handleContributorDropdownChange = (index, value) => {
+		if (value) {
+			const selected = contributorsList.find(c => c.PK === value);
+			handleContributorSelect(index, selected);
+		} else {
+			// If empty value selected, check if there's a search query and auto-select first result
+			const searchQuery = searchQueries[index];
+			if (searchQuery) {
+				const filteredList = filterContributors(searchQuery);
+				if (filteredList.length > 0) {
+					handleContributorSelect(index, filteredList[0]);
+				} else {
+					handleContributorSelect(index, null);
+				}
+			} else {
+				handleContributorSelect(index, null);
+			}
+		}
+	};
+
+	// Update search query and auto-select first result
+	const handleSearchChangeWithAutoSelect = (index, value) => {
+		handleSearchChange(index, value);
+
+		// Auto-select first filtered result if there's a search query
+		if (value) {
+			const filteredList = filterContributors(value);
+			if (filteredList.length > 0) {
+				handleContributorSelect(index, filteredList[0]);
+			}
 		}
 	};
 
@@ -110,6 +200,15 @@ const ContributorsForm = ({
 		setIsActive(!value);
 	};
 
+	// Check if contributor already exists
+	const checkContributorExists = (id, type) => {
+		const existingContributor = contributorsList.find(c => {
+			const contributorId = c.PK.replace('CONTRIBUTOR#', '');
+			return contributorId === id && c.contributor_type === type;
+		});
+		return existingContributor;
+	};
+
 	// Create a new contributor
 	const handleCreateContributor = async (e) => {
 		e.preventDefault();
@@ -131,6 +230,14 @@ const ContributorsForm = ({
 
 				// Format the contributor ID
 				contributorId = `${firstName.toLowerCase()}_${lastName.toLowerCase()}`.replace(/\s+/g, '_');
+
+				// Check if contributor already exists
+				const existing = checkContributorExists(contributorId, 'individual');
+				if (existing) {
+					setError(`A contributor named "${existing.display_name}" already exists with this name combination.`);
+					setIsSubmitting(false);
+					return;
+				}
 
 				newContributorData = {
 					PK: `CONTRIBUTOR#${contributorId}`,
@@ -156,6 +263,14 @@ const ContributorsForm = ({
 
 				// Format the contributor ID
 				contributorId = orgName.toLowerCase().replace(/\s+/g, '_');
+
+				// Check if contributor already exists
+				const existing = checkContributorExists(contributorId, 'organization');
+				if (existing) {
+					setError(`An organization named "${existing.display_name}" already exists with this name.`);
+					setIsSubmitting(false);
+					return;
+				}
 
 				newContributorData = {
 					PK: `CONTRIBUTOR#${contributorId}`,
@@ -236,86 +351,106 @@ const ContributorsForm = ({
 					</div>
 				)}
 
-				{contributors.map((contributor, index) => (
-					<div key={index} className="contributor-row">
-						<div className="contributor-header">
-							<div className="contributor-position-header">
-								<label>Position:</label>
-							</div>
-							<div className="contributor-select-header">
-								<label>Contributor:</label>
-							</div>
-							<div className="primary-header">
-								{/* Empty space to maintain grid layout */}
-							</div>
-						</div>
+				{contributors.map((contributor, index) => {
+					const filteredList = filterContributors(searchQueries[index] || '');
 
-						<div className="contributor-content">
-							<div className="contributor-position">
-								<select
-									value={contributor.position}
-									onChange={(e) => handlePositionChange(index, e.target.value)}
-									className="position-select"
-								>
-									{positionOptions.map(option => (
-										<option key={option} value={option}>
-											{option.charAt(0).toUpperCase() + option.slice(1)}
-										</option>
-									))}
-								</select>
+					return (
+						<div key={index} className="contributor-row">
+							<div className="contributor-header">
+								<div className="contributor-position-header">
+									<label>Position:</label>
+								</div>
+								<div className="contributor-select-header">
+									<label>Contributor:</label>
+								</div>
+								<div className="primary-header">
+									{/* Empty space to maintain grid layout */}
+								</div>
 							</div>
 
-							<div className="contributor-select">
-								<select
-									value={contributor.contributor ? contributor.contributor.PK : ''}
-									onChange={(e) => {
-										const selected = contributorsList.find(c => c.PK === e.target.value);
-										handleContributorSelect(index, selected);
-									}}
-									className="contributor-dropdown"
-								>
-									<option value="">-- Select Contributor --</option>
-									{contributorsList.map(c => (
-										<option key={c.PK} value={c.PK}>
-											{c.display_name} ({c.contributor_type === 'individual' ? 'Individual' : 'Organization'})
-										</option>
-									))}
-								</select>
-							</div>
-							<div className="actions-container">
-								{!contributor.contributor && (
+							<div className="contributor-content">
+								<div className="contributor-position">
+									<select
+										value={contributor.position}
+										onChange={(e) => handlePositionChange(index, e.target.value)}
+										className="position-select"
+									>
+										{positionOptions.map(option => (
+											<option key={option} value={option}>
+												{option.charAt(0).toUpperCase() + option.slice(1)}
+											</option>
+										))}
+									</select>
+								</div>
+
+								<div className="contributor-select">
+									<div className="contributor-dropdown-container">
+										{contributorsList.length > 8 && (
+											<input
+												type="text"
+												placeholder="Search contributors..."
+												value={searchQueries[index] || ''}
+												onChange={(e) => handleSearchChangeWithAutoSelect(index, e.target.value)}
+												className="contributor-search-input"
+												style={{
+													width: '100%',
+													padding: '6px 10px',
+													marginBottom: '8px',
+													border: '1px solid #ddd',
+													borderRadius: '4px',
+													fontSize: '0.85rem'
+												}}
+											/>
+										)}
+										<select
+											value={contributor.contributor ? contributor.contributor.PK : ''}
+											onChange={(e) => handleContributorDropdownChange(index, e.target.value)}
+											className="contributor-dropdown"
+										>
+											<option value="">-- Select Contributor --</option>
+											{filteredList.map(c => (
+												<option key={c.PK} value={c.PK}>
+													{c.display_name} ({c.contributor_type === 'individual' ? 'Individual' : 'Organization'})
+												</option>
+											))}
+										</select>
+									</div>
+								</div>
+								<div className="actions-container">
+									{!contributor.contributor && (
+										<button
+											type="button"
+											className="create-button"
+											onClick={() => setShowCreateModal(true)}
+										>
+											Create New
+										</button>
+									)}
+									{contributor.contributor && (
+										<div className="primary-selector">
+											<label className="radio-label">
+												<input
+													type="radio"
+													name="primaryContributor"
+													checked={primaryContributor === contributor.contributor.display_name}
+													onChange={() => handleSetPrimary(contributor.contributor)}
+												/>
+												Primary
+											</label>
+										</div>
+									)}
 									<button
 										type="button"
-										className="create-button"
-										onClick={() => setShowCreateModal(true)}
+										className="remove-button"
+										onClick={() => handleRemoveContributor(index)}
 									>
-										Create New
+										Remove
 									</button>
-								)}
-								{contributor.contributor && (
-									<div className="primary-selector">
-										<label className="radio-label">
-											<input
-												type="radio"
-												name="primaryContributor"
-												checked={primaryContributor === contributor.contributor.display_name}
-												onChange={() => handleSetPrimary(contributor.contributor)}
-											/>
-											Primary
-										</label>
-									</div>
-								)}
-								<button
-									type="button"
-									className="remove-button"
-									onClick={() => handleRemoveContributor(index)}
-								>
-									Remove
-								</button>
+								</div>
 							</div>
 						</div>
-					</div>
-				))}
+					);
+				})}
 
 				<button
 					type="button"

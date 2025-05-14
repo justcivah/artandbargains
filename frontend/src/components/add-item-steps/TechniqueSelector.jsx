@@ -7,6 +7,25 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 	const [newTechniqueDisplayName, setNewTechniqueDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
+	const [searchQuery, setSearchQuery] = useState('');
+
+	// Filter and sort techniques based on search query
+	const filteredTechniques = techniques
+		.filter(technique => {
+			if (!searchQuery) return true;
+
+			const search = searchQuery.toLowerCase();
+			const displayName = technique.display_name ? technique.display_name.toLowerCase() : '';
+			const name = technique.name ? technique.name.toLowerCase() : '';
+
+			return displayName.includes(search) || name.includes(search);
+		})
+		.sort((a, b) => {
+			// Sort alphabetically by display_name
+			const nameA = a.display_name || '';
+			const nameB = b.display_name || '';
+			return nameA.localeCompare(nameB);
+		});
 
 	const handleTechniqueSelect = (technique) => {
 		if (selectedTechnique === technique) {
@@ -87,8 +106,28 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 
 			{error && <div className="step-error">{error}</div>}
 
+			{/* Search input */}
+			{techniques.length > 8 && (
+				<div className="filter-search">
+					<div className="search-input-container">
+						<span className="search-icon">
+							<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+								<circle cx="11" cy="11" r="8"></circle>
+								<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+							</svg>
+						</span>
+						<input
+							type="text"
+							placeholder="Search techniques..."
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</div>
+			)}
+
 			<div className="selector-grid">
-				{techniques.map((technique) => (
+				{filteredTechniques.map((technique) => (
 					<div
 						key={technique.PK}
 						className={`selector-item ${selectedTechnique === technique.name ? 'selected' : ''}`}
@@ -123,16 +162,6 @@ const TechniqueSelector = ({ techniques, selectedTechnique, onChange, setTechniq
 						</button>
 					</>
 				)}
-			</div>
-
-			{/* Skip/Continue button */}
-			<div className="step-actions">
-				<button
-					className="continue-button"
-					onClick={handleContinue}
-				>
-					{selectedTechnique ? 'Continue' : 'Skip'}
-				</button>
 			</div>
 
 			{showCreateModal && (

@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ShopFilters from '../components/ShopFilters';
 import ShopItems from '../components/ShopItems';
 import ShopPagination from '../components/ShopPagination';
 import {
-	searchItems, fetchItemTypes, fetchSubjects, fetchTechniques, fetchPeriods, fetchMediumTypes, fetchContributors
+	searchItems, fetchItemTypes, fetchSubjects, fetchTechniques,
+	fetchPeriods, fetchMediumTypes, fetchContributors
 } from '../api/itemsApi';
 import '../styles/ShopPage.css';
 
@@ -12,9 +13,18 @@ const ShopPage = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const heroRef = useRef(null);
+	const hasInitialized = useRef(false);
+	const isInitialPageLoad = useRef(true);
+
+	// Hero visibility state
 	const [isHeroInView, setIsHeroInView] = useState(false);
+
+	// Loading and error states
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
+	const [metadataLoaded, setMetadataLoaded] = useState(false);
+
+	// Items and pagination
 	const [items, setItems] = useState([]);
 	const [pagination, setPagination] = useState({
 		total: 0,
@@ -23,7 +33,7 @@ const ShopPage = () => {
 		totalPages: 0
 	});
 
-	// Filter states
+	// Filter metadata states
 	const [itemTypes, setItemTypes] = useState([]);
 	const [subjects, setSubjects] = useState([]);
 	const [techniques, setTechniques] = useState([]);
@@ -31,28 +41,10 @@ const ShopPage = () => {
 	const [mediumTypes, setMediumTypes] = useState([]);
 	const [contributors, setContributors] = useState([]);
 
-	// Selected filter states
-	const [selectedFilters, setSelectedFilters] = useState({
-		search: '',
-		types: [],
-		subjects: [],
-		techniques: [],
-		periods: [],
-		contributors: [],
-		mediumTypes: [],
-		conditions: [],
-		minPrice: '',
-		maxPrice: '',
-		sort: 'date_desc',
-		page: 1,
-		limit: 24
-	});
-
-	// Parse URL params on initial load
-	useEffect(() => {
+	// Initialize selected filters from URL params
+	const [selectedFilters, setSelectedFilters] = useState(() => {
 		const params = new URLSearchParams(location.search);
-
-		const initialFilters = {
+		return {
 			search: params.get('search') || '',
 			types: params.getAll('types') || [],
 			subjects: params.getAll('subjects') || [],
@@ -67,33 +59,27 @@ const ShopPage = () => {
 			page: parseInt(params.get('page') || '1'),
 			limit: parseInt(params.get('limit') || '24')
 		};
+	});
 
-		setSelectedFilters(initialFilters);
-	}, [location.search]);
+	// Only scroll to top on initial page load
+	useEffect(() => {
+		if (isInitialPageLoad.current) {
+			window.scrollTo(0, 0);
+			isInitialPageLoad.current = false;
+		}
+		document.title = 'Shop - Art & Bargains';
+	}, []);
 
 	// Set up hero section intersection observer
 	useEffect(() => {
-		// Scroll to top when component mounts
-		window.scrollTo(0, 0);
-
-		// Set page title
-		document.title = 'Shop - Art & Bargains';
-
-		const heroObserverOptions = {
-			threshold: 0.1
-		};
-
-		const heroObserverCallback = (entries) => {
-			entries.forEach(entry => {
-				if (entry.isIntersecting) {
-					setIsHeroInView(true);
-				} else {
-					setIsHeroInView(false);
-				}
-			});
-		};
-
-		const heroObserver = new IntersectionObserver(heroObserverCallback, heroObserverOptions);
+		const heroObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach(entry => {
+					setIsHeroInView(entry.isIntersecting);
+				});
+			},
+			{ threshold: 0.1 }
+		);
 
 		if (heroRef.current) {
 			heroObserver.observe(heroRef.current);
@@ -106,7 +92,7 @@ const ShopPage = () => {
 		};
 	}, []);
 
-	// Load metadata for filters
+	// Load filter metadata on component mount
 	useEffect(() => {
 		const loadFilterMetadata = async () => {
 			try {
@@ -132,22 +118,36 @@ const ShopPage = () => {
 				setPeriods(periodsData);
 				setMediumTypes(mediumTypesData);
 				setContributors(contributorsData);
+				setMetadataLoaded(true);
 			} catch (err) {
 				console.error('Error loading filter metadata:', err);
 				setError('Failed to load filter options. Please try again later.');
+				setMetadataLoaded(true);
 			}
 		};
 
 		loadFilterMetadata();
 	}, []);
 
-	// Load items based on filters
+	// Load items when ready
 	useEffect(() => {
+		// Wait for metadata to load
+		if (!metadataLoaded) {
+			return;
+		}
+
+		// Prevent double initialization
+		if (hasInitialized.current) {
+			return;
+		}
+		hasInitialized.current = true;
+
 		const loadItems = async () => {
 			try {
 				setLoading(true);
 				setError(null);
 
+				console.log('Loading items with filters:', selectedFilters);
 				const result = await searchItems(selectedFilters);
 
 				setItems(result.items);
@@ -161,16 +161,49 @@ const ShopPage = () => {
 		};
 
 		loadItems();
-	}, [selectedFilters]);
+	}, [metadataLoaded]); // Only depend on metadataLoaded for initial load
 
-	// Update URL when filters change
+	// Handle filter changes after initialization
 	useEffect(() => {
+		// Skip initial render
+		if (!hasInitialized.current) {
+			return;
+		}
+
+		const loadItems = async () => {
+			try {
+				setLoading(true);
+				setError(null);
+
+				console.log('Loading items with updated filters:', selectedFilters);
+				const result = await searchItems(selectedFilters);
+
+				setItems(result.items);
+				setPagination(result.pagination);
+			} catch (err) {
+				console.error('Error loading items:', err);
+				setError('Failed to load items. Please try again later.');
+			} finally {
+				setLoading(false);
+			}
+		};
+
+		loadItems();
+	}, [selectedFilters]); // React to filter changes
+
+	// Update URL when filters change (but not on initial load)
+	useEffect(() => {
+		// Skip URL update on initial render
+		if (!hasInitialized.current) {
+			return;
+		}
+
 		const params = new URLSearchParams();
 
 		if (selectedFilters.search) params.append('search', selectedFilters.search);
-		if (selectedFilters.sort) params.append('sort', selectedFilters.sort);
-		if (selectedFilters.page) params.append('page', selectedFilters.page);
-		if (selectedFilters.limit) params.append('limit', selectedFilters.limit);
+		if (selectedFilters.sort !== 'date_desc') params.append('sort', selectedFilters.sort);
+		if (selectedFilters.page > 1) params.append('page', selectedFilters.page.toString());
+		if (selectedFilters.limit !== 24) params.append('limit', selectedFilters.limit.toString());
 		if (selectedFilters.minPrice) params.append('minPrice', selectedFilters.minPrice);
 		if (selectedFilters.maxPrice) params.append('maxPrice', selectedFilters.maxPrice);
 
@@ -182,14 +215,14 @@ const ShopPage = () => {
 		selectedFilters.mediumTypes.forEach(mediumType => params.append('mediumTypes', mediumType));
 		selectedFilters.conditions.forEach(condition => params.append('conditions', condition));
 
-		navigate(`${location.pathname}?${params.toString()}`, { replace: true });
+		const newUrl = params.toString() ? `${location.pathname}?${params.toString()}` : location.pathname;
+		navigate(newUrl, { replace: true });
 	}, [selectedFilters, navigate, location.pathname]);
 
 	// Handle filter changes
-	const handleFilterChange = (filterType, value) => {
+	const handleFilterChange = useCallback((filterType, value) => {
 		setSelectedFilters(prev => {
-			// Reset to page 1 when filters change
-			const newFilters = { ...prev, page: 1 };
+			const newFilters = filterType === 'page' ? { ...prev } : { ...prev, page: 1 };
 
 			if (filterType === 'search' ||
 				filterType === 'sort' ||
@@ -197,16 +230,12 @@ const ShopPage = () => {
 				filterType === 'page' ||
 				filterType === 'minPrice' ||
 				filterType === 'maxPrice') {
-				// Single value filters
 				newFilters[filterType] = value;
 			} else {
-				// Multi-select filters (checkboxes)
 				if (Array.isArray(newFilters[filterType])) {
 					if (newFilters[filterType].includes(value)) {
-						// Remove value if already selected
 						newFilters[filterType] = newFilters[filterType].filter(item => item !== value);
 					} else {
-						// Add value if not already selected
 						newFilters[filterType] = [...newFilters[filterType], value];
 					}
 				}
@@ -214,10 +243,10 @@ const ShopPage = () => {
 
 			return newFilters;
 		});
-	};
+	}, []);
 
 	// Reset all filters
-	const handleResetFilters = () => {
+	const handleResetFilters = useCallback(() => {
 		setSelectedFilters({
 			search: '',
 			types: [],
@@ -233,36 +262,32 @@ const ShopPage = () => {
 			page: 1,
 			limit: 24
 		});
-	};
+	}, []);
 
-	// Set page
-	const handlePageChange = (newPage) => {
-		setSelectedFilters(prev => ({
-			...prev,
-			page: newPage
-		}));
-	};
+	// Handle page change
+	const handlePageChange = useCallback((newPage) => {
+		handleFilterChange('page', newPage);
+	}, [handleFilterChange]);
 
 	return (
 		<main className="shop-page">
-			{/* Navbar spacer to prevent content from being covered by fixed navbar */}
 			<div className="navbar-spacer"></div>
 
-			{/* Fixed background - only shown when shop-hero is in viewport */}
 			<div className={`shop-hero-background ${isHeroInView ? 'visible' : 'hidden'}`}>
 				<div className="shop-hero-overlay"></div>
 			</div>
 
-			{/* Hero Section */}
 			<section className="shop-hero" ref={heroRef}>
 				<div className="shop-hero-content">
 					<h1 className="shop-title">Our Collection</h1>
 					<div className="title-underline centered-underline"></div>
-					<p className="shop-subtitle">Explore our curated collection of art, prints, and one-of-a-kind pieces, thoughtfully selected by our team</p>
+					<p className="shop-subtitle">
+						Explore our curated collection of art, prints, and one-of-a-kind pieces,
+						thoughtfully selected by our team
+					</p>
 				</div>
 			</section>
 
-			{/* Shop content */}
 			<div className="shop-content-container">
 				<div className="shop-container">
 					<ShopFilters

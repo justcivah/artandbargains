@@ -109,6 +109,25 @@ body {
 
 .item-contributor {
 	font-size: 0.9rem;
+	margin-bottom: 5px;
+}
+
+.item-inventory {
+	font-size: 0.9rem;
+}
+
+.item-inventory.in-stock {
+	color: #4CAF50;
+	background-color: transparent;
+}
+
+.item-inventory.out-of-stock {
+	color: #f44336;
+	background-color: transparent;
+}
+
+.item-inventory strong {
+	color: inherit;
 }
 
 .item-actions {
@@ -148,10 +167,6 @@ body {
 
 .delete-button:hover {
 	background-color: #d32f2f;
-}
-
-.a:hover {
-	color: var(--light-color);
 }
 
 .admin-loading {

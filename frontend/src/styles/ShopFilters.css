@@ -154,28 +154,56 @@
 	pointer-events: none;
 }
 
+/* Badge styles for item types */
+.filter-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.filter-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 6px 12px;
+	background-color: var(--light-color);
+	border: 1px solid var(--secondary-color);
+	border-radius: 20px;
+	cursor: pointer;
+	font-size: 0.9rem;
+	transition: all var(--transition-normal);
+	user-select: none;
+}
+
+.filter-badge:hover {
+	background-color: var(--secondary-color);
+	color: var(--light-color);
+	border-color: var(--secondary-color);
+}
+
+.filter-badge.selected {
+	background-color: var(--secondary-color);
+	color: var(--light-color);
+	border-color: var(--secondary-color);
+	font-weight: 500;
+}
+
+.filter-badge.selected:hover {
+	background-color: var(--primary-color);
+	border-color: var(--primary-color);
+}
+
+.badge-text {
+	display: flex;
+	align-items: center;
+	white-space: nowrap;
+}
+
+/* Standard checkbox options for other filters */
 .filter-options {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-}
-
-/* New class for the item type options */
-.item-type-options {
-	gap: 12px;
-	/* Increased vertical spacing between items */
-}
-
-.item-type-options .filter-option label {
-	font-size: 1.05rem;
-	/* Increased font size for item types */
-	padding: 3px 0;
-	/* Added some padding for larger hit area */
-}
-
-.item-type-options .option-name {
-	font-weight: 500;
-	/* Made item type text slightly bolder */
 }
 
 .filter-option {
@@ -196,9 +224,6 @@
 	accent-color: var(--secondary-color);
 	margin-right: 8px;
 	cursor: pointer;
-	/* Increased checkbox size for item types */
-	width: 16px;
-	height: 16px;
 }
 
 .option-name {
@@ -303,5 +328,14 @@
 @media (max-width: 768px) {
 	.filters-content {
 		padding: var(--spacing-sm);
+	}
+
+	.filter-badges {
+		gap: 6px;
+	}
+
+	.filter-badge {
+		padding: 5px 10px;
+		font-size: 0.85rem;
 	}
 }

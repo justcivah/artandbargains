@@ -197,7 +197,7 @@ const ShopFilters = ({
 						</div>
 					</div>
 
-					{/* Item Type Filter */}
+					{/* Item Type Filter with Badges */}
 					<div className="filter-section">
 						<div
 							className="filter-header"
@@ -230,17 +230,14 @@ const ShopFilters = ({
 									</div>
 								)}
 
-								<div className="filter-options item-type-options">
+								<div className="filter-badges">
 									{getLimitedItems(itemTypes, 'type').map((type) => (
-										<div key={type.name} className="filter-option">
-											<label>
-												<input
-													type="checkbox"
-													checked={selectedFilters.types.includes(type.name)}
-													onChange={() => onFilterChange('types', type.name)}
-												/>
-												<span className="option-name">{type.display_name}</span>
-											</label>
+										<div
+											key={type.name}
+											className={`filter-badge ${selectedFilters.types.includes(type.name) ? 'selected' : ''}`}
+											onClick={() => onFilterChange('types', type.name)}
+										>
+											<span className="badge-text">{type.display_name}</span>
 										</div>
 									))}
 								</div>

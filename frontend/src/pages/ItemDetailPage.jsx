@@ -161,26 +161,17 @@ const ItemDetailPage = () => {
 					{/* Right side: Information */}
 					<div className="item-info">
 						<div className="item-header">
-							<div className="item-categories">
-								<span className="label">Subject:</span>
-								<div className="categories-list">
-									{item.subject && (
-										<span className="item-category">
-											{formatItemType(item.subject)}
-										</span>
-									)}
-								</div>
-							</div>
-
-							<div className="item-categories">
-								<span className="label">Technique:</span>
-								<div className="categories-list">
-									{item.technique && (
-										<span className="item-category">
-											{formatItemType(item.technique)}
-										</span>
-									)}
-								</div>
+							<div className="item-categories single-line">
+								{item.subject && (
+									<span className="item-category">
+										{formatItemType(item.subject)}
+									</span>
+								)}
+								{item.technique && (
+									<span className="item-category">
+										{formatItemType(item.technique)}
+									</span>
+								)}
 							</div>
 
 							<h1 className="item-title">{item.title} ({formatDateInfo(item.date_info)})</h1>
@@ -192,7 +183,7 @@ const ItemDetailPage = () => {
 											{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}:
 										</span>
 										<span
-											className={`contributor-name ${isPrimaryContributor(contributor, index) ? 'primary-contributor' : ''}`}
+											className={`contributor-name ${isPrimaryContributor(contributor, index) ? 'primary-contributor-badge' : ''}`}
 										>
 											{contributor.display_name || contributorDetails[contributor.contributor_id]?.display_name || contributor.contributor_id}
 										</span>
