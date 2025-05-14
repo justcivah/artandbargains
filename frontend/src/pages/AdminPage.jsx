@@ -58,12 +58,16 @@ const AdminPage = () => {
 			return item.primary_contributor_display || 'Unknown';
 		}
 
-		// Find the primary contributor (first one or one with artist/creator position)
-		const primaryContributor = item.contributors.find((contributor, index) => {
-			return index === 0 ||
-				contributor.position.toLowerCase() === 'artist' ||
-				contributor.position.toLowerCase() === 'creator';
-		}) || item.contributors[0];
+		// Find the primary contributor - first check for artist/creator position
+		let primaryContributor = item.contributors.find(contributor =>
+			contributor.position.toLowerCase() === 'artist' ||
+			contributor.position.toLowerCase() === 'creator'
+		);
+
+		// If no artist/creator found, use the first contributor
+		if (!primaryContributor) {
+			primaryContributor = item.contributors[0];
+		}
 
 		const name = primaryContributor.display_name || item.primary_contributor_display || 'Unknown';
 		const position = primaryContributor.position;
