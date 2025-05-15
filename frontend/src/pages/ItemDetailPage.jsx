@@ -11,6 +11,11 @@ const ItemDetailPage = () => {
 	const [error, setError] = useState(null);
 	const [contributorDetails, setContributorDetails] = useState({});
 
+	// Scroll to top on component mount
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'instant' });
+	}, []);
+
 	// Fetch item data
 	useEffect(() => {
 		const loadItem = async () => {
@@ -49,17 +54,19 @@ const ItemDetailPage = () => {
 		loadItem();
 	}, [itemId]);
 
+	// Update page title when item loads
 	useEffect(() => {
-		// Scroll to top when component mounts
-		window.scrollTo(0, 0);
-
-		// Set page title
 		if (item) {
 			document.title = `${item.title} - Art & Bargains`;
 		} else {
 			document.title = 'Item Details - Art & Bargains';
 		}
 	}, [item]);
+
+	// Also scroll to top when itemId changes (navigating between items)
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'instant' });
+	}, [itemId]);
 
 	// Get ordered contributors list with primary contributor first
 	const getOrderedContributors = () => {
@@ -100,23 +107,52 @@ const ItemDetailPage = () => {
 		return 'Unknown date';
 	};
 
-	// Format dimensions for display
+	// Format dimensions for display - Updated to return JSX with bold part names
 	const formatDimensions = (dimensions) => {
 		if (!dimensions) return null;
 
-		const dimensionKeys = Object.keys(dimensions).filter(key => key !== 'unit');
-		if (dimensionKeys.length === 0) return null;
-
 		const unit = dimensions.unit || 'cm';
-		const parts = [];
+		const elements = [];
 
-		if (dimensions.height) parts.push(`Height: ${dimensions.height} ${unit}`);
-		if (dimensions.width) parts.push(`Width: ${dimensions.width} ${unit}`);
-		if (dimensions.depth) parts.push(`Depth: ${dimensions.depth} ${unit}`);
-		if (dimensions.length) parts.push(`Length: ${dimensions.length} ${unit}`);
-		if (dimensions.diameter) parts.push(`Diameter: ${dimensions.diameter} ${unit}`);
+		// Iterate through all properties except 'unit'
+		Object.entries(dimensions).forEach(([partName, measurements]) => {
+			// Skip the unit property
+			if (partName === 'unit') return;
 
-		return parts.join(', ');
+			// Handle each part's measurements
+			if (typeof measurements === 'object' && measurements !== null) {
+				const measurementParts = [];
+
+				Object.entries(measurements).forEach(([measurementType, value]) => {
+					// Format the measurement type (capitalize first letter)
+					const formattedMeasurementType = measurementType.charAt(0).toUpperCase() + measurementType.slice(1);
+					measurementParts.push(`${formattedMeasurementType} ${value}${unit}`);
+				});
+
+				// Format the part name (capitalize first letter, replace underscores with spaces)
+				const formattedPartName = partName
+					.split('_')
+					.map(word => word.charAt(0).toUpperCase() + word.slice(1))
+					.join(' ');
+
+				elements.push(
+					<span key={partName}>
+						<b>{formattedPartName}:</b> {measurementParts.join(', ')}
+					</span>
+				);
+			}
+		});
+
+		return (
+			<>
+				{elements.map((element, index) => (
+					<React.Fragment key={index}>
+						{element}
+						{index < elements.length - 1 && ', '}
+					</React.Fragment>
+				))}
+			</>
+		);
 	};
 
 	// Format item type for display
@@ -194,13 +230,14 @@ const ItemDetailPage = () => {
 					{/* Right side: Information */}
 					<div className="item-info">
 						<div className="item-header">
-							<div className="item-categories single-line">
-								{item.item_type && (
+							{/* Only show categories div if technique exists */}
+							{item.technique && (
+								<div className="item-categories single-line">
 									<span className="item-category">
 										{formatItemType(item.technique)}
 									</span>
-								)}
-							</div>
+								</div>
+							)}
 
 							<h1 className="item-title">
 								{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}

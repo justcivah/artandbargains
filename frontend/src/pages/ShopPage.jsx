@@ -15,6 +15,7 @@ const ShopPage = () => {
 	const heroRef = useRef(null);
 	const hasInitialized = useRef(false);
 	const isInitialPageLoad = useRef(true);
+	const shopContentRef = useRef(null);
 
 	// Hero visibility state
 	const [isHeroInView, setIsHeroInView] = useState(false);
@@ -264,9 +265,23 @@ const ShopPage = () => {
 		});
 	}, []);
 
-	// Handle page change
+	// Handle page change with scroll
 	const handlePageChange = useCallback((newPage) => {
 		handleFilterChange('page', newPage);
+
+		// Scroll to top of shop content after a short delay to ensure filter change is processed
+		setTimeout(() => {
+			if (shopContentRef.current) {
+				const navbarHeight = 80; // Height of fixed navbar
+				const elementPosition = shopContentRef.current.getBoundingClientRect().top + window.pageYOffset;
+				const offsetPosition = elementPosition - navbarHeight - 20; // Add some padding
+
+				window.scrollTo({
+					top: offsetPosition,
+					behavior: 'smooth'
+				});
+			}
+		}, 100);
 	}, [handleFilterChange]);
 
 	return (
@@ -302,7 +317,7 @@ const ShopPage = () => {
 						onResetFilters={handleResetFilters}
 					/>
 
-					<div className="shop-content">
+					<div className="shop-content" ref={shopContentRef}>
 						<div className="shop-controls">
 							<div className="shop-results-info">
 								<p className="results-count">

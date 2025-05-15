@@ -19,27 +19,87 @@
 	border: 1px solid var(--border-color);
 }
 
-/* Main image styling */
-.image-gallery .main-image {
+/* Image backdrop for proper centering */
+.image-gallery .image-backdrop {
 	position: absolute;
 	top: 0;
 	left: 0;
 	width: 100%;
 	height: 100%;
-	object-fit: contain;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	padding: 10px;
+}
+
+/* Main image styling */
+.image-gallery .main-image {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	cursor: zoom-in;
 }
 
 /* Apply transition only when zoomed */
 .image-gallery .main-image-container.zoomed .main-image {
 	transform: scale(3);
 	transition: transform 0.3s ease;
-	/* Enable animation on zoom-in */
+	cursor: zoom-out;
 }
 
 /* No transition when not zoomed */
 .image-gallery .main-image-container:not(.zoomed) .main-image {
 	transition: none !important;
+}
+
+/* Navigation arrows */
+.image-nav-arrow {
+	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
+	background-color: rgba(255, 255, 255, 0.9);
+	border: none;
+	border-radius: 50%;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	z-index: 10;
+	opacity: 0;
+	transition: opacity 0.3s ease, background-color 0.3s ease;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-nav-arrow.prev {
+	left: 10px;
+}
+
+.image-nav-arrow.next {
+	right: 10px;
+}
+
+/* Show arrows on hover */
+.main-image-container:hover .image-nav-arrow {
+	opacity: 1;
+}
+
+/* Arrow hover effect */
+.image-nav-arrow:hover {
+	background-color: var(--secondary-color);
+}
+
+.image-nav-arrow:hover svg {
+	stroke: white;
+}
+
+/* Arrow SVG styling */
+.image-nav-arrow svg {
+	width: 20px;
+	height: 20px;
+	stroke: var(--primary-color);
+	transition: stroke 0.3s ease;
 }
 
 /* Thumbnails grid container */
@@ -52,11 +112,6 @@
 	scrollbar-width: thin;
 	scrollbar-color: var(--secondary-color) transparent;
 	max-width: 100%;
-}
-
-/* Right-align the last thumbnail if it's alone in its row */
-.image-gallery .thumbnails .thumbnail:last-child:nth-child(odd) {
-	grid-column: 2;
 }
 
 /* Scrollbar styling for thumbnails container */
@@ -84,6 +139,14 @@
 	transition: all 0.3s ease;
 	opacity: 0.8;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+	position: relative;
+}
+
+/* Expanded last thumbnail - occupies full width of 2 columns + gap */
+.image-gallery .thumbnail.expanded {
+	grid-column: span 2;
+	aspect-ratio: 2/1;
+	/* Adjust aspect ratio for double width */
 }
 
 /* Hover effects for thumbnails */
@@ -105,6 +168,14 @@
 	object-fit: cover;
 }
 
+/* Special styling for expanded thumbnail image */
+.image-gallery .thumbnail.expanded img {
+	object-fit: contain;
+	/* Change to contain for expanded thumbnail */
+	background-color: #f4f4f4;
+	/* Add background to maintain consistency */
+}
+
 /* Responsive adjustments */
 @media (max-width: 992px) {
 	.image-gallery .main-image-container {
@@ -115,6 +186,11 @@
 @media (max-width: 768px) {
 	.image-gallery .main-image-container {
 		padding-bottom: 80%;
+	}
+
+	/* Always show arrows on mobile */
+	.image-nav-arrow {
+		opacity: 1;
 	}
 }
 
@@ -128,15 +204,20 @@
 		grid-template-columns: repeat(4, 1fr);
 	}
 
-	/* Reset the 2-column right alignment */
-	.image-gallery .thumbnails .thumbnail:last-child:nth-child(odd) {
-		grid-column: auto;
+	/* Expanded thumbnail for mobile still spans 2 columns */
+	.image-gallery .thumbnail.expanded {
+		grid-column: span 2;
+		aspect-ratio: 2/1;
 	}
 
-	/* Right-align thumbnails that are alone in a row for 4-column layout */
-	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-3),
-	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-2),
-	.image-gallery .thumbnails .thumbnail:last-child:nth-child(4n-1) {
-		grid-column: 4;
+	/* Smaller arrows on mobile */
+	.image-nav-arrow {
+		width: 35px;
+		height: 35px;
+	}
+
+	.image-nav-arrow svg {
+		width: 18px;
+		height: 18px;
 	}
 }
