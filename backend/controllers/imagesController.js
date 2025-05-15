@@ -68,9 +68,9 @@ exports.uploadImage = [
 	}
 ];
 
-// Multiple images upload handler (up to 10 files)
+// Multiple images upload handler
 exports.uploadMultipleImages = [
-	upload.array('images', 10),
+	upload.array('images'),
 	async (req, res) => {
 		if (!req.files || req.files.length === 0) {
 			return res.status(400).json({ error: 'No files uploaded' });
