@@ -5,7 +5,6 @@ const ImageGallery = ({ images }) => {
 	const [activeImage, setActiveImage] = useState(0);
 	const [isZoomed, setIsZoomed] = useState(false);
 	const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-	const [columnsPerRow, setColumnsPerRow] = useState(2);
 	const [isMouseOverImage, setIsMouseOverImage] = useState(false);
 	const [isMouseOverArrow, setIsMouseOverArrow] = useState(false);
 	const mainImageRef = useRef(null);
@@ -18,16 +17,51 @@ const ImageGallery = ({ images }) => {
 	// Set the main image
 	const mainImage = imageList[activeImage]?.url;
 
-	// Determine number of columns based on screen size
+	// Calculate optimal number of columns based on image count
+	const calculateColumnsPerRow = () => {
+		const imageCount = imageList.length;
+
+		// Apply the specified column rules
+		let columns;
+		if (imageCount <= 4) {
+			columns = 2; // 1-4 images: 2 columns (bigger thumbnails)
+		} else if (imageCount <= 10) {
+			columns = 3; // 5-10 images: 3 columns
+		} else if (imageCount <= 18) {
+			columns = 4; // 11-18 images: 4 columns
+		} else if (imageCount <= 28) {
+			columns = 5; // 19-28 images: 5 columns
+		} else {
+			columns = 6; // 28+ images: 6 columns (smaller thumbnails)
+		}
+
+		// Responsive adjustments for very small screens
+		if (window.innerWidth <= 576) {
+			// On mobile, ensure we have at least 3 columns to keep thumbnails smaller
+			columns = Math.max(columns, 3);
+			// But don't exceed maximum
+			columns = Math.min(columns, 6);
+		}
+
+		return columns;
+	};
+
+	const [columnsPerRow, setColumnsPerRow] = useState(calculateColumnsPerRow());
+
+	// Update columns on window resize
 	useEffect(() => {
 		const updateColumns = () => {
-			setColumnsPerRow(window.innerWidth > 576 ? 2 : 4);
+			setColumnsPerRow(calculateColumnsPerRow());
 		};
 
-		updateColumns();
 		window.addEventListener('resize', updateColumns);
 		return () => window.removeEventListener('resize', updateColumns);
-	}, []);
+	}, [imageList.length]);
+
+	// Update columns when image list changes
+	useEffect(() => {
+		setColumnsPerRow(calculateColumnsPerRow());
+	}, [imageList.length]);
 
 	// Handle zoom state based on mouse position
 	useEffect(() => {
@@ -78,8 +112,22 @@ const ImageGallery = ({ images }) => {
 		setZoomPosition({ x, y });
 	};
 
-	// Check if last thumbnail should be expanded
-	const shouldExpandLastItem = imageList.length % columnsPerRow === 1;
+	// Prepare thumbnails with right alignment in mind
+	const renderThumbnails = () => {
+		// Calculate how many thumbnails should be in the last row to ensure right alignment
+		const totalThumbs = imageList.length;
+		const lastRowItems = totalThumbs % columnsPerRow;
+
+		return imageList.map((image, index) => (
+			<div
+				key={index}
+				className={`thumbnail ${activeImage === index ? 'active' : ''}`}
+				onClick={() => handleThumbnailClick(index)}
+			>
+				<img src={image.url} alt={`Thumbnail ${index + 1}`} />
+			</div>
+		));
+	};
 
 	return (
 		<div className="image-gallery" ref={mainImageRef}>
@@ -128,17 +176,13 @@ const ImageGallery = ({ images }) => {
 			</div>
 
 			{imageList.length > 1 && (
-				<div className={`thumbnails ${shouldExpandLastItem ? 'expand-last' : ''}`}>
-					{imageList.map((image, index) => (
-						<div
-							key={index}
-							className={`thumbnail ${activeImage === index ? 'active' : ''} ${index === imageList.length - 1 && shouldExpandLastItem ? 'expanded' : ''
-								}`}
-							onClick={() => handleThumbnailClick(index)}
-						>
-							<img src={image.url} alt={`Thumbnail ${index + 1}`} />
-						</div>
-					))}
+				<div
+					className="thumbnails right-aligned"
+					style={{
+						'--columns': columnsPerRow
+					}}
+				>
+					{renderThumbnails()}
 				</div>
 			)}
 		</div>

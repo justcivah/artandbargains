@@ -2,7 +2,7 @@
 .image-gallery {
 	display: flex;
 	flex-direction: column;
-	gap: var(--spacing-md);
+	gap: var(--spacing-md, 16px);
 	width: 100%;
 }
 
@@ -12,11 +12,11 @@
 	width: 100%;
 	height: 0;
 	padding-bottom: 100%;
-	border-radius: var(--border-radius-md);
+	border-radius: var(--border-radius-md, 8px);
 	overflow: hidden;
 	background-color: #f4f4f4;
-	box-shadow: var(--shadow-md);
-	border: 1px solid var(--border-color);
+	box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+	border: 1px solid var(--border-color, #e5e5e5);
 }
 
 /* Image backdrop for proper centering */
@@ -43,7 +43,7 @@
 /* Apply transition only when zoomed */
 .image-gallery .main-image-container.zoomed .main-image {
 	transform: scale(3);
-	transition: transform 0.3s ease;
+	transition: transform 0.25s ease;
 	cursor: zoom-out;
 }
 
@@ -87,7 +87,7 @@
 
 /* Arrow hover effect */
 .image-nav-arrow:hover {
-	background-color: var(--secondary-color);
+	background-color: var(--secondary-color, #333);
 }
 
 .image-nav-arrow:hover svg {
@@ -98,25 +98,40 @@
 .image-nav-arrow svg {
 	width: 20px;
 	height: 20px;
-	stroke: var(--primary-color);
+	stroke: var(--primary-color, #111);
 	transition: stroke 0.3s ease;
 }
 
-/* Thumbnails grid container */
+/* Thumbnails grid container - Dynamic columns */
 .image-gallery .thumbnails {
 	display: grid;
-	grid-template-columns: repeat(2, 1fr);
-	gap: var(--spacing-xs);
-	overflow-x: auto;
-	padding-bottom: 5px;
-	scrollbar-width: thin;
-	scrollbar-color: var(--secondary-color) transparent;
+	grid-template-columns: repeat(var(--columns, 2), 1fr);
+	grid-gap: 5px;
+	grid-auto-rows: max-content;
 	max-width: 100%;
+	height: auto;
+	margin: 5px 0;
+}
+
+/* Right-aligned thumbnails - Updated for proper grid alignment */
+.image-gallery .thumbnails.right-aligned {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	gap: 5px;
+}
+
+/* Individual thumbnail styling in right-aligned mode */
+.image-gallery .thumbnails.right-aligned .thumbnail {
+	flex: 0 0 calc((100% - (var(--columns) - 1) * 5px) / var(--columns));
+	width: calc((100% - (var(--columns) - 1) * 5px) / var(--columns));
+	height: 0;
+	padding-bottom: calc((100% - (var(--columns) - 1) * 5px) / var(--columns));
 }
 
 /* Scrollbar styling for thumbnails container */
 .image-gallery .thumbnails::-webkit-scrollbar {
-	height: 6px;
+	width: 6px;
 }
 
 .image-gallery .thumbnails::-webkit-scrollbar-track {
@@ -124,29 +139,24 @@
 }
 
 .image-gallery .thumbnails::-webkit-scrollbar-thumb {
-	background-color: var(--secondary-color);
+	background-color: var(--secondary-color, #999);
 	border-radius: 20px;
 }
 
-/* Individual thumbnail styling */
+/* Individual thumbnail styling - Always square */
 .image-gallery .thumbnail {
-	width: 100%;
-	aspect-ratio: 1/1;
-	border-radius: var(--border-radius-sm);
+	position: relative;
+	margin-bottom: 0;
+	/* Ensure no additional margin */
+	border-radius: var(--border-radius-sm, 4px);
 	overflow: hidden;
-	border: 2px solid var(--border-color);
+	border: 2px solid var(--border-color, #e5e5e5);
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: transform 0.3s ease, opacity 0.3s ease;
 	opacity: 0.8;
 	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-	position: relative;
-}
-
-/* Expanded last thumbnail - occupies full width of 2 columns + gap */
-.image-gallery .thumbnail.expanded {
-	grid-column: span 2;
-	aspect-ratio: 2/1;
-	/* Adjust aspect ratio for double width */
+	box-sizing: border-box;
+	/* Include border in size calculation */
 }
 
 /* Hover effects for thumbnails */
@@ -157,29 +167,28 @@
 
 /* Active (selected) thumbnail styling */
 .image-gallery .thumbnail.active {
-	border-color: var(--secondary-color);
+	border-color: var(--secondary-color, #333);
 	opacity: 1;
 }
 
 /* Thumbnail image styling */
 .image-gallery .thumbnail img {
+	position: absolute;
+	top: 0;
+	left: 0;
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-}
-
-/* Special styling for expanded thumbnail image */
-.image-gallery .thumbnail.expanded img {
-	object-fit: contain;
-	/* Change to contain for expanded thumbnail */
-	background-color: #f4f4f4;
-	/* Add background to maintain consistency */
 }
 
 /* Responsive adjustments */
 @media (max-width: 992px) {
 	.image-gallery .main-image-container {
 		padding-bottom: 90%;
+	}
+
+	.image-gallery .thumbnails {
+		max-height: 350px;
 	}
 }
 
@@ -192,22 +201,15 @@
 	.image-nav-arrow {
 		opacity: 1;
 	}
+
+	.image-gallery .thumbnails {
+		max-height: 300px;
+	}
 }
 
 @media (max-width: 576px) {
 	.image-gallery .main-image-container {
 		padding-bottom: 75%;
-	}
-
-	/* Adjust to 4-column layout on small screens */
-	.image-gallery .thumbnails {
-		grid-template-columns: repeat(4, 1fr);
-	}
-
-	/* Expanded thumbnail for mobile still spans 2 columns */
-	.image-gallery .thumbnail.expanded {
-		grid-column: span 2;
-		aspect-ratio: 2/1;
 	}
 
 	/* Smaller arrows on mobile */
@@ -219,5 +221,10 @@
 	.image-nav-arrow svg {
 		width: 18px;
 		height: 18px;
+	}
+
+	.image-gallery .thumbnails {
+		max-height: 250px;
+		gap: var(--spacing-xs, 4px);
 	}
 }

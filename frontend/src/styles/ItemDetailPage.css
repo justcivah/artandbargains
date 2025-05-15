@@ -287,7 +287,6 @@
 }
 
 .item-detail-page .item-interest-section {
-	margin-top: var(--spacing-md);
 	padding: var(--spacing-md);
 	background-color: #f5f5f5;
 	border-radius: var(--border-radius-md);

@@ -100,14 +100,14 @@ const ItemDetailPage = () => {
 			return dateInfo.circa ? `Circa ${dateInfo.year_exact}` : `${dateInfo.year_exact}`;
 		} else if (dateInfo.type === 'range' && dateInfo.year_range_start) {
 			return `${dateInfo.year_range_start} - ${dateInfo.year_range_end}`;
-		} else if (dateInfo.type === 'text' && dateInfo.period_text) {
+		} else if (dateInfo.type === 'period' && dateInfo.period_text) {
 			return dateInfo.period_text;
 		}
 
 		return 'Unknown date';
 	};
 
-	// Format dimensions for display - Updated to return JSX with bold part names
+	// Format dimensions for display - Updated to return each dimension on a new row
 	const formatDimensions = (dimensions) => {
 		if (!dimensions) return null;
 
@@ -136,23 +136,14 @@ const ItemDetailPage = () => {
 					.join(' ');
 
 				elements.push(
-					<span key={partName}>
+					<div key={partName}>
 						<b>{formattedPartName}:</b> {measurementParts.join(', ')}
-					</span>
+					</div>
 				);
 			}
 		});
 
-		return (
-			<>
-				{elements.map((element, index) => (
-					<React.Fragment key={index}>
-						{element}
-						{index < elements.length - 1 && ', '}
-					</React.Fragment>
-				))}
-			</>
-		);
+		return <>{elements}</>;
 	};
 
 	// Format item type for display
@@ -242,36 +233,21 @@ const ItemDetailPage = () => {
 							<h1 className="item-title">
 								{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}
 							</h1>
-
-							<div className="item-contributors">
-								{orderedContributors.map((contributor, index) => (
-									<div key={index} className="contributor-entry">
-										<span className="contributor-position">
-											{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}:
-										</span>
-										<span className="contributor-name">
-											{getContributorDisplayName(contributor)}
-										</span>
-									</div>
-								))}
-							</div>
-
-							<div className='price-container'>
-								<div className="item-price">
-									${item.price.toFixed(2)}
-								</div>
-
-								<div className="item-availability">
-									{item.inventory_quantity > 0 ? (
-										<span className="in-stock">In Stock: {item.inventory_quantity} available</span>
-									) : (
-										<span className="out-of-stock">Out of Stock</span>
-									)}
-								</div>
-							</div>
 						</div>
 
 						<div className="item-details">
+							{/* Authors section - moved from header to details */}
+							{orderedContributors && orderedContributors.length > 0 && (
+								<div className="item-section">
+									<h3>Authors</h3>
+									{orderedContributors.map((contributor, index) => (
+										<div key={index} className="contributor-entry">
+											<b>{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}</b>: {getContributorDisplayName(contributor)}
+										</div>
+									))}
+								</div>
+							)}
+
 							<div className="item-section">
 								<h3>Description</h3>
 								<p>{item.description}</p>
@@ -310,7 +286,7 @@ const ItemDetailPage = () => {
 							{item.dimensions && formatDimensions(item.dimensions) && (
 								<div className="item-section">
 									<h3>Dimensions</h3>
-									<p>{formatDimensions(item.dimensions)}</p>
+									<div>{formatDimensions(item.dimensions)}</div>
 								</div>
 							)}
 
@@ -329,9 +305,23 @@ const ItemDetailPage = () => {
 							)}
 						</div>
 
+						<div className='price-container'>
+							<div className="item-price">
+								${item.price.toFixed(2)}
+							</div>
+
+							<div className="item-availability">
+								{item.inventory_quantity > 0 ? (
+									<span className="in-stock">In Stock: {item.inventory_quantity} available</span>
+								) : (
+									<span className="out-of-stock">Out of Stock</span>
+								)}
+							</div>
+						</div>
+
 						<div className="item-interest-section">
 							<p className="interest-text">Interested in this piece?</p>
-							<Link to="/contact" className="contact-button">Contact Us</Link>
+							<Link to={'/contact?subject=' + encodeURIComponent(item.title + " (" + formatDateInfo(item.date_info) + ") - " + primaryContributorName)} className="contact-button">Contact Us</Link>
 							<div className="shipping-info">
 								<p><strong>Ships from:</strong> Como 22100, Italy</p>
 								<p>Shipping rates may vary by destination and complexity</p>
