@@ -67,6 +67,10 @@
 	box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
 }
 
+.modal-content textarea {
+	min-height: auto !important;
+}
+
 .form-group small {
 	display: block;
 	margin-top: 4px;
@@ -83,7 +87,6 @@
 
 .form-row .form-group {
 	flex: 1;
-	min-width: 200px;
 	margin-bottom: 0;
 }
 
