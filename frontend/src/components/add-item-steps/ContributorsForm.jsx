@@ -352,7 +352,10 @@ const ContributorsForm = ({
 				)}
 
 				{contributors.map((contributor, index) => {
-					const filteredList = filterContributors(searchQueries[index] || '');
+					const searchQuery = searchQueries[index] || '';
+					const filteredList = filterContributors(searchQuery);
+					const hasSearchQuery = searchQuery.trim().length > 0;
+					const noSearchResults = hasSearchQuery && filteredList.length === 0;
 
 					return (
 						<div key={index} className="contributor-row">
@@ -389,7 +392,7 @@ const ContributorsForm = ({
 											<input
 												type="text"
 												placeholder="Search contributors..."
-												value={searchQueries[index] || ''}
+												value={searchQuery}
 												onChange={(e) => handleSearchChangeWithAutoSelect(index, e.target.value)}
 												className="contributor-search-input"
 												style={{
@@ -417,7 +420,7 @@ const ContributorsForm = ({
 									</div>
 								</div>
 								<div className="actions-container">
-									{!contributor.contributor && (
+									{(!contributor.contributor || noSearchResults) && (
 										<button
 											type="button"
 											className="create-button"
@@ -426,7 +429,7 @@ const ContributorsForm = ({
 											Create New
 										</button>
 									)}
-									{contributor.contributor && (
+									{contributor.contributor && !noSearchResults && (
 										<div className="primary-selector">
 											<label className="radio-label">
 												<input
