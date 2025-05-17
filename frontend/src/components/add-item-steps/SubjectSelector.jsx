@@ -17,7 +17,7 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 			'porcelain': ['tableware', 'statue', 'lamp', 'ceramic_decor'],
 			'print': ['abstract_art', 'animals', 'landscape', 'manuscripts', 'maps',
 				'people', 'photograph', 'ships', 'still_life', 'structures', 'poster'],
-			'vintage_furnishing': ['chair', 'hallway_furniture', 'lamp', 'sofa', 'statue']
+			'vintage_furnishing': ['chair', 'hallway_furniture', 'lamp', 'sofa', 'statue', 'sideboard']
 		};
 
 		// If we have filter rules for this item type, apply them
