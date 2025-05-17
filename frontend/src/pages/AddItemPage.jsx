@@ -22,6 +22,18 @@ import '../styles/AddItemPage.css';
 const AddItemPage = () => {
 	const navigate = useNavigate();
 	const [currentStep, setCurrentStep] = useState(1);
+	const totalSteps = 12;
+
+	// Metadata states
+	const [itemTypes, setItemTypes] = useState([]);
+	const [subjects, setSubjects] = useState([]);
+	const [techniques, setTechniques] = useState([]);
+	const [periods, setPeriods] = useState([]);
+	const [mediumTypes, setMediumTypes] = useState([]);
+	const [contributorsList, setContributorsList] = useState([]);
+
+	// Add state to track image order
+	const [imagesOrder, setImagesOrder] = useState([]);
 
 	// Form states
 	const [formData, setFormData] = useState({
@@ -53,22 +65,6 @@ const AddItemPage = () => {
 		primaryImageIndex: 0,
 		existingImages: []
 	});
-
-	// Determine if we should show the technique step
-	const shouldShowTechniqueStep = formData.itemType === 'print';
-	// Dynamic total steps based on whether technique step is shown
-	const totalSteps = shouldShowTechniqueStep ? 12 : 11;
-
-	// Add state to track image order
-	const [imagesOrder, setImagesOrder] = useState([]);
-
-	// Metadata states
-	const [itemTypes, setItemTypes] = useState([]);
-	const [subjects, setSubjects] = useState([]);
-	const [techniques, setTechniques] = useState([]);
-	const [periods, setPeriods] = useState([]);
-	const [mediumTypes, setMediumTypes] = useState([]);
-	const [contributorsList, setContributorsList] = useState([]);
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
@@ -136,12 +132,13 @@ const AddItemPage = () => {
 	// Navigate to next step
 	const handleNext = () => {
 		if (currentStep < totalSteps) {
-			let nextStep = currentStep + 1;
-			// Skip technique step (step 3) if item type is not prints
-			if (!shouldShowTechniqueStep && nextStep === 3) {
-				nextStep = 4;
+			// If we're at step 2 (Subject) and the item type is not "print", 
+			// skip step 3 (Technique) and go directly to step 4 (ItemDetailsForm)
+			if (currentStep === 2 && formData.itemType !== 'print') {
+				setCurrentStep(4);
+			} else {
+				setCurrentStep(currentStep + 1);
 			}
-			setCurrentStep(nextStep);
 			window.scrollTo(0, 0);
 		}
 	};
@@ -149,196 +146,14 @@ const AddItemPage = () => {
 	// Navigate to previous step
 	const handlePrevious = () => {
 		if (currentStep > 1) {
-			let prevStep = currentStep - 1;
-			// Skip technique step (step 3) when going back if item type is not prints
-			if (!shouldShowTechniqueStep && prevStep === 3) {
-				prevStep = 2;
+			// If we're at step 4 (ItemDetailsForm) and the item type is not "print", 
+			// skip step 3 (Technique) and go back to step 2 (Subject)
+			if (currentStep === 4 && formData.itemType !== 'print') {
+				setCurrentStep(2);
+			} else {
+				setCurrentStep(currentStep - 1);
 			}
-			setCurrentStep(prevStep);
 			window.scrollTo(0, 0);
-		}
-	};
-
-	// Get the logical step number, accounting for technique step skipping
-	const getLogicalStep = (step) => {
-		if (!shouldShowTechniqueStep && step >= 3) {
-			return step + 1;
-		}
-		return step;
-	};
-
-	// Render the current step
-	const renderStep = () => {
-		const logicalStep = getLogicalStep(currentStep);
-
-		switch (logicalStep) {
-			case 1:
-				return (
-					<TypeSelector
-						itemTypes={itemTypes}
-						selectedType={formData.itemType}
-						onChange={(type) => updateFormData('itemType', type)}
-						setItemTypes={setItemTypes}
-						onSelectComplete={handleNext}
-					/>
-				);
-			case 2:
-				return (
-					<SubjectSelector
-						subjects={subjects}
-						selectedSubject={formData.subject}
-						onChange={(subject) => updateFormData('subject', subject)}
-						setSubjects={setSubjects}
-						onSelectComplete={handleNext}
-						selectedItemType={formData.itemType}
-					/>
-				);
-			case 3:
-				return (
-					<TechniqueSelector
-						techniques={techniques}
-						selectedTechnique={formData.technique}
-						onChange={(technique) => updateFormData('technique', technique)}
-						setTechniques={setTechniques}
-						onSelectComplete={handleNext}
-					/>
-				);
-			case 4:
-				return (
-					<ItemDetailsForm
-						title={formData.title}
-						description={formData.description}
-						price={formData.price}
-						onTitleChange={(title) => updateFormData('title', title)}
-						onDescriptionChange={(desc) => updateFormData('description', desc)}
-						onPriceChange={(price) => updateFormData('price', price)}
-					/>
-				);
-			case 5:
-				return (
-					<ItemDetailsForm
-						dateInfo={formData.dateInfo}
-						onDateInfoChange={(dateInfo) => updateFormData('dateInfo', dateInfo)}
-						isDateStep={true}
-					/>
-				);
-			case 6:
-				return (
-					<ContributorsForm
-						contributors={formData.contributors}
-						primaryContributor={formData.primaryContributor}
-						contributorsList={contributorsList}
-						onChange={(contributors) => updateFormData('contributors', contributors)}
-						onPrimaryChange={(primary) => updateFormData('primaryContributor', primary)}
-						setContributorsList={setContributorsList}
-					/>
-				);
-			case 7:
-				return (
-					<PeriodSelector
-						periods={periods}
-						selectedPeriod={formData.period}
-						onChange={(period) => updateFormData('period', period)}
-						setPeriods={setPeriods}
-						onSelectComplete={handleNext}
-					/>
-				);
-			case 8:
-				return (
-					<InventoryForm
-						inventoryQuantity={formData.inventoryQuantity}
-						onChange={(qty) => updateFormData('inventoryQuantity', qty)}
-					/>
-				);
-			case 9:
-				return (
-					<MediumTypeSelector
-						mediumTypes={mediumTypes}
-						selectedMediumTypes={formData.mediumTypes}
-						mediumDescription={formData.mediumDescription}
-						onChange={(types) => updateFormData('mediumTypes', types)}
-						onDescriptionChange={(desc) => updateFormData('mediumDescription', desc)}
-						setMediumTypes={setMediumTypes}
-					/>
-				);
-			case 10:
-				return (
-					<DimensionsForm
-						dimensions={formData.dimensions}
-						unit={formData.dimensionsUnit}
-						onChange={(dimensions) => updateFormData('dimensions', dimensions)}
-						onUnitChange={(unit) => updateFormData('dimensionsUnit', unit)}
-					/>
-				);
-			case 11:
-				return (
-					<ConditionTypeSelector
-						selectedConditionType={formData.conditionType}
-						conditionDescription={formData.conditionDescription}
-						onChange={(type) => updateFormData('conditionType', type)}
-						onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
-					/>
-				);
-			case 12:
-				return (
-					<ImageUploader
-						images={formData.images}
-						primaryIndex={formData.primaryImageIndex}
-						onChange={(images) => updateFormData('images', images)}
-						onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
-						existingImages={formData.existingImages}
-						onExistingImagesChange={(images) => updateFormData('existingImages', images)}
-						onOrderChange={setImagesOrder}
-					/>
-				);
-			default:
-				return <div>Invalid step</div>;
-		}
-	};
-
-	// Validate if the current step is complete
-	const isStepComplete = () => {
-		const logicalStep = getLogicalStep(currentStep);
-
-		switch (logicalStep) {
-			case 1:
-				return !!formData.itemType;
-			case 2:
-				return !!formData.subject;
-			case 3:
-				// Technique is now optional, so always return true
-				return true;
-			case 4:
-				return !!formData.title && !!formData.description && !!formData.price;
-			case 5:
-				if (formData.dateInfo.type === 'exact') {
-					return !!formData.dateInfo.yearExact;
-				} else if (formData.dateInfo.type === 'range') {
-					return !!formData.dateInfo.yearRangeStart && !!formData.dateInfo.yearRangeEnd;
-				} else {
-					return !!formData.dateInfo.periodText;
-				}
-			case 6:
-				return formData.contributors.length > 0 && !!formData.primaryContributor;
-			case 7:
-				return !!formData.period;
-			case 8:
-				return formData.inventoryQuantity >= 0;
-			case 9:
-				return formData.mediumTypes.length > 0;
-			case 10:
-				// At least one dimension should be provided
-				const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
-				return dimensionParts.some(part => {
-					const dims = formData.dimensions[part];
-					return dims.height || dims.width || dims.depth || dims.diameter;
-				});
-			case 11:
-				return !!formData.conditionType;
-			case 12:
-				return formData.images.length > 0;
-			default:
-				return false;
 		}
 	};
 
@@ -490,6 +305,198 @@ const AddItemPage = () => {
 		}
 	};
 
+	// Get adjusted total steps based on whether we skip step 3
+	const getAdjustedTotalSteps = () => {
+		return formData.itemType === 'print' ? totalSteps : totalSteps - 1;
+	};
+
+	// Get adjusted current step for the step indicator
+	const getAdjustedCurrentStep = () => {
+		// If we're past step 3 and item type is not print, decrease the step number by 1
+		if (currentStep > 3 && formData.itemType !== 'print') {
+			return currentStep - 1;
+		}
+		return currentStep;
+	};
+
+	// Render the current step
+	const renderStep = () => {
+		switch (currentStep) {
+			case 1:
+				return (
+					<TypeSelector
+						itemTypes={itemTypes}
+						selectedType={formData.itemType}
+						onChange={(type) => updateFormData('itemType', type)}
+						setItemTypes={setItemTypes}
+						onSelectComplete={handleNext}
+					/>
+				);
+			case 2:
+				return (
+					<SubjectSelector
+						subjects={subjects}
+						selectedSubject={formData.subject}
+						onChange={(subject) => updateFormData('subject', subject)}
+						setSubjects={setSubjects}
+						onSelectComplete={handleNext}
+						selectedItemType={formData.itemType}
+					/>
+				);
+			case 3:
+				// Only render the technique selector if the item type is print
+				if (formData.itemType === 'print') {
+					return (
+						<TechniqueSelector
+							techniques={techniques}
+							selectedTechnique={formData.technique}
+							onChange={(technique) => updateFormData('technique', technique)}
+							setTechniques={setTechniques}
+							onSelectComplete={handleNext}
+						/>
+					);
+				} else {
+					// Safety fallback - this shouldn't normally be reached due to our navigation logic
+					setCurrentStep(4);
+					return null;
+				}
+			case 4:
+				return (
+					<ItemDetailsForm
+						title={formData.title}
+						description={formData.description}
+						price={formData.price}
+						onTitleChange={(title) => updateFormData('title', title)}
+						onDescriptionChange={(desc) => updateFormData('description', desc)}
+						onPriceChange={(price) => updateFormData('price', price)}
+					/>
+				);
+			case 5:
+				return (
+					<ItemDetailsForm
+						dateInfo={formData.dateInfo}
+						onDateInfoChange={(dateInfo) => updateFormData('dateInfo', dateInfo)}
+						isDateStep={true}
+					/>
+				);
+			case 6:
+				return (
+					<ContributorsForm
+						contributors={formData.contributors}
+						primaryContributor={formData.primaryContributor}
+						contributorsList={contributorsList}
+						onChange={(contributors) => updateFormData('contributors', contributors)}
+						onPrimaryChange={(primary) => updateFormData('primaryContributor', primary)}
+						setContributorsList={setContributorsList}
+					/>
+				);
+			case 7:
+				return (
+					<PeriodSelector
+						periods={periods}
+						selectedPeriod={formData.period}
+						onChange={(period) => updateFormData('period', period)}
+						setPeriods={setPeriods}
+						onSelectComplete={handleNext}
+					/>
+				);
+			case 8:
+				return (
+					<InventoryForm
+						inventoryQuantity={formData.inventoryQuantity}
+						onChange={(qty) => updateFormData('inventoryQuantity', qty)}
+					/>
+				);
+			case 9:
+				return (
+					<MediumTypeSelector
+						mediumTypes={mediumTypes}
+						selectedMediumTypes={formData.mediumTypes}
+						mediumDescription={formData.mediumDescription}
+						onChange={(types) => updateFormData('mediumTypes', types)}
+						onDescriptionChange={(desc) => updateFormData('mediumDescription', desc)}
+						setMediumTypes={setMediumTypes}
+					/>
+				);
+			case 10:
+				return (
+					<DimensionsForm
+						dimensions={formData.dimensions}
+						unit={formData.dimensionsUnit}
+						onChange={(dimensions) => updateFormData('dimensions', dimensions)}
+						onUnitChange={(unit) => updateFormData('dimensionsUnit', unit)}
+					/>
+				);
+			case 11:
+				return (
+					<ConditionTypeSelector
+						selectedConditionType={formData.conditionType}
+						conditionDescription={formData.conditionDescription}
+						onChange={(type) => updateFormData('conditionType', type)}
+						onDescriptionChange={(desc) => updateFormData('conditionDescription', desc)}
+					/>
+				);
+			case 12:
+				return (
+					<ImageUploader
+						images={formData.images}
+						primaryIndex={formData.primaryImageIndex}
+						onChange={(images) => updateFormData('images', images)}
+						onPrimaryChange={(index) => updateFormData('primaryImageIndex', index)}
+						existingImages={formData.existingImages}
+						onExistingImagesChange={(images) => updateFormData('existingImages', images)}
+						onOrderChange={setImagesOrder}
+					/>
+				);
+			default:
+				return <div>Invalid step</div>;
+		}
+	};
+
+	// Validate if the current step is complete
+	const isStepComplete = () => {
+		switch (currentStep) {
+			case 1:
+				return !!formData.itemType;
+			case 2:
+				return !!formData.subject;
+			case 3:
+				// Technique is optional, so always return true
+				return true;
+			case 4:
+				return !!formData.title && !!formData.description && !!formData.price;
+			case 5:
+				if (formData.dateInfo.type === 'exact') {
+					return !!formData.dateInfo.yearExact;
+				} else if (formData.dateInfo.type === 'range') {
+					return !!formData.dateInfo.yearRangeStart && !!formData.dateInfo.yearRangeEnd;
+				} else {
+					return !!formData.dateInfo.periodText;
+				}
+			case 6:
+				return formData.contributors.length > 0 && !!formData.primaryContributor;
+			case 7:
+				return !!formData.period;
+			case 8:
+				return formData.inventoryQuantity >= 0;
+			case 9:
+				return formData.mediumTypes.length > 0;
+			case 10:
+				// At least one dimension should be provided
+				const dimensionParts = Object.keys(formData.dimensions).filter(key => key !== 'unit');
+				return dimensionParts.some(part => {
+					const dims = formData.dimensions[part];
+					return dims.height || dims.width || dims.depth || dims.diameter;
+				});
+			case 11:
+				return !!formData.conditionType;
+			case 12:
+				return formData.images.length > 0;
+			default:
+				return false;
+		}
+	};
+
 	if (loading) {
 		return <div className="add-item-loading">Loading...</div>;
 	}
@@ -510,7 +517,10 @@ const AddItemPage = () => {
 				</button>
 			</div>
 
-			<StepIndicator currentStep={currentStep} totalSteps={totalSteps} />
+			<StepIndicator
+				currentStep={getAdjustedCurrentStep()}
+				totalSteps={getAdjustedTotalSteps()}
+			/>
 
 			<div className="add-item-content">
 				{renderStep()}
