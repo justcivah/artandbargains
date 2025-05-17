@@ -24,10 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Keep-alive endpoint
-app.get('/api/keep/alive', (req, res) => {
-	console.log(`Keep-alive ping received at ${new Date().toISOString()}`);
-	res.json({ success: true });
-});
+app.get('/api/keep/alive', (req, res) => {res.json({ success: true }); });
 
 // Login endpoint
 app.post('/api/auth/login', authMiddleware.login);
