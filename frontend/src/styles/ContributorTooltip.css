@@ -1,0 +1,110 @@
+.contributor-tooltip-container {
+	position: relative;
+	display: inline-block;
+}
+
+.contributor-name-with-tooltip {
+	border-bottom: 1px dashed var(--secondary-color);
+	cursor: pointer;
+	display: inline-block;
+	padding: 2px 0;
+	margin-left: 5px;
+	font-size: 0.95rem;
+}
+
+.contributor-name {
+	margin-left: 5px;
+	font-size: 0.95rem;
+}
+
+.contributor-tooltip {
+	position: absolute;
+	z-index: 100;
+	width: 475px;
+	max-width: 90vw;
+	padding: 16px 20px;
+	background-color: #ffffff;
+	border: 1px solid #e0e0e0;
+	border-radius: 6px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	opacity: 0;
+	visibility: hidden;
+	transition: opacity 0.2s ease, visibility 0.2s ease;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+
+	/* Always position below the name */
+	top: calc(100% + 12px);
+	left: 50%;
+	transform: translateX(-50%);
+}
+
+/* Arrow pointing up to the name */
+.contributor-tooltip::after {
+	content: '';
+	position: absolute;
+	top: -8px;
+	left: 50%;
+	margin-left: -8px;
+	border-width: 0 8px 8px;
+	border-style: solid;
+	border-color: transparent transparent #ffffff;
+	z-index: 2;
+}
+
+.contributor-tooltip::before {
+	content: '';
+	position: absolute;
+	top: -9px;
+	left: 50%;
+	margin-left: -9px;
+	border-width: 0 9px 9px;
+	border-style: solid;
+	border-color: transparent transparent #e0e0e0;
+	z-index: 1;
+}
+
+/* Make tooltip visible when pinned */
+.contributor-tooltip.pinned {
+	opacity: 1;
+	visibility: visible;
+	pointer-events: auto;
+}
+
+/* Show tooltip on hover if not already pinned */
+.contributor-tooltip-container:hover .contributor-tooltip:not(.pinned) {
+	opacity: 1;
+	visibility: visible;
+}
+
+.contributor-tooltip-header {
+	border-bottom: 1px solid #f0f0f0;
+	padding-bottom: 8px;
+	margin-bottom: 10px;
+}
+
+.contributor-tooltip-header h4 {
+	font-size: 0.95rem;
+	color: var(--primary-color);
+	margin: 0 0 6px 0;
+	font-weight: 600;
+}
+
+.contributor-years {
+	font-size: 0.85rem;
+	color: #666666;
+}
+
+.contributor-bio {
+	font-size: 0.85rem;
+	line-height: 1.5;
+	margin: 0;
+	color: #333333;
+}
+
+/* Media query for small screens */
+@media (max-width: 576px) {
+	.contributor-tooltip {
+		width: 320px;
+	}
+}

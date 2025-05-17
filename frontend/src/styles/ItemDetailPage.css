@@ -30,7 +30,7 @@
 }
 
 .item-detail-page .item-breadcrumb {
-	margin-bottom: var(--spacing-md);
+	margin-bottom: var(--spacing-sm);
 	font-size: 0.9rem;
 	color: var(--text-color-light);
 }
@@ -240,6 +240,8 @@
 	line-height: 1.7;
 	color: var(--text-color);
 	margin: 0;
+	max-height: 300px;
+	overflow-y: auto;
 }
 
 .item-detail-page .medium-types {
@@ -477,5 +479,91 @@
 	.item-detail-page .item-contributors {
 		flex-direction: column;
 		gap: var(--spacing-xs);
+	}
+}
+
+@media (max-width: 992px) {
+	.item-detail-page .item-images {
+		z-index: 1;
+	}
+
+	.image-gallery .thumbnails.right-aligned {
+		position: relative;
+		width: 100%;
+		margin-top: 10px;
+		overflow-y: auto;
+	}
+
+	.image-gallery .thumbnails.right-aligned .thumbnail {
+		position: relative;
+	}
+
+	.item-detail-page .item-info {
+		position: relative;
+		z-index: 2;
+		background-color: var(--background-color);
+	}
+}
+
+@media (max-width: 576px) {
+	.image-gallery .thumbnails.right-aligned {
+		margin-bottom: 40px;
+		overflow-y: auto;
+	}
+}
+
+/* Add these styles to your ItemDetailPage.css file */
+
+/* Mobile-only title that appears above the image gallery */
+.mobile-title-container {
+	display: none;
+	margin-bottom: 20px;
+	background-color: var(--background-color);
+	padding: 0;
+	border-radius: var(--border-radius-sm);
+}
+
+/* Desktop version of the title (normal position) */
+.desktop-title-container {
+	display: block;
+}
+
+/* Media query for mobile devices */
+@media (max-width: 992px) {
+
+	/* Hide the title in its normal position */
+	.desktop-title-container {
+		display: none;
+	}
+
+	/* Show the title above the gallery */
+	.mobile-title-container {
+		display: block;
+		width: 100%;
+		z-index: 3;
+	}
+
+	/* Specific styling for the mobile title */
+	.mobile-title-container .item-title {
+		font-size: 1.8rem;
+		margin: 0 0 10px;
+	}
+
+	/* Adjust spacing below the mobile title */
+	.mobile-title-container+.item-detail-grid {
+		margin-top: 10px;
+	}
+}
+
+/* Add refined styling for small phones */
+@media (max-width: 576px) {
+	.mobile-title-container .item-title {
+		font-size: 1.3rem;
+		line-height: 1.4;
+	}
+
+	/* Add spacing between mobile title and breadcrumb */
+	.item-breadcrumb+.mobile-title-container {
+		margin-top: 10px;
 	}
 }

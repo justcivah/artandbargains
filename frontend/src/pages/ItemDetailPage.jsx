@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import ImageGallery from '../components/ImageGallery';
 import { fetchItem, fetchContributor } from '../api/itemsApi';
 import '../styles/ItemDetailPage.css';
+import ContributorTooltip from '../components/ContributorTooltip';
 
 const ItemDetailPage = () => {
 	const { itemId } = useParams();
@@ -10,6 +11,17 @@ const ItemDetailPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [contributorDetails, setContributorDetails] = useState({});
+	const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+
+	// Check for mobile view on resize
+	useEffect(() => {
+		const handleResize = () => {
+			setIsMobile(window.innerWidth <= 992);
+		};
+
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
 
 	// Scroll to top on component mount
 	useEffect(() => {
@@ -163,6 +175,24 @@ const ItemDetailPage = () => {
 			contributor.contributor_id;
 	};
 
+	// Render title component to be used in mobile view
+	const renderItemTitle = () => (
+		<div className="item-header">
+			{/* Only show categories div if technique exists */}
+			{item.technique && (
+				<div className="item-categories single-line">
+					<span className="item-category">
+						{formatItemType(item.technique)}
+					</span>
+				</div>
+			)}
+
+			<h1 className="item-title">
+				{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}
+			</h1>
+		</div>
+	);
+
 	if (loading) {
 		return (
 			<div className="item-detail-page">
@@ -212,6 +242,13 @@ const ItemDetailPage = () => {
 					<Link to="/">Home</Link> / <Link to="/shop">Shop</Link> / <span>{item.title}</span>
 				</div>
 
+				{/* Mobile-only title that appears above the gallery */}
+				{isMobile && (
+					<div className="mobile-title-container">
+						{renderItemTitle()}
+					</div>
+				)}
+
 				<div className="item-detail-grid">
 					{/* Left side: Images */}
 					<div className="item-images">
@@ -220,19 +257,9 @@ const ItemDetailPage = () => {
 
 					{/* Right side: Information */}
 					<div className="item-info">
-						<div className="item-header">
-							{/* Only show categories div if technique exists */}
-							{item.technique && (
-								<div className="item-categories single-line">
-									<span className="item-category">
-										{formatItemType(item.technique)}
-									</span>
-								</div>
-							)}
-
-							<h1 className="item-title">
-								{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}
-							</h1>
+						{/* Title only shown on desktop */}
+						<div className="desktop-title-container">
+							{renderItemTitle()}
 						</div>
 
 						<div className="item-details">
@@ -242,7 +269,11 @@ const ItemDetailPage = () => {
 									<h3>Authors</h3>
 									{orderedContributors.map((contributor, index) => (
 										<div key={index} className="contributor-entry">
-											<b>{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}</b>: {getContributorDisplayName(contributor)}
+											<b>{contributor.position.charAt(0).toUpperCase() + contributor.position.slice(1)}</b>:
+											<ContributorTooltip
+												contributor={contributor}
+												contributorData={contributorDetails[contributor.contributor_id]}
+											/>
 										</div>
 									))}
 								</div>

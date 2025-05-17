@@ -2,15 +2,38 @@ import React, { useState } from 'react';
 import { createEntity } from '../../api/itemsApi';
 import '../../styles/StepComponents.css';
 
-const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onSelectComplete }) => {
+const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onSelectComplete, selectedItemType }) => {
 	const [showCreateModal, setShowCreateModal] = useState(false);
 	const [newSubjectDisplayName, setNewSubjectDisplayName] = useState('');
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [error, setError] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
 
+	// Define subject filtering rules based on item type
+	const getFilteredSubjectsByType = (subjects, itemType) => {
+		if (!itemType) return subjects;
+
+		const filterRules = {
+			'porcelain': ['tableware', 'statue', 'lamp', 'ceramic_decor'],
+			'print': ['abstract_art', 'animals', 'landscape', 'manuscripts', 'maps',
+				'people', 'photograph', 'ships', 'still_life', 'structures', 'poster'],
+			'vintage_furnishing': ['chair', 'hallway_furniture', 'lamp', 'sofa', 'statue']
+		};
+
+		// If we have filter rules for this item type, apply them
+		if (filterRules[itemType]) {
+			return subjects.filter(subject => filterRules[itemType].includes(subject.name));
+		}
+
+		// If no specific rules for this type, return all subjects
+		return subjects;
+	};
+
+	// First filter by item type, then by search query
+	const typeFilteredSubjects = getFilteredSubjectsByType(subjects, selectedItemType);
+
 	// Filter and sort subjects based on search query
-	const filteredSubjects = subjects
+	const filteredSubjects = typeFilteredSubjects
 		.filter(subject => {
 			if (!searchQuery) return true;
 
@@ -88,12 +111,13 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 			<h2>Select Subject</h2>
 			<p className="step-description">
 				Choose a subject for this item.
+				{selectedItemType && <span className="filtered-notice"> (Options filtered based on the selected item type)</span>}
 			</p>
 
 			{error && <div className="step-error">{error}</div>}
 
 			{/* Search input */}
-			{subjects.length > 8 && (
+			{typeFilteredSubjects.length > 8 && (
 				<div className="filter-search">
 					<div className="search-input-container">
 						<span className="search-icon">
@@ -109,6 +133,13 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 							onChange={(e) => setSearchQuery(e.target.value)}
 						/>
 					</div>
+				</div>
+			)}
+
+			{filteredSubjects.length === 0 && (
+				<div className="no-results">
+					No subjects match the current filters.
+					{searchQuery && <span> Try adjusting your search terms.</span>}
 				</div>
 			)}
 

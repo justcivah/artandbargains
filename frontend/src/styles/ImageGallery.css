@@ -4,6 +4,7 @@
 	flex-direction: column;
 	gap: var(--spacing-md, 16px);
 	width: 100%;
+	margin: 0, var(--spacing-md);
 }
 
 /* Main featured image container */
