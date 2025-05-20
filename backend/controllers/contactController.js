@@ -49,11 +49,11 @@ function isLocalhost(req) {
 // Handle contact form submission
 exports.sendContactEmail = async (req, res) => {
 	try {
-		const { email, subject, message, captchaToken } = req.body;
+		const { name, email, subject, message, captchaToken } = req.body;
 
 		// Validate required fields
-		if (!email || !subject || !message) {
-			return res.status(400).json({ error: 'Email, subject, and message are required' });
+		if (!name || !email || !subject || !message) {
+			return res.status(400).json({ error: 'Name, email, subject, and message are required' });
 		}
 
 		// Skip captcha validation for localhost
@@ -88,6 +88,7 @@ exports.sendContactEmail = async (req, res) => {
 			subject: `New Contact Form Submission`,
 			html: `
 				<h2>New Contact Form Submission</h2>
+				<p><strong>Name:</strong> ${name}</p>
 				<p><strong>From:</strong> ${email}</p>
 				<p><strong>Subject:</strong> ${subject}</p>
 				<hr>
@@ -99,6 +100,7 @@ exports.sendContactEmail = async (req, res) => {
 			text: `
 				New Contact Form Submission
 				
+				Name: ${name}
 				From: ${email}
 				Subject: ${subject}
 				
