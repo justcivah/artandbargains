@@ -9,23 +9,41 @@ const SubjectSelector = ({ subjects, selectedSubject, onChange, setSubjects, onS
 	const [error, setError] = useState(null);
 	const [searchQuery, setSearchQuery] = useState('');
 
-	// Define subject filtering rules based on item type
+	// Define subject exclusion rules based on item type
 	const getFilteredSubjectsByType = (subjects, itemType) => {
 		if (!itemType) return subjects;
 
-		const filterRules = {
-			'porcelain': ['tableware', 'statue', 'lamp', 'ceramic_decor'],
-			'print': ['abstract_art', 'animals', 'landscape', 'manuscripts', 'maps',
-				'people', 'photograph', 'ships', 'still_life', 'structures', 'poster'],
-			'vintage_furnishing': ['chair', 'hallway_furniture', 'lamp', 'sofa', 'statue', 'sideboard']
+		// Lists of subjects to EXCLUDE for each item type
+		const exclusionRules = {
+			'porcelain': [
+				'abstract_art', 'animals', 'architecture', 'bathroom', 'cabinet',
+				'chair', 'hallway_furniture', 'landscape', 'manuscripts', 'maps',
+				'nightstands', 'people', 'photograph', 'poster', 'ships',
+				'sideboard', 'sofa', 'still_life', 'structures', 'watercolor'
+			],
+			'print': [
+				'bathroom', 'cabinet', 'ceramic_decor', 'chair', 'hallway_furniture',
+				'lamp', 'nightstands', 'sideboard', 'sofa', 'statue',
+				'structures', 'tableware'
+			],
+			'painting': [
+				'bathroom', 'cabinet', 'ceramic_decor', 'chair', 'hallway_furniture',
+				'lamp', 'nightstands', 'sideboard', 'sofa', 'statue',
+				'structures', 'tableware'
+			],
+			'vintage_furnishing': [
+				'abstract_art', 'animals', 'architecture', 'bathroom', 'cabinet',
+				'landscape', 'manuscripts', 'maps', 'people', 'photograph',
+				'poster', 'ships', 'still_life', 'structures', 'tableware', 'watercolor'
+			]
 		};
 
-		// If we have filter rules for this item type, apply them
-		if (filterRules[itemType]) {
-			return subjects.filter(subject => filterRules[itemType].includes(subject.name));
+		// If we have exclusion rules for this item type, apply them
+		if (exclusionRules[itemType]) {
+			return subjects.filter(subject => !exclusionRules[itemType].includes(subject.name));
 		}
 
-		// If no specific rules for this type, return all subjects
+		// If no specific exclusion rules for this type, return all subjects
 		return subjects;
 	};
 
