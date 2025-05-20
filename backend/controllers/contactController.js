@@ -85,9 +85,9 @@ exports.sendContactEmail = async (req, res) => {
 		const mailOptions = {
 			from: process.env.SMTP_FROM_EMAIL,
 			to: process.env.CONTACT_EMAIL_TO,
-			subject: `New Contact Form Submission`,
+			subject: `Got a new message!`,
 			html: `
-				<h2>New Contact Form Submission</h2>
+				<h2>Just got a new message from the form</h2>
 				<p><strong>Name:</strong> ${name}</p>
 				<p><strong>From:</strong> ${email}</p>
 				<p><strong>Subject:</strong> ${subject}</p>
@@ -98,7 +98,7 @@ exports.sendContactEmail = async (req, res) => {
 				<p><small>Sent from Art & Bargains website contact form</small></p>
 			`,
 			text: `
-				New Contact Form Submission
+				Just got a new message from the form
 				
 				Name: ${name}
 				From: ${email}
@@ -119,10 +119,10 @@ exports.sendContactEmail = async (req, res) => {
 		const autoReplyOptions = {
 			from: process.env.SMTP_FROM_EMAIL,
 			to: email,
-			subject: 'Thank you for contacting Art & Bargains',
+			subject: 'Got your message!',
 			html: `
-				<h2>Thank you for contacting us!</h2>
-				<p>We have received your message and will get back to you as soon as possible.</p>
+				<h2>Hi ${name},</h2>
+				<p>Thanks for reaching out! We have received your message and will get back to you as soon as possible.</p>
 				<hr>
 				<p><strong>Your message:</strong></p>
 				<p><strong>Subject:</strong> ${subject}</p>
@@ -131,9 +131,9 @@ exports.sendContactEmail = async (req, res) => {
 				<p>Best regards,<br>Art & Bargains Team</p>
 			`,
 			text: `
-				Thank you for contacting us!
+				Hi ${name},
 				
-				We have received your message and will get back to you as soon as possible.
+				Thanks for reaching out! We have received your message and will get back to you as soon as possible.
 				
 				Your message:
 				Subject: ${subject}
