@@ -40,21 +40,39 @@ async function verifyRecaptcha(token) {
 	}
 }
 
+// Check if request is from localhost
+function isLocalhost(req) {
+	const ip = req.ip || req.connection.remoteAddress;
+	return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1' || ip.includes('localhost');
+}
+
 // Handle contact form submission
 exports.sendContactEmail = async (req, res) => {
 	try {
 		const { email, subject, message, captchaToken } = req.body;
 
 		// Validate required fields
-		if (!email || !subject || !message || !captchaToken) {
-			return res.status(400).json({ error: 'All fields are required' });
+		if (!email || !subject || !message) {
+			return res.status(400).json({ error: 'Email, subject, and message are required' });
 		}
 
-		// Verify reCAPTCHA
-		const isValidCaptcha = await verifyRecaptcha(captchaToken);
+		// Skip captcha validation for localhost
+		let isValidCaptcha = false;
 
-		if (!isValidCaptcha) {
-			return res.status(400).json({ error: 'Invalid reCAPTCHA. Please try again.' });
+		if (isLocalhost(req)) {
+			isValidCaptcha = true;
+		} else {
+			// Require captchaToken for non-localhost environments
+			if (!captchaToken) {
+				return res.status(400).json({ error: 'reCAPTCHA token is required' });
+			}
+
+			// Verify reCAPTCHA for non-localhost environments
+			isValidCaptcha = await verifyRecaptcha(captchaToken);
+
+			if (!isValidCaptcha) {
+				return res.status(400).json({ error: 'Invalid reCAPTCHA. Please try again.' });
+			}
 		}
 
 		// Email validation regex
@@ -67,7 +85,7 @@ exports.sendContactEmail = async (req, res) => {
 		const mailOptions = {
 			from: process.env.SMTP_FROM_EMAIL,
 			to: process.env.CONTACT_EMAIL_TO,
-			subject: `Contact Form: ${subject}`,
+			subject: `New Contact Form Submission`,
 			html: `
 				<h2>New Contact Form Submission</h2>
 				<p><strong>From:</strong> ${email}</p>
@@ -95,7 +113,7 @@ exports.sendContactEmail = async (req, res) => {
 		const mailer = getTransporter();
 		await mailer.sendMail(mailOptions);
 
-		// Send auto-reply to user (optional)
+		// Send auto-reply to user
 		const autoReplyOptions = {
 			from: process.env.SMTP_FROM_EMAIL,
 			to: email,

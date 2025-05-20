@@ -350,14 +350,20 @@ const ItemDetailPage = () => {
 							</div>
 						</div>
 
-						<div className="item-interest-section">
-							<p className="interest-text">Interested in this piece?</p>
-							<Link to={'/contact?subject=' + encodeURIComponent(item.title + " (" + formatDateInfo(item.date_info) + ") - " + primaryContributorName)} className="contact-button">Contact Us</Link>
-							<div className="shipping-info">
-								<p><strong>Ships from:</strong> Como 22100, Italy</p>
-								<p>Shipping rates may vary by destination and complexity</p>
+						{item.inventory_quantity > 0 && (
+							<div className="item-interest-section">
+								<p className="interest-text">Interested in this piece?</p>
+								<Link
+									to={'/contact?subject=' + encodeURIComponent(item.title + " (" + formatDateInfo(item.date_info) + ") - " + primaryContributorName) + '#contact-form'}
+									className="contact-button">
+									Contact Us
+								</Link>
+								<div className="shipping-info">
+									<p><strong>Ships from:</strong> Como 22100, Italy</p>
+									<p>Shipping rates may vary by destination and complexity</p>
+								</div>
 							</div>
-						</div>
+						)}
 					</div>
 				</div>
 			</div>

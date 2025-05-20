@@ -6,10 +6,25 @@
 .contributor-name-with-tooltip {
 	border-bottom: 1px dashed var(--secondary-color);
 	cursor: pointer;
-	display: inline-block;
+	display: inline-flex;
+	align-items: center;
 	padding: 2px 0;
 	margin-left: 5px;
 	font-size: 0.95rem;
+}
+
+.tooltip-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	background-color: var(--secondary-color);
+	color: white;
+	font-size: 0.75rem;
+	margin-left: 4px;
+	font-weight: bold;
 }
 
 .contributor-name {
@@ -21,7 +36,7 @@
 	position: absolute;
 	z-index: 100;
 	width: 475px;
-	max-width: 90vw;
+	max-width: calc(100vw - 40px);
 	padding: 16px 20px;
 	background-color: #ffffff;
 	border: 1px solid #e0e0e0;
@@ -32,7 +47,6 @@
 	transition: opacity 0.2s ease, visibility 0.2s ease;
 	word-wrap: break-word;
 	overflow-wrap: break-word;
-
 	/* Always position below the name */
 	top: calc(100% + 12px);
 	left: 50%;
@@ -105,6 +119,24 @@
 /* Media query for small screens */
 @media (max-width: 576px) {
 	.contributor-tooltip {
-		width: 320px;
+		width: calc(100vw - 40px);
+		left: 50% !important;
+		/* Override any dynamic positioning on mobile */
+		transform: translateX(-50%) !important;
+		/* Override any dynamic positioning on mobile */
+	}
+
+	/* Adjust arrow for mobile */
+	.contributor-tooltip::after,
+	.contributor-tooltip::before {
+		left: 50%;
+	}
+
+	.contributor-tooltip-header h4 {
+		font-size: 1rem;
+	}
+
+	.contributor-bio {
+		font-size: 0.9rem;
 	}
 }
