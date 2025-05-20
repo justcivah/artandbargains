@@ -36,7 +36,7 @@ const ContributorsForm = ({
 		'engraver',
 		'lithographer',
 		'etcher',
-		'drawer',
+		'delineavit',
 		'cartographer',
 		'publisher',
 		'artist',
