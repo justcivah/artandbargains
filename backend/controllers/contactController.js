@@ -87,7 +87,7 @@ exports.sendContactEmail = async (req, res) => {
 			to: process.env.CONTACT_EMAIL_TO,
 			subject: `Got a new message!`,
 			html: `
-				<h2>Just got a new message from the form</h2>
+				<h3>Just got a new message from the form</h3>
 				<p><strong>Name:</strong> ${name}</p>
 				<p><strong>From:</strong> ${email}</p>
 				<p><strong>Subject:</strong> ${subject}</p>
@@ -121,7 +121,7 @@ exports.sendContactEmail = async (req, res) => {
 			to: email,
 			subject: 'Got your message!',
 			html: `
-				<h2>Hi ${name},</h2>
+				<h3>Hi ${name},</h3>
 				<p>Thanks for reaching out! We have received your message and will get back to you as soon as possible.</p>
 				<hr>
 				<p><strong>Your message:</strong></p>
