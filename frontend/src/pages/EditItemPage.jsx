@@ -175,9 +175,6 @@ const EditItemPage = () => {
 					})));
 				}
 
-				// Auto-expand first section
-				setExpandedSections({ "item-type": true });
-
 				setLoading(false);
 			} catch (err) {
 				setError('Error loading item data: ' + err.message);

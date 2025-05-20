@@ -227,6 +227,13 @@ exports.updateContributor = async (req, res) => {
 			return res.status(404).json({ error: 'Contributor not found' });
 		}
 
+		// Get the old display name for reference updating
+		const oldDisplayName = existingResult.Item.display_name;
+		const newDisplayName = updateData.display_name;
+		
+		// Check if display name has changed
+		const displayNameChanged = oldDisplayName !== newDisplayName;
+
 		// Merge existing data with update data
 		const updatedContributor = {
 			...existingResult.Item,
@@ -274,16 +281,88 @@ exports.updateContributor = async (req, res) => {
 
 		await dynamoDB.send(new PutCommand(params));
 
+		// Initialize affectedItemsCount to track how many items are affected
+		let affectedItemsCount = 0;
+
+		// If display name changed, update all items that reference this contributor
+		if (displayNameChanged) {
+			try {
+				// Find all items that reference this contributor using GSI4 (ContributorArticleIndex)
+				const queryParams = {
+					TableName: TABLE_NAME,
+					IndexName: 'ContributorArticleIndex',
+					KeyConditionExpression: "GSI4PK = :contributorKey",
+					ExpressionAttributeValues: {
+						":contributorKey": `CONTRIBUTOR#${id}`
+					}
+				};
+
+				const affectedItems = await dynamoDB.send(new QueryCommand(queryParams));
+
+				if (affectedItems.Items && affectedItems.Items.length > 0) {
+					// Get unique item IDs from the results
+					const itemIDs = [...new Set(affectedItems.Items.map(item => item.PK))];
+					
+					// Track the number of items affected
+					affectedItemsCount = itemIDs.length;
+
+					// Update each affected item
+					for (const itemID of itemIDs) {
+						// Get the item metadata
+						const getItemParams = {
+							TableName: TABLE_NAME,
+							Key: {
+								PK: itemID,
+								SK: "METADATA"
+							}
+						};
+
+						const itemResult = await dynamoDB.send(new GetCommand(getItemParams));
+						
+						if (itemResult.Item) {
+							const item = itemResult.Item;
+							let updated = false;
+
+							// Check if this contributor is the primary contributor
+							if (item.primary_contributor_display === oldDisplayName) {
+								// Update primary contributor display name
+								item.primary_contributor_display = newDisplayName;
+								item.primary_contributor_display_lower = newDisplayName.toLowerCase();
+								updated = true;
+							}
+
+							// Update the item in DynamoDB if changes were made
+							if (updated) {
+								const updateItemParams = {
+									TableName: TABLE_NAME,
+									Item: item
+								};
+
+								await dynamoDB.send(new PutCommand(updateItemParams));
+							}
+						}
+					}
+				}
+			} catch (referenceError) {
+				console.error(`Error updating references for contributor ${id}:`, referenceError);
+				// Continue with the response even if reference update fails
+			}
+		}
+
 		// Add 'name' property for frontend compatibility
 		const result = {
 			...updatedContributor,
 			name: id
 		};
 
-		res.json(result);
+		res.json({
+			success: true,
+			contributor: result,
+			affectedItems: affectedItemsCount
+		});
 	} catch (error) {
 		console.error(`Error updating contributor ${req.params.id}:`, error);
-		res.status(500).json({ error: 'Failed to update contributor' });
+		res.status(500).json({ error: 'Failed to update contributor: ' + error.message });
 	}
 };
 

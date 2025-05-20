@@ -252,7 +252,7 @@
 	gap: var(--spacing-md);
 }
 
-.form-row {
+.contact-form-wrapper .form-row {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
 	gap: var(--spacing-md);
