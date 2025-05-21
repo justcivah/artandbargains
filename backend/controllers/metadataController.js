@@ -66,7 +66,7 @@ async function isMetadataInUse(type, name) {
 
 		switch (type) {
 			case 'TYPE':
-				indexName = 'ArticleTypeIndex';
+				indexName = 'TypeArticleIndex';
 				keyConditions = {
 					KeyConditionExpression: "GSI1PK = :typePK",
 					ExpressionAttributeValues: {
