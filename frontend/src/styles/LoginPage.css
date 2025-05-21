@@ -85,3 +85,20 @@
 	margin-bottom: 20px;
 	border-left: 4px solid #c62828;
 }
+
+.recaptcha-wrapper {
+	margin-bottom: 20px;
+}
+
+@media (max-width: 400px) {
+	.recaptcha-wrapper {
+		display: flex;
+		justify-content: center;
+	}
+
+	.g-recaptcha {
+		transform: scale(0.85);
+		transform-origin: center;
+		margin-bottom: 10px;
+	}
+}

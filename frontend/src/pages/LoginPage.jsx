@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import ReCaptcha from 'react-google-recaptcha';
 import axios from 'axios';
 import '../styles/LoginPage.css';
 
@@ -10,15 +11,35 @@ const LoginPage = () => {
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState('');
 	const [loading, setLoading] = useState(false);
+	const [captchaValid, setCaptchaValid] = useState(false);
+	const [isLocalhost, setIsLocalhost] = useState(false);
+	const captchaRef = useRef(null);
 	const navigate = useNavigate();
 
-	// Check if already logged in
+	// Check if already logged in and detect localhost
 	useEffect(() => {
 		const token = localStorage.getItem('admin_token');
 		if (token) {
 			navigate('/admin');
 		}
+
+		// Check if running on localhost
+		const hostname = window.location.hostname;
+		const isLocal = hostname === 'localhost' ||
+			hostname === '127.0.0.1' ||
+			hostname.includes('192.168.');
+
+		setIsLocalhost(isLocal);
+
+		// Auto-validate captcha if on localhost
+		if (isLocal) {
+			setCaptchaValid(true);
+		}
 	}, [navigate]);
+
+	const handleCaptchaChange = (value) => {
+		setCaptchaValid(value ? true : false);
+	};
 
 	const handleLogin = async (e) => {
 		e.preventDefault();
@@ -28,14 +49,27 @@ const LoginPage = () => {
 			return;
 		}
 
+		// Check captcha validation if not on localhost
+		if (!isLocalhost && !captchaValid) {
+			setError('Please complete the reCAPTCHA verification');
+			return;
+		}
+
 		try {
 			setLoading(true);
 			setError('');
 
-			const response = await axios.post(`${API_URL}/api/auth/login`, {
+			const payload = {
 				username: username,
 				password: password
-			});
+			};
+
+			// Only include captchaToken if not on localhost
+			if (!isLocalhost && captchaRef.current) {
+				payload.captchaToken = captchaRef.current.getValue();
+			}
+
+			const response = await axios.post(`${API_URL}/api/auth/login`, payload);
 
 			// Store the token in localStorage
 			localStorage.setItem('admin_token', response.data.token);
@@ -45,6 +79,12 @@ const LoginPage = () => {
 		} catch (err) {
 			setError(err.response?.data?.error || 'Login failed. Please check your credentials.');
 			console.error('Login error:', err);
+
+			// Reset captcha on error
+			if (!isLocalhost && captchaRef.current) {
+				captchaRef.current.reset();
+				setCaptchaValid(false);
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -81,10 +121,21 @@ const LoginPage = () => {
 						/>
 					</div>
 
+					{/* Only show reCAPTCHA if not on localhost */}
+					{!isLocalhost && (
+						<div className="recaptcha-wrapper">
+							<ReCaptcha
+								ref={captchaRef}
+								sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+								onChange={handleCaptchaChange}
+							/>
+						</div>
+					)}
+
 					<button
 						type="submit"
 						className="login-button"
-						disabled={loading}
+						disabled={loading || (!isLocalhost && !captchaValid)}
 					>
 						{loading ? 'Logging in...' : 'Login'}
 					</button>
