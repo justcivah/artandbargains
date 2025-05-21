@@ -473,19 +473,6 @@ const EditContributorPage = () => {
 						<h2>Organization Information</h2>
 
 						<div className="form-group">
-							<label htmlFor="name">Organization Name:</label>
-							<input
-								type="text"
-								id="name"
-								name="name"
-								value={formData.name}
-								onChange={handleInputChange}
-								required
-							/>
-							<small>Used for internal reference and URL structure</small>
-						</div>
-
-						<div className="form-group">
 							<label htmlFor="display_name">Display Name:</label>
 							<input
 								type="text"
