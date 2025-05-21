@@ -24,7 +24,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Keep-alive endpoint
-app.get('/api/keep/alive', (req, res) => {res.json({ success: true }); });
+app.get('/api/keep/alive', (req, res) => { res.json({ success: true }); });
 
 // Login endpoint
 app.post('/api/auth/login', authMiddleware.login);
@@ -41,14 +41,26 @@ app.delete('/api/items/:id', authMiddleware.authenticateAdmin, itemsController.d
 // Metadata endpoints
 app.get('/api/itemTypes', metadataController.getItemTypes);
 app.post('/api/itemTypes', authMiddleware.authenticateAdmin, metadataController.createItemType);
+app.put('/api/itemTypes/:id', authMiddleware.authenticateAdmin, metadataController.updateItemType);
+app.delete('/api/itemTypes/:id', authMiddleware.authenticateAdmin, metadataController.deleteItemType);
+
 app.get('/api/subjects', metadataController.getSubjects);
 app.post('/api/subjects', authMiddleware.authenticateAdmin, metadataController.createSubject);
+app.put('/api/subjects/:id', authMiddleware.authenticateAdmin, metadataController.updateSubject);
+app.delete('/api/subjects/:id', authMiddleware.authenticateAdmin, metadataController.deleteSubject);
+
 app.get('/api/techniques', metadataController.getTechniques);
 app.post('/api/techniques', authMiddleware.authenticateAdmin, metadataController.createTechnique);
+app.put('/api/techniques/:id', authMiddleware.authenticateAdmin, metadataController.updateTechnique);
+app.delete('/api/techniques/:id', authMiddleware.authenticateAdmin, metadataController.deleteTechnique);
+
 app.get('/api/periods', metadataController.getPeriods);
 app.post('/api/periods', authMiddleware.authenticateAdmin, metadataController.createPeriod);
+
 app.get('/api/mediumTypes', metadataController.getMediumTypes);
 app.post('/api/mediumTypes', authMiddleware.authenticateAdmin, metadataController.createMediumType);
+app.put('/api/mediumTypes/:id', authMiddleware.authenticateAdmin, metadataController.updateMediumType);
+app.delete('/api/mediumTypes/:id', authMiddleware.authenticateAdmin, metadataController.deleteMediumType);
 
 // Contributors endpoints
 app.get('/api/contributors', contributorsController.getContributors);

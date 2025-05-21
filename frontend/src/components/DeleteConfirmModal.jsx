@@ -1,61 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
 import '../styles/Modal.css';
 
-const DeleteConfirmModal = ({ item, entityType = 'item', onConfirm, onCancel }) => {
-	const [confirmText, setConfirmText] = useState('');
-	const [error, setError] = useState('');
+const DeleteConfirmModal = ({ item, entityType, onConfirm, onCancel }) => {
+	// Format the entity name for display
+	const getDisplayName = () => {
+		if (!item) return '';
 
-	if (!item) return null;
-
-	const isContributor = entityType === 'contributor';
-	const itemName = isContributor
-		? item.display_name
-		: item.title;
-
-	const confirmationWord = 'DELETE';
-
-	const confirmTextMatches = confirmText === confirmationWord;
-
-	const handleConfirm = () => {
-		if (confirmText !== confirmationWord) {
-			setError(`Please type "${confirmationWord}" to confirm deletion.`);
-			return;
+		switch (entityType) {
+			case 'item':
+				return item.title || 'this item';
+			case 'contributor':
+				return item.display_name || 'this contributor';
+			case 'types':
+			case 'subjects':
+			case 'techniques':
+			case 'mediums':
+				return item.display_name || `this ${entityType.slice(0, -1)}`;
+			default:
+				return 'this item';
 		}
-		onConfirm();
+	};
+
+	// Get a proper entity type name for display
+	const getEntityTypeName = () => {
+		switch (entityType) {
+			case 'item':
+				return 'article';
+			case 'contributor':
+				return 'contributor';
+			case 'types':
+				return 'type';
+			case 'subjects':
+				return 'subject';
+			case 'techniques':
+				return 'technique';
+			case 'mediums':
+				return 'medium type';
+			default:
+				return entityType;
+		}
 	};
 
 	return (
 		<div className="modal-overlay">
 			<div className="modal-content">
-				<h3>Confirm Deletion</h3>
-
+				<h2>Delete Confirmation</h2>
 				<p>
-					Are you sure you want to delete the {isContributor ? 'contributor' : 'item'}:
-					<strong> {itemName}</strong>?
+					Are you sure you want to delete {getEntityTypeName()} <strong>"{getDisplayName()}"</strong>?
 				</p>
-
-				{isContributor && (
-					<div className="warning-message">
-						<p><strong>Warning:</strong> Deleting a contributor will remove them from all associated items.
-							This action can only be completed if the contributor is not used as a primary contributor for any items.</p>
-					</div>
-				)}
-
-				<div className="confirm-input">
-					<label>
-						Type <strong>{confirmationWord}</strong> to confirm:
-					</label>
-					<input
-						type="text"
-						value={confirmText}
-						onChange={(e) => {
-							setConfirmText(e.target.value);
-							setError('');
-						}}
-						autoFocus
-					/>
-					{error && <div className="error-message">{error}</div>}
-				</div>
+				<p>This action cannot be undone.</p>
 
 				<div className="modal-actions">
 					<button
@@ -65,9 +58,8 @@ const DeleteConfirmModal = ({ item, entityType = 'item', onConfirm, onCancel }) 
 						Cancel
 					</button>
 					<button
-						className="confirm-button"
-						onClick={handleConfirm}
-						disabled={!confirmTextMatches}
+						className="delete-button"
+						onClick={onConfirm}
 					>
 						Delete
 					</button>

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ImageGallery from '../components/ImageGallery';
-import { fetchItem, fetchContributor } from '../api/itemsApi';
+import {
+	fetchItem,
+	fetchContributor,
+	fetchTechniques,
+	fetchMediumTypes,
+	fetchPeriods
+} from '../api/itemsApi';
 import '../styles/ItemDetailPage.css';
 import ContributorTooltip from '../components/ContributorTooltip';
 
@@ -11,7 +17,20 @@ const ItemDetailPage = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState(null);
 	const [contributorDetails, setContributorDetails] = useState({});
+	const [techniques, setTechniques] = useState([]);
+	const [mediumTypes, setMediumTypes] = useState([]);
+	const [periods, setPeriods] = useState([]);
 	const [isMobile, setIsMobile] = useState(window.innerWidth <= 992);
+
+	// Condition display names mapping - since conditions don't have a separate API endpoint
+	const conditionDisplayNames = {
+		'poor': 'Poor',
+		'fair': 'Fair',
+		'good': 'Good',
+		'very_good': 'Very Good',
+		'excellent': 'Excellent',
+		'mint': 'Mint'
+	};
 
 	// Check for mobile view on resize
 	useEffect(() => {
@@ -35,9 +54,19 @@ const ItemDetailPage = () => {
 				setLoading(true);
 				setError(null);
 
-				// Fetch the item data
-				const itemData = await fetchItem(itemId);
+				// Fetch data from APIs in parallel 
+				const [itemData, techniquesData, mediumTypesData, periodsData] = await Promise.all([
+					fetchItem(itemId),
+					fetchTechniques(),
+					fetchMediumTypes(),
+					fetchPeriods()
+				]);
+
+				// Set state with fetched data
 				setItem(itemData);
+				setTechniques(techniquesData);
+				setMediumTypes(mediumTypesData);
+				setPeriods(periodsData);
 
 				// Preload contributor data
 				if (itemData.contributors && itemData.contributors.length > 0) {
@@ -65,6 +94,37 @@ const ItemDetailPage = () => {
 
 		loadItem();
 	}, [itemId]);
+
+	// Get technique display name
+	const getTechniqueDisplayName = (techniqueSlug) => {
+		if (!techniqueSlug || !techniques.length) return formatItemType(techniqueSlug);
+
+		const technique = techniques.find(t => t.name === techniqueSlug);
+		return technique ? technique.display_name : formatItemType(techniqueSlug);
+	};
+
+	// Get medium type display name
+	const getMediumTypeDisplayName = (mediumSlug) => {
+		if (!mediumSlug || !mediumTypes.length) return formatItemType(mediumSlug);
+
+		const medium = mediumTypes.find(m => m.name === mediumSlug);
+		return medium ? medium.display_name : formatItemType(mediumSlug);
+	};
+
+	// Get period display name
+	const getPeriodDisplayName = (periodSlug) => {
+		if (!periodSlug || !periods.length) return formatItemType(periodSlug);
+
+		const period = periods.find(p => p.name === periodSlug);
+		return period ? period.display_name : formatItemType(periodSlug);
+	};
+
+	// Get condition display name
+	const getConditionDisplayName = (conditionSlug) => {
+		if (!conditionSlug) return '';
+
+		return conditionDisplayNames[conditionSlug] || formatItemType(conditionSlug);
+	};
 
 	// Update page title when item loads
 	useEffect(() => {
@@ -182,7 +242,7 @@ const ItemDetailPage = () => {
 			{item.technique && (
 				<div className="item-categories single-line">
 					<span className="item-category">
-						{formatItemType(item.technique)}
+						{getTechniqueDisplayName(item.technique)}
 					</span>
 				</div>
 			)}
@@ -291,7 +351,7 @@ const ItemDetailPage = () => {
 										<div className="medium-types">
 											{item.medium.types.map((type, index) => (
 												<span key={index} className="medium-type">
-													{formatItemType(type)}
+													{getMediumTypeDisplayName(type)}
 												</span>
 											))}
 										</div>
@@ -306,7 +366,7 @@ const ItemDetailPage = () => {
 								<div className="item-section">
 									<h3>Condition</h3>
 									<div className="condition-status">
-										{formatItemType(item.condition.status)}
+										{getConditionDisplayName(item.condition.status)}
 									</div>
 									{item.condition.description && (
 										<p className="condition-description">{item.condition.description}</p>
@@ -324,7 +384,7 @@ const ItemDetailPage = () => {
 							{item.period && (
 								<div className="item-section">
 									<h3>Period</h3>
-									<p>{formatItemType(item.period)}</p>
+									<p>{getPeriodDisplayName(item.period)}</p>
 								</div>
 							)}
 

@@ -191,6 +191,58 @@ export const fetchContributor = async (contributorId) => {
 	}
 };
 
+// Update a metadata entity (type, subject, technique, medium)
+export const updateMetadata = async (entityType, id, data) => {
+	try {
+		// Map the entityType to the correct endpoint
+		const endpoint = getMetadataEndpoint(entityType);
+
+		if (!endpoint) {
+			throw new Error(`Invalid entity type: ${entityType}`);
+		}
+
+		const response = await api.put(`/api/${endpoint}/${id}`, data);
+		return response.data;
+	} catch (error) {
+		console.error(`Error updating ${entityType} metadata:`, error);
+		throw error;
+	}
+};
+
+// Delete a metadata entity (type, subject, technique, medium)
+export const deleteMetadata = async (entityType, id) => {
+	try {
+		// Map the entityType to the correct endpoint
+		const endpoint = getMetadataEndpoint(entityType);
+
+		if (!endpoint) {
+			throw new Error(`Invalid entity type: ${entityType}`);
+		}
+
+		const response = await api.delete(`/api/${endpoint}/${id}`);
+		return response.data;
+	} catch (error) {
+		console.error(`Error deleting ${entityType} metadata:`, error);
+		throw error;
+	}
+};
+
+// Helper function to get the correct endpoint for metadata operations
+const getMetadataEndpoint = (entityType) => {
+	switch (entityType) {
+		case 'types':
+			return 'itemTypes';
+		case 'subjects':
+			return 'subjects';
+		case 'techniques':
+			return 'techniques';
+		case 'mediums':
+			return 'mediumTypes';
+		default:
+			return null;
+	}
+};
+
 // Create a new entity (item type, category, period, etc.)
 export const createEntity = async (entityType, entityData) => {
 	try {
