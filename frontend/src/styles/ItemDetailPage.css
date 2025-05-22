@@ -16,6 +16,7 @@
 	display: flex;
 	margin-top: 20px;
 	margin-bottom: 20px;
+	margin-left: var(--spacing-md);
 }
 
 .item-detail-page {
@@ -164,8 +165,8 @@
 	font-size: 1rem;
 	color: var(--text-color);
 	position: relative;
-	font-weight: 500;
-	margin-left: 10px;
+	font-weight: 400;
+	margin-left: 5px;
 }
 
 .item-detail-page .item-date {

@@ -686,7 +686,9 @@ const AdminPage = () => {
 									<div className="item-details">
 										<h3>{item.title}</h3>
 										<div className="item-meta">
-											<span className="item-type">{item.item_type.replace(/_/g, ' ')}</span>
+											<span className="item-type">
+												{types.find(type => type.name === item.item_type)?.display_name || item.item_type.replace(/_/g, ' ')}
+											</span>
 											{item.categories && (
 												<div className="item-categories">
 													{Array.isArray(item.categories)
