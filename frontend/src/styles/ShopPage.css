@@ -260,10 +260,6 @@
 		flex-direction: column;
 	}
 
-	.shop-controls {
-		margin-top: var(--spacing-md);
-	}
-
 	.shop-title {
 		font-size: 3rem;
 	}
@@ -319,7 +315,7 @@
 	/* Improved results count display */
 	.shop-results-info {
 		width: 100%;
-		margin-bottom: 16px;
+		margin-bottom: 0px;
 	}
 
 	/* Stack sorting controls vertically */

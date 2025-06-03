@@ -405,7 +405,7 @@
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		margin-bottom: var(--spacing-md);
+		margin-bottom: var(--spacing-sm);
 	}
 
 	.filters-header {
@@ -416,6 +416,7 @@
 	.filters-content {
 		max-height: 60vh;
 		padding: var(--spacing-sm);
+		padding-top: 0px;
 	}
 
 	.shop-filters.expanded {
@@ -429,8 +430,12 @@
 		font-size: 1rem;
 	}
 
+	.search-container {
+		margin-bottom: var(--spacing-sm);
+	}
+
 	.filters-header {
-		padding: var(--spacing-sm);
+		padding: 10px var(--spacing-sm);
 	}
 
 	.filters-header h2 {
@@ -439,6 +444,7 @@
 
 	.filters-content {
 		padding: var(--spacing-sm);
+		padding-top: 0px;
 		max-height: 50vh;
 	}
 
@@ -456,7 +462,6 @@
 	}
 
 	.filter-option label {
-		padding: var(--spacing-xs);
 		font-size: 0.9rem;
 	}
 
