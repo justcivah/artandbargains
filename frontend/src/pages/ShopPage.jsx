@@ -224,7 +224,6 @@ const ShopPage = () => {
 	const handleFilterChange = useCallback((filterType, value) => {
 		setSelectedFilters(prev => {
 			const newFilters = filterType === 'page' ? { ...prev } : { ...prev, page: 1 };
-
 			if (filterType === 'search' ||
 				filterType === 'sort' ||
 				filterType === 'limit' ||
