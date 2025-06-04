@@ -37,10 +37,10 @@ const Footer = () => {
 						<div className="footer-links-column">
 							<h4 className="footer-heading">Shop</h4>
 							<ul className="footer-links">
-								<li><Link to="/shop/prints">Prints</Link></li>
-								<li><Link to="/shop/porcelain">Porcelain</Link></li>
-								<li><Link to="/shop/furnishings">Vintage Furnishings</Link></li>
-								<li><Link to="/shop/new-arrivals">New Arrivals</Link></li>
+								<li><Link to="/shop?types=print">Prints</Link></li>
+								<li><Link to="/shop?types=porcelain">Porcelain</Link></li>
+								<li><Link to="/shop?types=vintage_furnishing">Vintage Furnishings</Link></li>
+								<li><Link to="/shop">New Arrivals</Link></li>
 							</ul>
 						</div>
 						<div className="footer-links-column">
@@ -48,8 +48,6 @@ const Footer = () => {
 							<ul className="footer-links">
 								<li><Link to="/about">About Us</Link></li>
 								<li><Link to="/contact">Contact</Link></li>
-								<li><Link to="/shipping">Shipping & Returns</Link></li>
-								<li><Link to="/faq">FAQ</Link></li>
 							</ul>
 						</div>
 						<div className="footer-links-column">
