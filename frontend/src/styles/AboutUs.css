@@ -5,7 +5,7 @@
 
 /* Navbar spacer to prevent content from being covered by fixed navbar */
 .navbar-spacer {
-	height: 80px;
+	height: 110px;
 	/* Should match navbar height */
 }
 
@@ -88,7 +88,6 @@
 	position: relative;
 	z-index: 2;
 	box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.05);
-	margin-top: var(--spacing-md);
 }
 
 /* Story Section */

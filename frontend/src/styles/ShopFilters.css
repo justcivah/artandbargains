@@ -100,7 +100,6 @@
 	color: var(--primary-color);
 	cursor: pointer;
 	height: 32px;
-	width: 32px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -188,7 +187,6 @@
 	color: var(--primary-color);
 	transition: transform var(--transition-normal);
 	height: 20px;
-	width: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
