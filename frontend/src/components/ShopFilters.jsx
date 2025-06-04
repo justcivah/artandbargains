@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../styles/ShopFilters.css";
 
 const ShopFilters = ({
@@ -14,6 +14,8 @@ const ShopFilters = ({
 }) => {
 	const [expanded, setExpanded] = useState(true);
 	const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+	const filtersRef = useRef(null);
+	const resizeTimeoutRef = useRef(null);
 
 	// State for expanded filters sections
 	const [expandedSections, setExpandedSections] = useState({
@@ -49,83 +51,145 @@ const ShopFilters = ({
 		condition: false,
 	});
 
-	// Track window resize for responsive behavior
-	useEffect(() => {
-		const handleResize = () => {
+	// Debounced resize handler
+	const handleResize = useCallback(() => {
+		if (resizeTimeoutRef.current) {
+			clearTimeout(resizeTimeoutRef.current);
+		}
+
+		resizeTimeoutRef.current = setTimeout(() => {
 			const width = window.innerWidth;
+			const previousWidth = windowWidth;
 			setWindowWidth(width);
 
-			// Auto-collapse on mobile/tablet, expand on desktop
-			if (width <= 992) {
-				setExpanded(false);
-			} else {
-				setExpanded(true);
+			// Only auto-collapse/expand on significant size changes (not during scroll)
+			const significantChange = Math.abs(width - previousWidth) > 50;
+
+			if (significantChange) {
+				if (width <= 992) {
+					setExpanded(false);
+				} else {
+					setExpanded(true);
+				}
 			}
-		};
+		}, 150);
+	}, [windowWidth]);
+
+	// Track window resize for responsive behavior
+	useEffect(() => {
+		// Set initial state based on screen size
+		if (window.innerWidth <= 992) {
+			setExpanded(false);
+		}
 
 		window.addEventListener("resize", handleResize);
-		handleResize(); // Call once on mount
 
 		return () => {
 			window.removeEventListener("resize", handleResize);
+			if (resizeTimeoutRef.current) {
+				clearTimeout(resizeTimeoutRef.current);
+			}
 		};
-	}, []);
+	}, [handleResize]);
 
 	// Toggle main filters visibility
-	const toggleFilters = (e) => {
-		e.stopPropagation();
-		setExpanded(!expanded);
-	};
+	const toggleFilters = useCallback(
+		(e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			setExpanded((prev) => !prev);
+		},
+		[]
+	);
 
 	// Toggle a filter section
-	const toggleSection = (section) => (e) => {
-		e.stopPropagation();
-		setExpandedSections((prev) => ({
-			...prev,
-			[section]: !prev[section],
-		}));
-	};
+	const toggleSection = useCallback(
+		(section) => (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			setExpandedSections((prev) => ({
+				...prev,
+				[section]: !prev[section],
+			}));
+		},
+		[]
+	);
 
 	// Toggle showing all items in a filter section
-	const toggleShowAll = (section) => (e) => {
-		e.stopPropagation();
-		setShowAll((prev) => ({
-			...prev,
-			[section]: !prev[section],
-		}));
-	};
+	const toggleShowAll = useCallback(
+		(section) => (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			setShowAll((prev) => ({
+				...prev,
+				[section]: !prev[section],
+			}));
+		},
+		[]
+	);
 
 	// Update filter search
-	const handleFilterSearch = (section, value) => {
+	const handleFilterSearch = useCallback((section, value) => {
 		setFilterSearches((prev) => ({
 			...prev,
 			[section]: value,
 		}));
-	};
+	}, []);
+
+	// Handle main search input
+	const handleMainSearch = useCallback(
+		(e) => {
+			e.stopPropagation();
+			onFilterChange("search", e.target.value);
+		},
+		[onFilterChange]
+	);
 
 	// Handle item type selection (single selection)
-	const handleItemTypeSelection = (typeName) => {
-		const isCurrentlySelected = selectedFilters.types.includes(typeName);
-		const hasOtherSelected = selectedFilters.types.length > 0 && !isCurrentlySelected;
+	const handleItemTypeSelection = useCallback(
+		(typeName) => {
+			const isCurrentlySelected = selectedFilters.types.includes(typeName);
+			const hasOtherSelected =
+				selectedFilters.types.length > 0 && !isCurrentlySelected;
 
-		if (isCurrentlySelected) {
-			// If clicking the currently selected type, deselect it
-			onFilterChange("types", typeName);
-		} else {
-			// If there are other types selected, remove them first
-			if (hasOtherSelected) {
-				// Remove all currently selected types
-				selectedFilters.types.forEach(selectedType => {
-					onFilterChange("types", selectedType);
-				});
+			if (isCurrentlySelected) {
+				// If clicking the currently selected type, deselect it
+				onFilterChange("types", typeName);
+			} else {
+				// If there are other types selected, remove them first
+				if (hasOtherSelected) {
+					// Remove all currently selected types
+					selectedFilters.types.forEach((selectedType) => {
+						onFilterChange("types", selectedType);
+					});
+				}
+				// Then add the new type
+				onFilterChange("types", typeName);
 			}
-			// Then add the new type
-			onFilterChange("types", typeName);
-		}
-	};
+		},
+		[selectedFilters.types, onFilterChange]
+	);
+
+	// Handle checkbox filter changes
+	const handleCheckboxChange = useCallback(
+		(filterType, value) => (e) => {
+			e.stopPropagation();
+			onFilterChange(filterType, value);
+		},
+		[onFilterChange]
+	);
+
+	// Handle price input changes
+	const handlePriceChange = useCallback(
+		(priceType) => (e) => {
+			e.stopPropagation();
+			onFilterChange(priceType, e.target.value);
+		},
+		[onFilterChange]
+	);
 
 	// Filter items based on search
-	const filterItems = (items, section) => {
+	const filterItems = useCallback((items, section) => {
 		if (!items || !filterSearches[section]) return items || [];
 
 		const search = filterSearches[section].toLowerCase();
@@ -137,10 +201,10 @@ const ShopFilters = ({
 
 			return displayName.includes(search) || name.includes(search);
 		});
-	};
+	}, [filterSearches]);
 
 	// Sort periods from newest to oldest
-	const sortPeriods = (periods) => {
+	const sortPeriods = useCallback((periods) => {
 		if (!periods) return [];
 
 		return [...periods].sort((a, b) => {
@@ -174,30 +238,51 @@ const ShopFilters = ({
 
 			return getTimeValue(a) - getTimeValue(b);
 		});
-	};
+	}, []);
 
 	// Limit items shown unless "show all" is enabled
-	const getLimitedItems = (items, section) => {
-		if (!items) return [];
+	const getLimitedItems = useCallback(
+		(items, section) => {
+			if (!items) return [];
 
-		const itemsToProcess =
-			section === "period" ? sortPeriods(items) : items;
-		const filtered = filterItems(itemsToProcess, section);
+			const itemsToProcess =
+				section === "period" ? sortPeriods(items) : items;
+			const filtered = filterItems(itemsToProcess, section);
 
-		if (showAll[section] || filtered.length <= 8 || filterSearches[section]) {
-			return filtered;
-		}
+			if (
+				showAll[section] ||
+				filtered.length <= 8 ||
+				filterSearches[section]
+			) {
+				return filtered;
+			}
 
-		return filtered.slice(0, 8);
-	};
+			return filtered.slice(0, 8);
+		},
+		[sortPeriods, filterItems, showAll, filterSearches]
+	);
 
-	// Handle clicks inside filters content to prevent closing
-	const handleContentClick = (e) => {
+	// Prevent event bubbling for content clicks
+	const handleContentClick = useCallback((e) => {
 		e.stopPropagation();
-	};
+	}, []);
+
+	// Handle search input events
+	const handleSearchInputEvents = useCallback((e) => {
+		e.stopPropagation();
+	}, []);
+
+	// Handle filter search input events
+	const handleFilterSearchInput = useCallback(
+		(section) => (e) => {
+			e.stopPropagation();
+			handleFilterSearch(section, e.target.value);
+		},
+		[handleFilterSearch]
+	);
 
 	return (
-		<div className="filters-container">
+		<div className="filters-container" ref={filtersRef}>
 			{/* Search box outside filters */}
 			<div className="search-container">
 				<div className="search-input-container">
@@ -221,7 +306,10 @@ const ShopFilters = ({
 						type="text"
 						placeholder="Search items..."
 						value={selectedFilters.search || ""}
-						onChange={(e) => onFilterChange("search", e.target.value)}
+						onChange={handleMainSearch}
+						onClick={handleSearchInputEvents}
+						onFocus={handleSearchInputEvents}
+						onTouchStart={handleSearchInputEvents}
 						className="search-input"
 					/>
 				</div>
@@ -234,6 +322,7 @@ const ShopFilters = ({
 					<button
 						className="toggle-filters-btn"
 						onClick={toggleFilters}
+						onTouchStart={handleSearchInputEvents}
 						aria-label={expanded ? "Collapse filters" : "Expand filters"}
 					>
 						{expanded ? "−" : "+"}
@@ -284,9 +373,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search types..."
 													value={filterSearches.type}
-													onChange={(e) =>
-														handleFilterSearch("type", e.target.value)
-													}
+													onChange={handleFilterSearchInput("type")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -304,6 +394,7 @@ const ShopFilters = ({
 													e.stopPropagation();
 													handleItemTypeSelection(type.name);
 												}}
+												onTouchStart={handleSearchInputEvents}
 											>
 												<span className="badge-text">{type.display_name}</span>
 											</div>
@@ -314,6 +405,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("type")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.type ? "Show Less" : "Show More"}
 										</button>
@@ -322,7 +414,6 @@ const ShopFilters = ({
 							)}
 						</div>
 
-						{/* Rest of the filter sections remain the same */}
 						{/* Subject Filter */}
 						<div className="filter-section">
 							<div className="filter-header" onClick={toggleSection("subject")}>
@@ -365,9 +456,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search subjects..."
 													value={filterSearches.subject}
-													onChange={(e) =>
-														handleFilterSearch("subject", e.target.value)
-													}
+													onChange={handleFilterSearchInput("subject")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -376,16 +468,17 @@ const ShopFilters = ({
 									<div className="filter-options">
 										{getLimitedItems(subjects, "subject").map((subject) => (
 											<div key={subject.name} className="filter-option">
-												<label>
+												<label onTouchStart={handleSearchInputEvents}>
 													<input
 														type="checkbox"
 														checked={selectedFilters.subjects.includes(
 															subject.name
 														)}
-														onChange={(e) => {
-															e.stopPropagation();
-															onFilterChange("subjects", subject.name);
-														}}
+														onChange={handleCheckboxChange(
+															"subjects",
+															subject.name
+														)}
+														onClick={handleSearchInputEvents}
 													/>
 													<span className="option-name">
 														{subject.display_name}
@@ -399,6 +492,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("subject")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.subject ? "Show Less" : "Show More"}
 										</button>
@@ -452,9 +546,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search techniques..."
 													value={filterSearches.technique}
-													onChange={(e) =>
-														handleFilterSearch("technique", e.target.value)
-													}
+													onChange={handleFilterSearchInput("technique")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -464,16 +559,17 @@ const ShopFilters = ({
 										{getLimitedItems(techniques, "technique").map(
 											(technique) => (
 												<div key={technique.name} className="filter-option">
-													<label>
+													<label onTouchStart={handleSearchInputEvents}>
 														<input
 															type="checkbox"
 															checked={selectedFilters.techniques.includes(
 																technique.name
 															)}
-															onChange={(e) => {
-																e.stopPropagation();
-																onFilterChange("techniques", technique.name);
-															}}
+															onChange={handleCheckboxChange(
+																"techniques",
+																technique.name
+															)}
+															onClick={handleSearchInputEvents}
 														/>
 														<span className="option-name">
 															{technique.display_name}
@@ -488,6 +584,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("technique")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.technique ? "Show Less" : "Show More"}
 										</button>
@@ -538,9 +635,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search periods..."
 													value={filterSearches.period}
-													onChange={(e) =>
-														handleFilterSearch("period", e.target.value)
-													}
+													onChange={handleFilterSearchInput("period")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -549,16 +647,17 @@ const ShopFilters = ({
 									<div className="filter-options">
 										{getLimitedItems(periods, "period").map((period) => (
 											<div key={period.name} className="filter-option">
-												<label>
+												<label onTouchStart={handleSearchInputEvents}>
 													<input
 														type="checkbox"
 														checked={selectedFilters.periods.includes(
 															period.name
 														)}
-														onChange={(e) => {
-															e.stopPropagation();
-															onFilterChange("periods", period.name);
-														}}
+														onChange={handleCheckboxChange(
+															"periods",
+															period.name
+														)}
+														onClick={handleSearchInputEvents}
 													/>
 													<span className="option-name">
 														{period.display_name}
@@ -572,6 +671,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("period")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.period ? "Show Less" : "Show More"}
 										</button>
@@ -625,9 +725,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search authors..."
 													value={filterSearches.contributor}
-													onChange={(e) =>
-														handleFilterSearch("contributor", e.target.value)
-													}
+													onChange={handleFilterSearchInput("contributor")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -637,16 +738,17 @@ const ShopFilters = ({
 										{getLimitedItems(contributors, "contributor").map(
 											(contributor) => (
 												<div key={contributor.name} className="filter-option">
-													<label>
+													<label onTouchStart={handleSearchInputEvents}>
 														<input
 															type="checkbox"
 															checked={selectedFilters.contributors.includes(
 																contributor.name
 															)}
-															onChange={(e) => {
-																e.stopPropagation();
-																onFilterChange("contributors", contributor.name);
-															}}
+															onChange={handleCheckboxChange(
+																"contributors",
+																contributor.name
+															)}
+															onClick={handleSearchInputEvents}
 														/>
 														<span className="option-name">
 															{contributor.display_name}
@@ -661,6 +763,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("contributor")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.contributor ? "Show Less" : "Show More"}
 										</button>
@@ -714,9 +817,10 @@ const ShopFilters = ({
 													type="text"
 													placeholder="Search mediums..."
 													value={filterSearches.mediumType}
-													onChange={(e) =>
-														handleFilterSearch("mediumType", e.target.value)
-													}
+													onChange={handleFilterSearchInput("mediumType")}
+													onClick={handleSearchInputEvents}
+													onFocus={handleSearchInputEvents}
+													onTouchStart={handleSearchInputEvents}
 												/>
 											</div>
 										</div>
@@ -726,16 +830,17 @@ const ShopFilters = ({
 										{getLimitedItems(mediumTypes, "mediumType").map(
 											(mediumType) => (
 												<div key={mediumType.name} className="filter-option">
-													<label>
+													<label onTouchStart={handleSearchInputEvents}>
 														<input
 															type="checkbox"
 															checked={selectedFilters.mediumTypes.includes(
 																mediumType.name
 															)}
-															onChange={(e) => {
-																e.stopPropagation();
-																onFilterChange("mediumTypes", mediumType.name);
-															}}
+															onChange={handleCheckboxChange(
+																"mediumTypes",
+																mediumType.name
+															)}
+															onClick={handleSearchInputEvents}
 														/>
 														<span className="option-name">
 															{mediumType.display_name}
@@ -750,6 +855,7 @@ const ShopFilters = ({
 										<button
 											className="show-more-btn"
 											onClick={toggleShowAll("mediumType")}
+											onTouchStart={handleSearchInputEvents}
 										>
 											{showAll.mediumType ? "Show Less" : "Show More"}
 										</button>
@@ -780,9 +886,10 @@ const ShopFilters = ({
 												id="min-price"
 												min="0"
 												value={selectedFilters.minPrice || ""}
-												onChange={(e) =>
-													onFilterChange("minPrice", e.target.value)
-												}
+												onChange={handlePriceChange("minPrice")}
+												onClick={handleSearchInputEvents}
+												onFocus={handleSearchInputEvents}
+												onTouchStart={handleSearchInputEvents}
 											/>
 										</div>
 										<div className="price-input">
@@ -792,9 +899,10 @@ const ShopFilters = ({
 												id="max-price"
 												min="0"
 												value={selectedFilters.maxPrice || ""}
-												onChange={(e) =>
-													onFilterChange("maxPrice", e.target.value)
-												}
+												onChange={handlePriceChange("maxPrice")}
+												onClick={handleSearchInputEvents}
+												onFocus={handleSearchInputEvents}
+												onTouchStart={handleSearchInputEvents}
 											/>
 										</div>
 									</div>
@@ -802,7 +910,11 @@ const ShopFilters = ({
 							)}
 						</div>
 
-						<button className="reset-filters-btn" onClick={onResetFilters}>
+						<button
+							className="reset-filters-btn"
+							onClick={onResetFilters}
+							onTouchStart={handleSearchInputEvents}
+						>
 							Clear All Filters
 						</button>
 					</div>
