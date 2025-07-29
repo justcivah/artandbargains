@@ -77,85 +77,85 @@ function App() {
 		<Router>
 			<div className="app">
 				<Routes>
-					{/* Public routes with Navbar and Footer */}
-					<Route path="/" element={
-						<PageLayout>
-							<HomePage />
-						</PageLayout>
-					} />
-					<Route path="/shop" element={
-						<PageLayout>
-							<ShopPage />
-						</PageLayout>
-					} />
-					<Route path="/about" element={
-						<PageLayout>
-							<AboutPage />
-						</PageLayout>
-					} />
-					<Route path="/contact" element={
-						<PageLayout>
-							<ContactPage />
-						</PageLayout>
-					} />
-					{/* Item detail page */}
-					<Route path="/shop/item/:itemId" element={
-						<PageLayout>
-							<ItemDetailPage />
-						</PageLayout>
-					} />
-					{/* Login page - no Navbar or Footer */}
-					<Route path="/login" element={
-						<PageLayout>
-							<LoginPage />
-						</PageLayout>
-					} />
-					{/* Admin routes - protected and no Navbar or Footer */}
-					<Route path="/admin" element={
-						<PageLayout>
-							<ProtectedRoute>
-								<AdminPage />
-							</ProtectedRoute>
-						</PageLayout>
-					} />
-					<Route path="/admin/items/new" element={
-						<PageLayout>
-							<ProtectedRoute>
-								<AddItemPage />
-							</ProtectedRoute>
-						</PageLayout>
-					} />
-					<Route path="/admin/items/:itemId/edit" element={
-						<PageLayout>
-							<ProtectedRoute>
-								<EditItemPage />
-							</ProtectedRoute>
-						</PageLayout>
-					} />
-					{/* New contributor routes */}
-					<Route path="/admin/contributors/new" element={
-						<PageLayout>
-							<ProtectedRoute>
-								<EditContributorPage />
-							</ProtectedRoute>
-						</PageLayout>
-					} />
-					<Route path="/admin/contributors/:contributorId/edit" element={
-						<PageLayout>
-							<ProtectedRoute>
-								<EditContributorPage />
-							</ProtectedRoute>
-						</PageLayout>
-					} />
-					{/* 404 fallback */}
-					<Route path="*" element={
-						<PageLayout>
-							<div className="not-found">Page not found</div>
-						</PageLayout>
-					} />
-				</Routes>
-			</div>
-		</Router>
+						{/* Public routes with Navbar and Footer */}
+						<Route path="/" element={
+							<PageLayout>
+								<HomePage />
+							</PageLayout>
+						} />
+						<Route path="/shop" element={
+							<PageLayout>
+								<ShopPage />
+							</PageLayout>
+						} />
+						<Route path="/about" element={
+							<PageLayout>
+								<AboutPage />
+							</PageLayout>
+						} />
+						<Route path="/contact" element={
+							<PageLayout>
+								<ContactPage />
+							</PageLayout>
+						} />
+						{/* Item detail page */}
+						<Route path="/shop/item/:itemId" element={
+							<PageLayout>
+								<ItemDetailPage />
+							</PageLayout>
+						} />
+						{/* Login page - no Navbar or Footer */}
+						<Route path="/login" element={
+							<PageLayout>
+								<LoginPage />
+							</PageLayout>
+						} />
+						{/* Admin routes - protected and no Navbar or Footer */}
+						<Route path="/admin" element={
+							<PageLayout>
+								<ProtectedRoute>
+									<AdminPage />
+								</ProtectedRoute>
+							</PageLayout>
+						} />
+						<Route path="/admin/items/new" element={
+							<PageLayout>
+								<ProtectedRoute>
+									<AddItemPage />
+								</ProtectedRoute>
+							</PageLayout>
+						} />
+						<Route path="/admin/items/:itemId/edit" element={
+							<PageLayout>
+								<ProtectedRoute>
+									<EditItemPage />
+								</ProtectedRoute>
+							</PageLayout>
+						} />
+						{/* New contributor routes */}
+						<Route path="/admin/contributors/new" element={
+							<PageLayout>
+								<ProtectedRoute>
+									<EditContributorPage />
+								</ProtectedRoute>
+							</PageLayout>
+						} />
+						<Route path="/admin/contributors/:contributorId/edit" element={
+							<PageLayout>
+								<ProtectedRoute>
+									<EditContributorPage />
+								</ProtectedRoute>
+							</PageLayout>
+						} />
+						{/* 404 fallback */}
+						<Route path="*" element={
+							<PageLayout>
+								<div className="not-found">Page not found</div>
+							</PageLayout>
+						} />
+					</Routes>
+				</div>
+			</Router>
 	);
 }
 

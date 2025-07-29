@@ -126,15 +126,6 @@ const ItemDetailPage = () => {
 		return conditionDisplayNames[conditionSlug] || formatItemType(conditionSlug);
 	};
 
-	// Update page title when item loads
-	useEffect(() => {
-		if (item) {
-			document.title = `${item.title} - Art & Bargains`;
-		} else {
-			document.title = 'Item Details - Art & Bargains';
-		}
-	}, [item]);
-
 	// Also scroll to top when itemId changes (navigating between items)
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'instant' });
@@ -234,6 +225,194 @@ const ItemDetailPage = () => {
 			contributorDetails[contributor.contributor_id]?.display_name ||
 			contributor.contributor_id;
 	};
+
+	// Generate meta tags data
+	const generateMetaData = () => {
+		if (!item) return {};
+
+		const primaryContributorName = item.primary_contributor_display;
+		const dateString = formatDateInfo(item.date_info);
+		const fullTitle = `${item.title} (${dateString})${primaryContributorName ? ` - ${primaryContributorName}` : ''}`;
+		
+		// Create a rich description
+		let description = item.description;
+		if (item.medium?.types && item.medium.types.length > 0) {
+			const mediumTypes = item.medium.types.map(type => getMediumTypeDisplayName(type)).join(', ');
+			description += ` Medium: ${mediumTypes}.`;
+		}
+		if (item.condition?.status) {
+			description += ` Condition: ${getConditionDisplayName(item.condition.status)}.`;
+		}
+		description += ` Available at Art & Bargains for $${item.price.toFixed(2)}.`;
+
+		// Get the primary image
+		const primaryImage = item.images && item.images.length > 0 ? item.images[0] : null;
+		const imageUrl = primaryImage ? `https://artandbargains.com${primaryImage.url}` : 'https://artandbargains.com/default-art-image.jpg';
+
+		// Current page URL
+		const pageUrl = `https://artandbargains.com/shop/item/${itemId}`;
+
+		return {
+			title: `${fullTitle} - Art & Bargains`,
+			description: description.substring(0, 160), // Keep under 160 chars for search results
+			fullDescription: description,
+			imageUrl,
+			pageUrl,
+			price: item.price,
+			availability: item.inventory_quantity > 0 ? 'InStock' : 'OutOfStock',
+			primaryContributorName,
+			dateString,
+			fullTitle
+		};
+	};
+
+	// Generate JSON-LD structured data
+	const generateStructuredData = (metaData) => {
+		if (!item || !metaData) return null;
+
+		const structuredData = {
+			"@context": "https://schema.org/",
+			"@type": "Product",
+			"name": metaData.fullTitle,
+			"description": metaData.fullDescription,
+			"image": metaData.imageUrl,
+			"url": metaData.pageUrl,
+			"sku": itemId,
+			"category": "Art",
+			"offers": {
+				"@type": "Offer",
+				"price": metaData.price,
+				"priceCurrency": "USD",
+				"availability": `https://schema.org/${metaData.availability}`,
+				"seller": {
+					"@type": "Organization",
+					"name": "Art & Bargains"
+				}
+			}
+		};
+
+		// Add creator information if available
+		if (metaData.primaryContributorName) {
+			structuredData.creator = {
+				"@type": "Person",
+				"name": metaData.primaryContributorName
+			};
+		}
+
+		// Add date created if available
+		if (item.date_info) {
+			if (item.date_info.type === 'exact' && item.date_info.year_exact) {
+				structuredData.dateCreated = item.date_info.year_exact.toString();
+			} else if (item.date_info.type === 'range' && item.date_info.year_range_start) {
+				structuredData.dateCreated = item.date_info.year_range_start.toString();
+			}
+		}
+
+		// Add medium/material if available
+		if (item.medium?.types && item.medium.types.length > 0) {
+			structuredData.material = item.medium.types.map(type => getMediumTypeDisplayName(type));
+		}
+
+		// Add dimensions if available
+		if (item.dimensions) {
+			const dimensionStrings = [];
+			Object.entries(item.dimensions).forEach(([partName, measurements]) => {
+				if (partName === 'unit') return;
+				if (typeof measurements === 'object' && measurements !== null) {
+					Object.entries(measurements).forEach(([measurementType, value]) => {
+						dimensionStrings.push(`${measurementType}: ${value}${item.dimensions.unit || 'cm'}`);
+					});
+				}
+			});
+			if (dimensionStrings.length > 0) {
+				structuredData.size = dimensionStrings.join(', ');
+			}
+		}
+
+		return structuredData;
+	};
+
+	// Update document head with meta tags
+	useEffect(() => {
+		if (!item) return;
+
+		const metaData = generateMetaData();
+		const structuredData = generateStructuredData(metaData);
+
+		// Update title
+		document.title = metaData.title;
+
+		// Helper function to update or create meta tag
+		const updateMetaTag = (name, content, property = false) => {
+			if (!content) return;
+			
+			const attribute = property ? 'property' : 'name';
+			const selector = `meta[${attribute}="${name}"]`;
+			let tag = document.querySelector(selector);
+			
+			if (!tag) {
+				tag = document.createElement('meta');
+				tag.setAttribute(attribute, name);
+				document.head.appendChild(tag);
+			}
+			tag.setAttribute('content', content);
+		};
+
+		// Update or create link tag
+		const updateLinkTag = (rel, href) => {
+			let tag = document.querySelector(`link[rel="${rel}"]`);
+			if (!tag) {
+				tag = document.createElement('link');
+				tag.setAttribute('rel', rel);
+				document.head.appendChild(tag);
+			}
+			tag.setAttribute('href', href);
+		};
+
+		// Basic meta tags
+		updateMetaTag('description', metaData.description);
+		updateMetaTag('keywords', `art, ${item.technique ? getTechniqueDisplayName(item.technique) : 'artwork'}, ${item.primary_contributor_display || 'artist'}, ${item.medium?.types ? item.medium.types.map(type => getMediumTypeDisplayName(type)).join(', ') : 'art piece'}, vintage art, collectible art`);
+		updateMetaTag('author', item.primary_contributor_display || 'Art & Bargains');
+		updateMetaTag('robots', 'index, follow, max-image-preview:large');
+
+		// Open Graph meta tags
+		updateMetaTag('og:title', metaData.title, true);
+		updateMetaTag('og:description', metaData.description, true);
+		updateMetaTag('og:image', metaData.imageUrl, true);
+		updateMetaTag('og:image:alt', `${item.title} by ${item.primary_contributor_display || 'unknown artist'}`, true);
+		updateMetaTag('og:url', metaData.pageUrl, true);
+		updateMetaTag('og:type', 'product', true);
+		updateMetaTag('og:site_name', 'Art & Bargains', true);
+		updateMetaTag('product:price:amount', metaData.price.toString(), true);
+		updateMetaTag('product:price:currency', 'USD', true);
+		updateMetaTag('product:availability', metaData.availability, true);
+
+		// Twitter Card meta tags
+		updateMetaTag('twitter:card', 'summary_large_image');
+		updateMetaTag('twitter:title', metaData.title);
+		updateMetaTag('twitter:description', metaData.description);
+		updateMetaTag('twitter:image', metaData.imageUrl);
+		updateMetaTag('twitter:image:alt', `${item.title} by ${item.primary_contributor_display || 'unknown artist'}`);
+
+		// Canonical URL
+		updateLinkTag('canonical', metaData.pageUrl);
+
+		// Structured data
+		if (structuredData) {
+			let jsonLdScript = document.querySelector('script[type="application/ld+json"]');
+			if (!jsonLdScript) {
+				jsonLdScript = document.createElement('script');
+				jsonLdScript.type = 'application/ld+json';
+				document.head.appendChild(jsonLdScript);
+			}
+			jsonLdScript.textContent = JSON.stringify(structuredData);
+		}
+
+		// Cleanup function to restore default title when component unmounts
+		return () => {
+			document.title = 'Art & Bargains';
+		};
+	}, [item, techniques, mediumTypes, periods, contributorDetails, itemId]);
 
 	// Render title component to be used in mobile view
 	const renderItemTitle = () => (

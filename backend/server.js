@@ -14,6 +14,8 @@ const metadataController = require('./controllers/metadataController');
 const contributorsController = require('./controllers/contributorsController');
 const imagesController = require('./controllers/imagesController');
 const contactController = require('./controllers/contactController');
+const sitemapController = require('./controllers/sitemapController'); // Add this line
+const robotsController = require('./controllers/robotsController'); // Add this line
 
 // Create Express app
 const app = express();
@@ -25,6 +27,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // Keep-alive endpoint
 app.get('/api/keep/alive', (req, res) => { res.json({ success: true }); });
+
+// Sitemap endpoints - Add these BEFORE other routes
+app.get('/sitemap.xml', sitemapController.generateSitemapWithImages);
+app.get('/sitemap-simple.xml', sitemapController.generateSitemap);
+app.get('/sitemap-index.xml', sitemapController.generateSitemapIndex);
+
+// Add robots.txt route
+app.get('/robots.txt', robotsController.generateRobotsTxt);
 
 // Login endpoint
 app.post('/api/auth/login', authMiddleware.login);
