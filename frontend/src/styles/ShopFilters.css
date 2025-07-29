@@ -242,10 +242,18 @@
 	pointer-events: none;
 }
 
-/* Badge styles for item types */
+/* Badge styles for item types - horizontal layout (original) */
 .filter-badges {
 	display: flex;
 	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+/* Badge styles for item types - vertical layout (one per row) */
+.filter-badges-vertical {
+	display: flex;
+	flex-direction: column;
 	gap: 8px;
 	margin-bottom: 8px;
 }
@@ -263,6 +271,11 @@
 	user-select: none;
 	white-space: nowrap;
 	touch-action: manipulation;
+}
+
+/* For vertical layout, keep badges at content width */
+.filter-badges-vertical .filter-badge {
+	align-self: flex-start;
 }
 
 .filter-badge:hover {
@@ -500,6 +513,10 @@
 	}
 
 	.filter-badges {
+		gap: 6px;
+	}
+	
+	.filter-badges-vertical {
 		gap: 6px;
 	}
 

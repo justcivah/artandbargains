@@ -240,13 +240,34 @@ const ShopFilters = ({
 		});
 	}, []);
 
+	// Sort items alphabetically by display_name
+	const sortAlphabetically = useCallback((items) => {
+		if (!items) return [];
+
+		return [...items].sort((a, b) => {
+			const nameA = (a.display_name || a.name || "").toLowerCase().trim();
+			const nameB = (b.display_name || b.name || "").toLowerCase().trim();
+			return nameA.localeCompare(nameB, undefined, { 
+				numeric: true, 
+				sensitivity: 'base' 
+			});
+		});
+	}, []);
+
 	// Limit items shown unless "show all" is enabled
 	const getLimitedItems = useCallback(
 		(items, section) => {
 			if (!items) return [];
 
-			const itemsToProcess =
-				section === "period" ? sortPeriods(items) : items;
+			let itemsToProcess;
+			
+			// Apply sorting based on section
+			if (section === "period") {
+				itemsToProcess = sortPeriods(items);
+			} else {
+				itemsToProcess = sortAlphabetically(items);
+			}
+			
 			const filtered = filterItems(itemsToProcess, section);
 
 			if (
@@ -259,7 +280,7 @@ const ShopFilters = ({
 
 			return filtered.slice(0, 8);
 		},
-		[sortPeriods, filterItems, showAll, filterSearches]
+		[sortPeriods, sortAlphabetically, filterItems, showAll, filterSearches]
 	);
 
 	// Prevent event bubbling for content clicks
@@ -331,7 +352,7 @@ const ShopFilters = ({
 
 				{expanded && (
 					<div className="filters-content" onClick={handleContentClick}>
-						{/* Item Type Filter with Badges */}
+						{/* Item Type Filter with Badges - One per row */}
 						<div className="filter-section">
 							<div className="filter-header" onClick={toggleSection("type")}>
 								<h3>Item Type</h3>
@@ -382,7 +403,7 @@ const ShopFilters = ({
 										</div>
 									)}
 
-									<div className="filter-badges">
+									<div className="filter-badges-vertical">
 										{getLimitedItems(itemTypes, "type").map((type) => (
 											<div
 												key={type.name}

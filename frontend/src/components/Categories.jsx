@@ -77,21 +77,21 @@ const Categories = () => {
 						className="category-card"
 						ref={(el) => (categoriesRef.current[index] = el)}
 					>
-						<div className="category-image-container">
-							<div className="category-image-overlay"></div>
-							<img
-								src={category.image}
-								alt={category.title}
-								className="category-image"
-							/>
-						</div>
+						<Link to={category.link} className="category-image-link">
+							<div className="category-image-container">
+								<div className="category-image-overlay"></div>
+								<img
+									src={category.image}
+									alt={category.title}
+									className="category-image"
+								/>
+							</div>
+						</Link>
 						<div className="category-content">
-							<h3 className="category-title">{category.title}</h3>
-							<p className="category-description">{category.description}</p>
-							<Link to={category.link} className="category-link">
-								Explore {category.title}
-								<span className="arrow">→</span>
+							<Link to={category.link} className="category-title-link">
+								<h3 className="category-title">{category.title}</h3>
 							</Link>
+							<p className="category-description">{category.description}</p>
 						</div>
 					</div>
 				))}
