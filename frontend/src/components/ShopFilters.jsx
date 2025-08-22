@@ -163,11 +163,39 @@ const ShopFilters = ({
 						onFilterChange("types", selectedType);
 					});
 				}
+
+				// Clear all other filter checkboxes when selecting a new item type
+				// Clear subjects
+				selectedFilters.subjects.forEach((subject) => {
+					onFilterChange("subjects", subject);
+				});
+
+				// Clear techniques
+				selectedFilters.techniques.forEach((technique) => {
+					onFilterChange("techniques", technique);
+				});
+
+				// Clear periods
+				selectedFilters.periods.forEach((period) => {
+					onFilterChange("periods", period);
+				});
+
+				// Clear contributors
+				selectedFilters.contributors.forEach((contributor) => {
+					onFilterChange("contributors", contributor);
+				});
+
+				// Clear medium types
+				selectedFilters.mediumTypes.forEach((mediumType) => {
+					onFilterChange("mediumTypes", mediumType);
+				});
+
 				// Then add the new type
 				onFilterChange("types", typeName);
 			}
 		},
-		[selectedFilters.types, onFilterChange]
+		[selectedFilters.types, selectedFilters.subjects, selectedFilters.techniques,
+		selectedFilters.periods, selectedFilters.contributors, selectedFilters.mediumTypes, onFilterChange]
 	);
 
 	// Handle checkbox filter changes
@@ -247,9 +275,9 @@ const ShopFilters = ({
 		return [...items].sort((a, b) => {
 			const nameA = (a.display_name || a.name || "").toLowerCase().trim();
 			const nameB = (b.display_name || b.name || "").toLowerCase().trim();
-			return nameA.localeCompare(nameB, undefined, { 
-				numeric: true, 
-				sensitivity: 'base' 
+			return nameA.localeCompare(nameB, undefined, {
+				numeric: true,
+				sensitivity: 'base'
 			});
 		});
 	}, []);
@@ -260,14 +288,14 @@ const ShopFilters = ({
 			if (!items) return [];
 
 			let itemsToProcess;
-			
+
 			// Apply sorting based on section
 			if (section === "period") {
 				itemsToProcess = sortPeriods(items);
 			} else {
 				itemsToProcess = sortAlphabetically(items);
 			}
-			
+
 			const filtered = filterItems(itemsToProcess, section);
 
 			if (
@@ -408,8 +436,8 @@ const ShopFilters = ({
 											<div
 												key={type.name}
 												className={`filter-badge ${selectedFilters.types.includes(type.name)
-														? "selected"
-														: ""
+													? "selected"
+													: ""
 													}`}
 												onClick={(e) => {
 													e.stopPropagation();
