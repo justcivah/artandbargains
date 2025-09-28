@@ -83,18 +83,6 @@ exports.sendContactEmail = async (req, res) => {
 			`
 		};
 
-		console.log('Environment check:', {
-			from: process.env.MAILGUN_FROM_EMAIL,
-			domain: process.env.MAILGUN_DOMAIN,
-			apiKey: process.env.MAILGUN_API_KEY ? 'Set' : 'Missing'
-		});
-
-		console.log('Email data being sent:', {
-			from: mainEmailData.from,
-			to: mainEmailData.to,
-			domain: process.env.MAILGUN_DOMAIN
-		});
-
 		// Send the main message email
 		await mg.messages.create(process.env.MAILGUN_DOMAIN, mainEmailData);
 
