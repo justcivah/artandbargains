@@ -1,23 +1,13 @@
-const nodemailer = require('nodemailer');
+const Mailgun = require('mailgun.js');
+const formData = require('form-data');
 const axios = require('axios');
 
-// Create nodemailer transporter - lazy initialization
-let transporter = null;
-
-const getTransporter = () => {
-	if (!transporter) {
-		transporter = nodemailer.createTransport({
-			host: process.env.SMTP_HOST,
-			port: process.env.SMTP_PORT,
-			secure: process.env.SMTP_SECURE === 'true',
-			auth: {
-				user: process.env.SMTP_USER,
-				pass: process.env.SMTP_PASS
-			}
-		});
-	}
-	return transporter;
-};
+// Initialize Mailgun client
+const mailgun = new Mailgun(formData);
+const mg = mailgun.client({
+	username: 'api',
+	key: process.env.MAILGUN_API_KEY
+});
 
 // Verify reCAPTCHA token
 async function verifyRecaptcha(token) {
@@ -32,7 +22,6 @@ async function verifyRecaptcha(token) {
 				}
 			}
 		);
-
 		return response.data.success;
 	} catch (error) {
 		console.error('reCAPTCHA verification error:', error);
@@ -58,93 +47,76 @@ exports.sendContactEmail = async (req, res) => {
 
 		// Skip captcha validation for localhost
 		let isValidCaptcha = false;
-
 		if (isLocalhost(req)) {
 			isValidCaptcha = true;
 		} else {
-			// Require captchaToken for non-localhost environments
 			if (!captchaToken) {
 				return res.status(400).json({ error: 'reCAPTCHA token is required' });
 			}
-
-			// Verify reCAPTCHA for non-localhost environments
 			isValidCaptcha = await verifyRecaptcha(captchaToken);
-
 			if (!isValidCaptcha) {
 				return res.status(400).json({ error: 'Invalid reCAPTCHA. Please try again.' });
 			}
 		}
 
-		// Email validation regex
+		// Validate email format
 		const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 		if (!emailRegex.test(email)) {
 			return res.status(400).json({ error: 'Invalid email address' });
 		}
 
-		// Prepare email content
-		const mailOptions = {
-			from: process.env.SMTP_FROM_EMAIL,
+		// Prepare email content for main message
+		const mainEmailData = {
+			from: process.env.MAILGUN_FROM_EMAIL,
 			to: process.env.CONTACT_EMAIL_TO,
 			subject: `Got a new message!`,
+			text: `Just got a new message from the form\n\nName: ${name}\nFrom: ${email}\nSubject: ${subject}\n\nMessage:\n${message}\n\nSent from Art & Bargains website contact form`,
 			html: `
-				<h3>Just got a new message from the form</h3>
-				<p><strong>Name:</strong> ${name}</p>
-				<p><strong>From:</strong> ${email}</p>
-				<p><strong>Subject:</strong> ${subject}</p>
-				<hr>
-				<p><strong>Message:</strong></p>
-				<p>${message.replace(/\n/g, '<br>')}</p>
-				<hr>
-				<p><small>Sent from Art & Bargains website contact form</small></p>
-			`,
-			text: `
-				Just got a new message from the form
-				
-				Name: ${name}
-				From: ${email}
-				Subject: ${subject}
-				
-				Message:
-				${message}
-				
-				Sent from Art & Bargains website contact form
+			<h3>Just got a new message from the form</h3>
+			<p><strong>Name:</strong> ${name}</p>
+			<p><strong>From:</strong> ${email}</p>
+			<p><strong>Subject:</strong> ${subject}</p>
+			<hr />
+			<p><strong>Message:</strong></p>
+			<p>${message.replace(/\n/g, '<br>')}</p>
+			<hr />
+			<p><small>Sent from Art & Bargains website contact form</small></p>
 			`
 		};
 
-		// Get transporter and send email
-		const mailer = getTransporter();
-		await mailer.sendMail(mailOptions);
+		// Send the main message email
+		await mg.messages.create(process.env.MAILGUN_DOMAIN, mainEmailData);
 
-		// Send auto-reply to user
-		const autoReplyOptions = {
-			from: process.env.SMTP_FROM_EMAIL,
+		// Prepare auto-reply email content for user
+		const autoReplyData = {
+			from: process.env.MAILGUN_FROM_EMAIL,
 			to: email,
 			subject: 'Got your message!',
-			html: `
-				<h3>Hi ${name},</h3>
-				<p>Thanks for reaching out! We have received your message and will get back to you as soon as possible.</p>
-				<hr>
-				<p><strong>Your message:</strong></p>
-				<p><strong>Subject:</strong> ${subject}</p>
-				<p>${message.replace(/\n/g, '<br>')}</p>
-				<hr>
-				<p>Best regards,<br>Art & Bargains Team</p>
-			`,
 			text: `
-				Hi ${name},
-				
-				Thanks for reaching out! We have received your message and will get back to you as soon as possible.
-				
-				Your message:
-				Subject: ${subject}
-				${message}
-				
-				Best regards,
-				Art & Bargains Team
+			Hi ${name},
+			Thanks for reaching out! We have received your message and will get back to you as soon as possible.
+
+			Your message:
+			Subject: ${subject}
+			${message}
+
+			Best regards,
+			Art & Bargains Team
+			`,
+			html: `
+			<h3>Hi ${name},</h3>
+			<p>Thanks for reaching out! We have received your message and will get back to you as soon as possible.</p>
+			<hr/>
+			<p><strong>Your message:</strong></p>
+			<p><strong>Subject:</strong> ${subject}</p>
+			<p>${message.replace(/\n/g, '<br>')}</p>
+			<hr/>
+			<p>Best regards,<br/>Art & Bargains Team</p>
 			`
 		};
 
-		await mailer.sendMail(autoReplyOptions);
+		// Send auto-reply email
+		await mg.messages.create(process.env.MAILGUN_DOMAIN, autoReplyData);
 
 		res.json({ success: true, message: 'Email sent successfully' });
 	} catch (error) {
