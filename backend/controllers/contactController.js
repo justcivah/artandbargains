@@ -1,9 +1,8 @@
 const Mailgun = require('mailgun.js');
-const formData = require('form-data');
 const axios = require('axios');
 
 // Initialize Mailgun client
-const mailgun = new Mailgun(formData);
+const mailgun = new Mailgun(FormData);
 const mg = mailgun.client({
 	username: 'api',
 	key: process.env.MAILGUN_API_KEY
