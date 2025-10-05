@@ -55,7 +55,7 @@ const ItemDetailsForm = ({
 				</div>
 
 				<div className="form-group">
-					<label htmlFor="price">Price (in USD):</label>
+					<label htmlFor="price">Price (in EUR):</label>
 					<input
 						type="number"
 						id="price"

@@ -929,7 +929,7 @@ const ShopFilters = ({
 								<div className="filter-body">
 									<div className="price-range">
 										<div className="price-input">
-											<label htmlFor="min-price">Min $</label>
+											<label htmlFor="min-price">Min €</label>
 											<input
 												type="number"
 												id="min-price"
@@ -942,7 +942,7 @@ const ShopFilters = ({
 											/>
 										</div>
 										<div className="price-input">
-											<label htmlFor="max-price">Max $</label>
+											<label htmlFor="max-price">Max €</label>
 											<input
 												type="number"
 												id="max-price"

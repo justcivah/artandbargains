@@ -243,7 +243,7 @@ const ItemDetailPage = () => {
 		if (item.condition?.status) {
 			description += ` Condition: ${getConditionDisplayName(item.condition.status)}.`;
 		}
-		description += ` Available at Art & Bargains for $${item.price.toFixed(2)}.`;
+		description += ` Available at Art & Bargains for €${item.price.toFixed(2)}.`;
 
 		// Get the primary image
 		const primaryImage = item.images && item.images.length > 0 ? item.images[0] : null;
@@ -282,7 +282,7 @@ const ItemDetailPage = () => {
 			"offers": {
 				"@type": "Offer",
 				"price": metaData.price,
-				"priceCurrency": "USD",
+				"priceCurrency": "EUR",
 				"availability": `https://schema.org/${metaData.availability}`,
 				"seller": {
 					"@type": "Organization",
@@ -384,7 +384,7 @@ const ItemDetailPage = () => {
 		updateMetaTag('og:type', 'product', true);
 		updateMetaTag('og:site_name', 'Art & Bargains', true);
 		updateMetaTag('product:price:amount', metaData.price.toString(), true);
-		updateMetaTag('product:price:currency', 'USD', true);
+		updateMetaTag('product:price:currency', 'EUR', true);
 		updateMetaTag('product:availability', metaData.availability, true);
 
 		// Twitter Card meta tags
@@ -577,7 +577,7 @@ const ItemDetailPage = () => {
 
 						<div className='price-container'>
 							<div className="item-price">
-								${item.price.toFixed(2)}
+								€{item.price.toFixed(2)}
 							</div>
 
 							<div className="item-availability">

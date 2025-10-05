@@ -109,7 +109,7 @@ const ShopItems = ({ items, loading, error }) => {
 							</div>
 							<p className="item-description">{item.description || 'No description available'}</p>
 							<div className="item-price-row">
-								<span className="item-price">${item.price.toFixed(2)}</span>
+								<span className="item-price">€{item.price.toFixed(2)}</span>
 								{isOutOfStock(item) && (
 									<span className="stock-status">Out of Stock</span>
 								)}
