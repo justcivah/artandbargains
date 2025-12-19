@@ -25,7 +25,7 @@ const RecentAdditions = () => {
 				const transformedItems = data.map(item => ({
 					id: item.PK.replace('ITEM#', ''),
 					title: item.title,
-					author: item.primary_contributor_display || 'Unknown',
+					author: item.primary_contributor_display || 'Not Specified',
 					year: getYearFromDateInfo(item.date_info),
 					description: item.description || 'No description available',
 					category: formatCategory(item.item_type),
@@ -303,7 +303,9 @@ const RecentAdditions = () => {
 										<span className="item-category">{item.category}</span>
 										<h3 className="item-title">{item.title}</h3>
 										<div className="item-meta">
-											<span className="item-author">By {item.author}</span>
+											{item.author !== 'Not Specified' && (
+												<span className="item-author">By {item.author}</span>
+											)}
 											<span className="item-year">({item.year})</span>
 										</div>
 										<p className="item-description">{item.description}</p>

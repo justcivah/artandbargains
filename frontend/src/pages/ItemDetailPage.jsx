@@ -427,7 +427,8 @@ const ItemDetailPage = () => {
 			)}
 
 			<h1 className="item-title">
-				{item.title} ({formatDateInfo(item.date_info)}){primaryContributorName && ` - ${primaryContributorName}`}
+				{item.title} ({formatDateInfo(item.date_info)})
+				{primaryContributorName && primaryContributorName !== "Not Specified" ? ` - ${primaryContributorName}` : null}
 			</h1>
 		</div>
 	);

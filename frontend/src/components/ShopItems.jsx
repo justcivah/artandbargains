@@ -104,7 +104,9 @@ const ShopItems = ({ items, loading, error }) => {
 							<span className="item-category">{formatCategory(item.item_type)}</span>
 							<h3 className="item-title">{item.title}</h3>
 							<div className="item-meta">
-								<span className="item-author">By {item.primary_contributor_display || 'Unknown'}</span>
+								{item.author !== 'Not Specified' && (
+									<span className="item-author">By {item.author}</span>
+								)}
 								<span className="item-year">({getYearFromDateInfo(item.date_info)})</span>
 							</div>
 							<p className="item-description">{item.description || 'No description available'}</p>
