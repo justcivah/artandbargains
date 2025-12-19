@@ -11,12 +11,38 @@
 	transform: translateY(0);
 }
 
+/* Horizontal scroller (desktop + mobile) */
 .categories-container {
-	display: grid;
-	grid-template-columns: repeat(3, 1fr);
-	gap: var(--spacing-lg);
 	max-width: 1200px;
 	margin: 0 auto;
+
+	display: grid;
+	grid-auto-flow: column;
+	grid-auto-columns: minmax(280px, 1fr);
+	gap: var(--spacing-lg);
+
+	overflow-x: auto;
+	overflow-y: hidden;
+	-webkit-overflow-scrolling: touch;
+
+	/* Scroll snap for a "carousel-like" feel */
+	scroll-snap-type: x mandatory;
+
+	/* Small bottom padding so the (optional) scrollbar doesn't touch cards */
+	padding-bottom: 10px;
+}
+
+/* Hide scrollbar but keep scrolling (optional polish) */
+.categories-container {
+	scrollbar-width: none;
+	/* Firefox */
+	-ms-overflow-style: none;
+	/* Legacy Edge/IE */
+}
+
+.categories-container::-webkit-scrollbar {
+	display: none;
+	/* Chrome/Safari */
 }
 
 .category-card {
@@ -24,16 +50,21 @@
 	border-radius: var(--border-radius-md);
 	box-shadow: var(--shadow-md);
 	overflow: hidden;
+
 	transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+
 	opacity: 0;
 	transform: translateY(20px);
+
+	/* snap each card */
+	scroll-snap-align: start;
 }
 
 .category-card.fade-in {
 	opacity: 1;
 	transform: translateY(0);
 	animation: fadeIn 0.8s ease forwards;
-	animation-delay: calc(var(--index) * 0.2s);
+	animation-delay: calc(var(--index, 0) * 0.2s);
 }
 
 .category-card:hover {
@@ -62,10 +93,7 @@
 
 .category-image-overlay {
 	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
+	inset: 0;
 	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.3));
 	z-index: 1;
 	transition: var(--transition-normal);
@@ -92,7 +120,7 @@
 }
 
 .category-title-link::after {
-	content: '';
+	content: "";
 	position: absolute;
 	bottom: 0;
 	left: 0;
@@ -124,10 +152,15 @@
 	line-height: 1.6;
 }
 
-/* Media queries */
+/* Media queries: keep horizontal scroll, just tune card width/height */
 @media (max-width: 992px) {
 	.categories-container {
-		grid-template-columns: repeat(2, 1fr);
+		grid-auto-columns: minmax(260px, 1fr);
+		gap: var(--spacing-md);
+	}
+
+	.category-image-container {
+		height: 260px;
 	}
 }
 
@@ -137,6 +170,7 @@
 	}
 
 	.categories-container {
+		grid-auto-columns: minmax(240px, 80vw);
 		gap: var(--spacing-md);
 	}
 
@@ -147,13 +181,9 @@
 
 @media (max-width: 576px) {
 	.categories-container {
-		grid-template-columns: 1fr;
-		max-width: 400px;
-		margin: 0 auto;
-	}
-
-	.category-card {
-		margin-bottom: var(--spacing-md);
+		grid-auto-columns: 85vw;
+		/* big cards on mobile, easy swipe */
+		gap: var(--spacing-md);
 	}
 
 	.category-image-container {

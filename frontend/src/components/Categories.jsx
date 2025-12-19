@@ -62,6 +62,27 @@ const Categories = () => {
 			image: '/images/vintage-furnishing.png',
 			link: '/shop?sort=date_desc&page=1&limit=24&types=vintage_furnishing',
 		},
+		{
+			id: 4,
+			title: 'Japanese Woodblock Prints',
+			description: 'Authentic and elegant ukiyo-e–inspired woodblock prints',
+			image: '/images/japanese-woodblock-print.webp',
+			link: '/shop?sort=date_desc&page=1&limit=24&types=sculpture',
+		},
+		{
+			id: 5,
+			title: 'Ornaments',
+			description: 'Decorative ornaments curated for craftsmanship and charm',
+			image: '/images/ornaments.jpeg',
+			link: '/shop?sort=date_desc&page=1&limit=24&types=photography',
+		},
+		{
+			id: 6,
+			title: 'Lighting',
+			description: 'Statement lamps and lighting with refined details',
+			image: '/images/lighting.jpeg',
+			link: '/shop?sort=date_desc&page=1&limit=24&types=lighting',
+		},
 	];
 
 	return (
@@ -75,6 +96,7 @@ const Categories = () => {
 					<div
 						key={category.id}
 						className="category-card"
+						style={{ "--index": index }}
 						ref={(el) => (categoriesRef.current[index] = el)}
 					>
 						<Link to={category.link} className="category-image-link">
