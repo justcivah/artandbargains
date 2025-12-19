@@ -37,14 +37,14 @@ const Categories = () => {
 			title: 'Japanese Woodblock Prints',
 			description: 'Authentic and elegant ukiyo-e–inspired woodblock prints',
 			image: '/images/japanese-woodblock-print.webp',
-			link: '/shop?sort=date_desc&page=1&limit=24&types=sculpture',
+			link: '/shop?sort=date_desc&page=1&limit=24&types=japanese_woodblock_prints',
 		},
 		{
 			id: 5,
 			title: 'Ornaments',
 			description: 'Decorative ornaments curated for craftsmanship and charm',
 			image: '/images/ornaments.jpeg',
-			link: '/shop?sort=date_desc&page=1&limit=24&types=photography',
+			link: '/shop?sort=date_desc&page=1&limit=24&types=ornaments',
 		},
 		{
 			id: 6,
