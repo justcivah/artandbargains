@@ -20,7 +20,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('/src/assets/contact-background.jpg');
+    background-image: url('/src/assets/contact-background.webp');
     background-size: cover;
     background-position: center;
     opacity: 0.15;
