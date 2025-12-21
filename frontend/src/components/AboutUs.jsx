@@ -124,7 +124,7 @@ const AboutUs = () => {
 							</div>
 						</div>
 						<div className="about-image">
-							<img src="/images/craftman.jpeg" alt="Italian craftman" />
+							<img src="/images/craftman.webp" alt="Italian craftman" />
 						</div>
 					</div>
 				</section>
