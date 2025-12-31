@@ -148,7 +148,7 @@ const ImageGallery = ({ images, isSold = false }) => {
 
 				{/* SOLD Badge */}
 				{isSold && (
-					<div className="sold-badge">
+					<div className="out-of-stock-badge">
 						SOLD
 					</div>
 				)}
