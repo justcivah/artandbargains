@@ -492,7 +492,10 @@ const ItemDetailPage = () => {
 				<div className="item-detail-grid">
 					{/* Left side: Images */}
 					<div className="item-images">
-						<ImageGallery images={item.images} />
+						<ImageGallery 
+							images={item.images} 
+							isSold={item.inventory_quantity === 0}
+						/>
 					</div>
 
 					{/* Right side: Information */}
