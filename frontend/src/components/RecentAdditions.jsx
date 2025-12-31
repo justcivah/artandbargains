@@ -311,9 +311,6 @@ const RecentAdditions = () => {
 										<p className="item-description">{item.description}</p>
 										<div className="item-price-row">
 											<span className="item-price">${item.price.toFixed(2)}</span>
-											{isOutOfStock(item) && (
-												<span className="stock-status">Sold</span>
-											)}
 										</div>
 									</div>
 								</Link>
