@@ -585,7 +585,7 @@ const ItemDetailPage = () => {
 								{item.inventory_quantity > 0 ? (
 									<span className="in-stock">In Stock: {item.inventory_quantity} available</span>
 								) : (
-									<span className="out-of-stock">Out of Stock</span>
+									<span className="out-of-stock">Sold</span>
 								)}
 							</div>
 						</div>
